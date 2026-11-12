@@ -2,9 +2,20 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+.ruff_cache/
 # Run outputs: logs, checkpoints, activations. Benchmark JSON under bench/results is kept.
 runs/
 data/
+# Model weights and caches never belong in the repo.
 *.safetensors
 *.npy
+*.npz
+*.gguf
+*.bin
+*.pt
+*.pth
+*.ckpt
+.env
 .DS_Store
+# Working notes that stay on this machine.
+briefs/
