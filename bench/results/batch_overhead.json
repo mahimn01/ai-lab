@@ -1,0 +1,392 @@
+{
+  "qwen3.5-0.8b-4bit": {
+    "environment": {
+      "when": "2026-11-11T19:59:42",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 71,
+      "swap_used_gb_at_start": 12.38
+    },
+    "single_ms_per_token": 3.396919280930888,
+    "batches": {
+      "1": {
+        "generator_ms_per_step": 3.536937612807378,
+        "generator_wall_ms_per_step": 3.644533207989298,
+        "raw_ms_per_step": 4.607296876201872,
+        "raw_tokens_per_s": 217.04700757733076,
+        "generator_tokens_per_s": 274.38356105738535
+      },
+      "2": {
+        "generator_ms_per_step": 4.75806637405185,
+        "generator_wall_ms_per_step": 4.879468106082641,
+        "raw_ms_per_step": 5.841195954417344,
+        "raw_tokens_per_s": 342.39563534716217,
+        "generator_tokens_per_s": 409.8807403837403
+      },
+      "4": {
+        "generator_ms_per_step": 7.143082060792949,
+        "generator_wall_ms_per_step": 7.299980483367108,
+        "raw_ms_per_step": 8.541400391550269,
+        "raw_tokens_per_s": 468.30728178450346,
+        "generator_tokens_per_s": 547.9466704210975
+      },
+      "8": {
+        "generator_ms_per_step": 12.33957352815196,
+        "generator_wall_ms_per_step": 12.59743623813847,
+        "raw_ms_per_step": 13.722231109568384,
+        "raw_tokens_per_s": 582.9955738335929,
+        "generator_tokens_per_s": 635.049850522773
+      },
+      "16": {
+        "generator_ms_per_step": 16.620580725430045,
+        "generator_wall_ms_per_step": 16.959707048954442,
+        "raw_ms_per_step": 17.864228517282754,
+        "raw_tokens_per_s": 895.6446109341243,
+        "generator_tokens_per_s": 943.4125220332973
+      },
+      "32": {
+        "generator_ms_per_step": 18.764441330858972,
+        "generator_wall_ms_per_step": 19.236211577663198,
+        "raw_ms_per_step": 20.168759125226643,
+        "raw_tokens_per_s": 1586.6122353543851,
+        "generator_tokens_per_s": 1663.5292178402697
+      },
+      "64": {
+        "generator_ms_per_step": 31.99122526712017,
+        "generator_wall_ms_per_step": 32.6789257596829,
+        "raw_ms_per_step": 32.944208331173286,
+        "raw_tokens_per_s": 1942.6783414139697,
+        "generator_tokens_per_s": 1958.448710053957
+      }
+    }
+  },
+  "qwen3.5-9b-4bit": {
+    "environment": {
+      "when": "2026-11-11T20:00:13",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 59,
+      "swap_used_gb_at_start": 12.33
+    },
+    "single_ms_per_token": 15.965077465807553,
+    "batches": {
+      "1": {
+        "generator_ms_per_step": 16.345229218131863,
+        "generator_wall_ms_per_step": 16.578389302594587,
+        "raw_ms_per_step": 17.790033205528744,
+        "raw_tokens_per_s": 56.21124977379033,
+        "generator_tokens_per_s": 60.31949073867482
+      },
+      "2": {
+        "generator_ms_per_step": 24.06196676020045,
+        "generator_wall_ms_per_step": 24.357245441933628,
+        "raw_ms_per_step": 25.667613932455424,
+        "raw_tokens_per_s": 77.91920220021306,
+        "generator_tokens_per_s": 82.11109112349725
+      },
+      "4": {
+        "generator_ms_per_step": 44.16719009896042,
+        "generator_wall_ms_per_step": 44.64409701176919,
+        "raw_ms_per_step": 45.62943945347797,
+        "raw_tokens_per_s": 87.66270302483656,
+        "generator_tokens_per_s": 89.59751160260919
+      },
+      "8": {
+        "generator_ms_per_step": 103.46724728151457,
+        "generator_wall_ms_per_step": 104.56290041474858,
+        "raw_ms_per_step": 105.41129753255518,
+        "raw_tokens_per_s": 75.89319349312898,
+        "generator_tokens_per_s": 76.50897180805059
+      },
+      "16": {
+        "generator_ms_per_step": 113.67517186590703,
+        "generator_wall_ms_per_step": 115.01462435990106,
+        "raw_ms_per_step": 115.41181184293237,
+        "raw_tokens_per_s": 138.63399026934016,
+        "generator_tokens_per_s": 139.11274404490663
+      },
+      "32": {
+        "generator_ms_per_step": 112.28778319491539,
+        "generator_wall_ms_per_step": 114.00339060492115,
+        "raw_ms_per_step": 114.04691601637751,
+        "raw_tokens_per_s": 280.5862807846965,
+        "generator_tokens_per_s": 280.6934059610212
+      },
+      "64": {
+        "generator_ms_per_step": 214.0044589759782,
+        "generator_wall_ms_per_step": 217.2954427296645,
+        "raw_ms_per_step": 215.42855729785515,
+        "raw_tokens_per_s": 297.08224760337845,
+        "generator_tokens_per_s": 294.52987690874807
+      }
+    }
+  },
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-11T20:39:07",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 61,
+      "swap_used_gb_at_start": 10.96
+    },
+    "single_ms_per_token": 10.014001294621266,
+    "batches": {
+      "1": {
+        "generator_ms_per_step": 10.267529301927425,
+        "generator_wall_ms_per_step": 10.486246734217275,
+        "raw_ms_per_step": 12.09776757605141,
+        "raw_tokens_per_s": 82.65987866882048,
+        "generator_tokens_per_s": 95.36300502418447
+      },
+      "2": {
+        "generator_ms_per_step": 14.922494803613517,
+        "generator_wall_ms_per_step": 15.187517601589207,
+        "raw_ms_per_step": 16.566861333558336,
+        "raw_tokens_per_s": 120.72292751969496,
+        "generator_tokens_per_s": 131.68709017928788
+      },
+      "4": {
+        "generator_ms_per_step": 26.19725131080486,
+        "generator_wall_ms_per_step": 26.51767773932079,
+        "raw_ms_per_step": 28.180756511574145,
+        "raw_tokens_per_s": 141.94083109007937,
+        "generator_tokens_per_s": 150.84277135130665
+      },
+      "8": {
+        "generator_ms_per_step": 58.66882242116844,
+        "generator_wall_ms_per_step": 59.25816601666156,
+        "raw_ms_per_step": 61.13902865763521,
+        "raw_tokens_per_s": 130.84931467914214,
+        "generator_tokens_per_s": 135.00249058924044
+      },
+      "16": {
+        "generator_ms_per_step": 66.09764262975659,
+        "generator_wall_ms_per_step": 66.94030208018376,
+        "raw_ms_per_step": 67.94267448276514,
+        "raw_tokens_per_s": 235.4926431996533,
+        "generator_tokens_per_s": 239.01893930557057
+      },
+      "32": {
+        "generator_ms_per_step": 69.30141013435787,
+        "generator_wall_ms_per_step": 70.43074870307464,
+        "raw_ms_per_step": 71.17618618212873,
+        "raw_tokens_per_s": 449.58857332025354,
+        "generator_tokens_per_s": 454.3470087888338
+      },
+      "64": {
+        "generator_ms_per_step": 130.96703706105473,
+        "generator_wall_ms_per_step": 133.28023436042713,
+        "raw_ms_per_step": 131.17272329691332,
+        "raw_tokens_per_s": 487.90631460120045,
+        "generator_tokens_per_s": 480.19123245931615
+      }
+    }
+  },
+  "qwen3.5-4b-mxfp4": {
+    "environment": {
+      "when": "2026-11-11T20:41:02",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 63,
+      "swap_used_gb_at_start": 10.94
+    },
+    "single_ms_per_token": 11.001936843967997,
+    "batches": {
+      "1": {
+        "generator_ms_per_step": 11.36200585460756,
+        "generator_wall_ms_per_step": 11.59249218471814,
+        "raw_ms_per_step": 12.900485686259344,
+        "raw_tokens_per_s": 77.51646134262425,
+        "generator_tokens_per_s": 86.26272798512255
+      },
+      "2": {
+        "generator_ms_per_step": 14.430998751777224,
+        "generator_wall_ms_per_step": 14.66595182864694,
+        "raw_ms_per_step": 16.116384766064584,
+        "raw_tokens_per_s": 124.09731022377262,
+        "generator_tokens_per_s": 136.37028290883984
+      },
+      "4": {
+        "generator_ms_per_step": 23.271576159459073,
+        "generator_wall_ms_per_step": 23.57356507855002,
+        "raw_ms_per_step": 25.629692063375842,
+        "raw_tokens_per_s": 156.06898397799696,
+        "generator_tokens_per_s": 169.68158980924218
+      },
+      "8": {
+        "generator_ms_per_step": 59.22882945014862,
+        "generator_wall_ms_per_step": 59.834834646608215,
+        "raw_ms_per_step": 61.69408529967768,
+        "raw_tokens_per_s": 129.6720740917087,
+        "generator_tokens_per_s": 133.7013805962525
+      },
+      "16": {
+        "generator_ms_per_step": 68.48056773742428,
+        "generator_wall_ms_per_step": 69.34015041042585,
+        "raw_ms_per_step": 70.22429882636061,
+        "raw_tokens_per_s": 227.841363565085,
+        "generator_tokens_per_s": 230.74654302443324
+      },
+      "32": {
+        "generator_ms_per_step": 72.02851698093582,
+        "generator_wall_ms_per_step": 73.28510479419492,
+        "raw_ms_per_step": 73.97215493983822,
+        "raw_tokens_per_s": 432.5952113471035,
+        "generator_tokens_per_s": 436.65080496050257
+      },
+      "64": {
+        "generator_ms_per_step": 136.24556639842922,
+        "generator_wall_ms_per_step": 138.5837675697985,
+        "raw_ms_per_step": 137.09013933112146,
+        "raw_tokens_per_s": 466.8461226479406,
+        "generator_tokens_per_s": 461.8145481415493
+      }
+    }
+  },
+  "qwen3.5-9b-4bit-rerun": {
+    "environment": {
+      "when": "2026-11-11T20:43:05",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 54,
+      "swap_used_gb_at_start": 10.81
+    },
+    "single_ms_per_token": 16.102256515296176,
+    "batches": {
+      "1": {
+        "generator_ms_per_step": 16.756125092797447,
+        "generator_wall_ms_per_step": 17.003600914904382,
+        "raw_ms_per_step": 18.337451831030194,
+        "raw_tokens_per_s": 54.533203915923814,
+        "generator_tokens_per_s": 58.811072137282245
+      },
+      "2": {
+        "generator_ms_per_step": 24.074415341601707,
+        "generator_wall_ms_per_step": 24.3805507561774,
+        "raw_ms_per_step": 25.886694660584908,
+        "raw_tokens_per_s": 77.2597670820138,
+        "generator_tokens_per_s": 82.03260131411314
+      },
+      "4": {
+        "generator_ms_per_step": 44.21702859690413,
+        "generator_wall_ms_per_step": 44.693843090499286,
+        "raw_ms_per_step": 46.209423191612586,
+        "raw_tokens_per_s": 86.56243085773976,
+        "generator_tokens_per_s": 89.49778590085695
+      },
+      "8": {
+        "generator_ms_per_step": 104.56135350978002,
+        "generator_wall_ms_per_step": 105.68324474297697,
+        "raw_ms_per_step": 107.29639648343436,
+        "raw_tokens_per_s": 74.55981992121357,
+        "generator_tokens_per_s": 75.69790291219866
+      },
+      "16": {
+        "generator_ms_per_step": 114.55308784934459,
+        "generator_wall_ms_per_step": 115.9317636556807,
+        "raw_ms_per_step": 116.6584609381971,
+        "raw_tokens_per_s": 137.1525037388966,
+        "generator_tokens_per_s": 138.0122193907122
+      },
+      "32": {
+        "generator_ms_per_step": 113.93650248646736,
+        "generator_wall_ms_per_step": 115.64546289446298,
+        "raw_ms_per_step": 115.09435547486646,
+        "raw_tokens_per_s": 278.03274859111525,
+        "generator_tokens_per_s": 276.7077860132128
+      },
+      "64": {
+        "generator_ms_per_step": 217.2515618876787,
+        "generator_wall_ms_per_step": 220.6794921803521,
+        "raw_ms_per_step": 218.54718620306812,
+        "raw_tokens_per_s": 292.84293754545496,
+        "generator_tokens_per_s": 290.01335542178737
+      }
+    }
+  },
+  "qwen3.5-9b-4bit-arch-g15s": {
+    "environment": {
+      "when": "2026-11-11T20:46:26",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 52,
+      "swap_used_gb_at_start": 10.41
+    },
+    "single_ms_per_token": 16.082549474958796,
+    "batches": {
+      "1": {
+        "generator_ms_per_step": 16.415254576713778,
+        "generator_wall_ms_per_step": 16.680666034517344,
+        "raw_ms_per_step": 18.357663408096414,
+        "raw_tokens_per_s": 54.473163483265665,
+        "generator_tokens_per_s": 59.94964457238683
+      },
+      "2": {
+        "generator_ms_per_step": 35.958602784376126,
+        "generator_wall_ms_per_step": 36.38427279656753,
+        "raw_ms_per_step": 39.26445051911287,
+        "raw_tokens_per_s": 50.93666086136757,
+        "generator_tokens_per_s": 54.96880509835774
+      },
+      "4": {
+        "generator_ms_per_step": 64.51457947696326,
+        "generator_wall_ms_per_step": 65.15274998673704,
+        "raw_ms_per_step": 70.17607421585126,
+        "raw_tokens_per_s": 56.99948372285103,
+        "generator_tokens_per_s": 61.39418521573178
+      },
+      "8": {
+        "generator_ms_per_step": 134.29997919593006,
+        "generator_wall_ms_per_step": 135.60576560848858,
+        "raw_ms_per_step": 136.98721874970943,
+        "raw_tokens_per_s": 58.39960890524299,
+        "generator_tokens_per_s": 58.99454174461163
+      },
+      "16": {
+        "generator_ms_per_step": 114.47427334496751,
+        "generator_wall_ms_per_step": 115.85091080632992,
+        "raw_ms_per_step": 116.47988996992353,
+        "raw_tokens_per_s": 137.36276711912575,
+        "generator_tokens_per_s": 138.10853871272096
+      },
+      "32": {
+        "generator_ms_per_step": 113.30169469147222,
+        "generator_wall_ms_per_step": 115.03062564588618,
+        "raw_ms_per_step": 115.35066926444415,
+        "raw_tokens_per_s": 277.4149487302864,
+        "generator_tokens_per_s": 278.18678565228174
+      },
+      "64": {
+        "generator_ms_per_step": 217.5614361622138,
+        "generator_wall_ms_per_step": 220.8936777387862,
+        "raw_ms_per_step": 218.83134244853863,
+        "raw_tokens_per_s": 292.46267597636535,
+        "generator_tokens_per_s": 289.73214921833136
+      }
+    }
+  }
+}

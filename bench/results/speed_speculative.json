@@ -1,0 +1,66 @@
+{
+  "mlx-community/Qwen3.5-9B-4bit + draft mlx-community/Qwen3.5-0.8B-4bit": {
+    "environment": {
+      "when": "2026-11-11T20:38:37",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 73,
+      "swap_used_gb_at_start": 10.98
+    },
+    "arms": {
+      "no draft": {
+        "generation_tps_mean": 61.19398573202092,
+        "generation_tps_sd": 0.10910973789512593,
+        "share_of_tokens_from_draft": 0.0
+      },
+      "draft 2 tokens": {
+        "error": "ValueError: Speculative decoding requires a trimmable prompt cache (got {'ArraysCache'})."
+      },
+      "draft 3 tokens": {
+        "error": "ValueError: Speculative decoding requires a trimmable prompt cache (got {'ArraysCache'})."
+      },
+      "draft 4 tokens": {
+        "error": "ValueError: Speculative decoding requires a trimmable prompt cache (got {'ArraysCache'})."
+      }
+    }
+  },
+  "mlx-community/Qwen3-4B-Instruct-2507-4bit + draft mlx-community/Qwen3-0.6B-4bit": {
+    "environment": {
+      "when": "2026-11-11T21:48:49",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 10.98
+    },
+    "arms": {
+      "no draft": {
+        "generation_tps_mean": 107.99901289906538,
+        "generation_tps_sd": 0.7252214971080441,
+        "share_of_tokens_from_draft": 0.0
+      },
+      "draft 2 tokens": {
+        "generation_tps_mean": 95.42252522748797,
+        "generation_tps_sd": 5.2737863414104895,
+        "share_of_tokens_from_draft": 0.6171875
+      },
+      "draft 3 tokens": {
+        "generation_tps_mean": 92.33160742787771,
+        "generation_tps_sd": 7.942413604139248,
+        "share_of_tokens_from_draft": 0.693359375
+      },
+      "draft 4 tokens": {
+        "generation_tps_mean": 87.76426099654444,
+        "generation_tps_sd": 11.654670999283626,
+        "share_of_tokens_from_draft": 0.73828125
+      }
+    }
+  }
+}

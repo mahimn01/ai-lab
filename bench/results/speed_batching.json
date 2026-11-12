@@ -1,0 +1,119 @@
+{
+  "mlx-community/Qwen3.5-4B-4bit": {
+    "model": "mlx-community/Qwen3.5-4B-4bit",
+    "environment": {
+      "when": "2026-11-11T20:21:16",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 77,
+      "swap_used_gb_at_start": 11.71
+    },
+    "short_prompt_tokens_mean": 120.5625,
+    "long_prompt_tokens_mean": 2821.5625,
+    "long_shared_prefix_tokens": 2747,
+    "exp1 batch 1 (16 questions)": {
+      "wall_s": 45.48565737484023,
+      "new_tokens": 4008,
+      "end_to_end_tps": 88.11568813814638,
+      "generation_tps": 96.74057215556638,
+      "prompt_tps": 595.1768589575792,
+      "peak_memory_gb": 3.299584027,
+      "prefix_tokens_reused": 0,
+      "prompts": 16
+    },
+    "exp1 batch 4": {
+      "wall_s": 119.81893783295527,
+      "new_tokens": 15728,
+      "end_to_end_tps": 131.26472563066017,
+      "generation_tps": 150.1067282473246,
+      "prompt_tps": 509.2752570334041,
+      "peak_memory_gb": 4.444064522,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp1 batch 8": {
+      "wall_s": 127.78976304084063,
+      "new_tokens": 15864,
+      "end_to_end_tps": 124.14139929917538,
+      "generation_tps": 143.13505415296999,
+      "prompt_tps": 451.91664279207805,
+      "peak_memory_gb": 5.398222998,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp1 batch 16": {
+      "wall_s": 86.57837754208595,
+      "new_tokens": 15914,
+      "end_to_end_tps": 183.81032830355556,
+      "generation_tps": 229.30094402388266,
+      "prompt_tps": 445.8269484443936,
+      "peak_memory_gb": 6.286630643,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp1 batch 32": {
+      "wall_s": 56.3505397089757,
+      "new_tokens": 15810,
+      "end_to_end_tps": 280.5651921286165,
+      "generation_tps": 411.9877495193362,
+      "prompt_tps": 425.91905976002715,
+      "peak_memory_gb": 8.306235847,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp1 batch 64": {
+      "wall_s": 58.63462287513539,
+      "new_tokens": 15780,
+      "end_to_end_tps": 269.1242686697942,
+      "generation_tps": 401.5930451418932,
+      "prompt_tps": 396.30877286058313,
+      "peak_memory_gb": 12.266730427,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp1 batch 16 sorted by length": {
+      "wall_s": 83.30670995824039,
+      "new_tokens": 15794,
+      "end_to_end_tps": 189.58856985130183,
+      "generation_tps": 228.0296682032181,
+      "prompt_tps": 545.1927640250371,
+      "peak_memory_gb": 6.175366974,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp1 batch 32 sorted by length": {
+      "wall_s": 51.67972716735676,
+      "new_tokens": 15792,
+      "end_to_end_tps": 305.5743686273742,
+      "generation_tps": 414.9017667949079,
+      "prompt_tps": 562.2549666612454,
+      "peak_memory_gb": 7.945963108,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp2 long prompts, batch 32, no reuse": {
+      "wall_s": 331.50947733270004,
+      "new_tokens": 15580,
+      "end_to_end_tps": 46.99714809167898,
+      "generation_tps": 298.2092905063401,
+      "prompt_tps": 646.4371563437481,
+      "peak_memory_gb": 15.881783732,
+      "prefix_tokens_reused": 0,
+      "prompts": 64
+    },
+    "exp2 long prompts, batch 32, prefix reused": {
+      "wall_s": 65.90946725010872,
+      "new_tokens": 15615,
+      "end_to_end_tps": 236.9158885891957,
+      "generation_tps": 334.53936728905194,
+      "prompt_tps": 308.0861715736496,
+      "peak_memory_gb": 14.614802184,
+      "prefix_tokens_reused": 2747,
+      "prompts": 64
+    }
+  }
+}

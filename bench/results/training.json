@@ -1,0 +1,389 @@
+{
+  "s | mlx float32 compiled": {
+    "tokens_per_s": 53644.49712008823,
+    "steps": 66,
+    "final_loss": 9.027385711669922,
+    "loss_is_finite": true,
+    "peak_memory_gb": 7.857318539172411,
+    "environment": {
+      "when": "2026-11-11T19:41:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 64,
+      "swap_used_gb_at_start": 12.01
+    }
+  },
+  "s | mlx float32 not compiled": {
+    "tokens_per_s": 48746.27168111229,
+    "steps": 60,
+    "final_loss": 9.030202865600586,
+    "loss_is_finite": true,
+    "peak_memory_gb": 6.716776557266712,
+    "environment": {
+      "when": "2026-11-11T19:41:30",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 56,
+      "swap_used_gb_at_start": 11.99
+    }
+  },
+  "s | mlx bfloat16 compiled": {
+    "tokens_per_s": 62323.361179844826,
+    "steps": 77,
+    "final_loss": 9.02969741821289,
+    "loss_is_finite": true,
+    "peak_memory_gb": 4.035875182598829,
+    "environment": {
+      "when": "2026-11-11T19:41:55",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 64,
+      "swap_used_gb_at_start": 11.96
+    }
+  },
+  "s | mlx float16 compiled": {
+    "tokens_per_s": 71982.07377896759,
+    "steps": 88,
+    "final_loss": NaN,
+    "loss_is_finite": false,
+    "peak_memory_gb": 4.035875182598829,
+    "environment": {
+      "when": "2026-11-11T19:42:19",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 66,
+      "swap_used_gb_at_start": 11.83
+    }
+  },
+  "s | torch-mps float32": {
+    "tokens_per_s": 39295.70903949756,
+    "steps": 48,
+    "final_loss": 36.06781768798828,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 7.12884521484375,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:42:46",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 55,
+      "swap_used_gb_at_start": 11.79
+    }
+  },
+  "s | torch-mps autocast float16": {
+    "tokens_per_s": 38665.89204091743,
+    "steps": 48,
+    "final_loss": 36.274742126464844,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 6.63665771484375,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:43:08",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 55,
+      "swap_used_gb_at_start": 11.74
+    }
+  },
+  "s | torch-mps autocast bfloat16": {
+    "tokens_per_s": 29573.596215399968,
+    "steps": 37,
+    "final_loss": 38.672237396240234,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 6.63665771484375,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:43:30",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 62,
+      "swap_used_gb_at_start": 11.73
+    }
+  },
+  "m | mlx float32 compiled": {
+    "tokens_per_s": 28417.520042343654,
+    "steps": 35,
+    "final_loss": 9.048127174377441,
+    "loss_is_finite": true,
+    "peak_memory_gb": 10.931272648274899,
+    "environment": {
+      "when": "2026-11-11T19:43:52",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 49,
+      "swap_used_gb_at_start": 11.56
+    }
+  },
+  "m | mlx float32 not compiled": {
+    "tokens_per_s": 24880.45510683087,
+    "steps": 31,
+    "final_loss": 9.05113410949707,
+    "loss_is_finite": true,
+    "peak_memory_gb": 9.190307203680277,
+    "environment": {
+      "when": "2026-11-11T19:44:15",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 52,
+      "swap_used_gb_at_start": 11.56
+    }
+  },
+  "m | mlx bfloat16 compiled": {
+    "tokens_per_s": 32256.09318081553,
+    "steps": 40,
+    "final_loss": 9.050453186035156,
+    "loss_is_finite": true,
+    "peak_memory_gb": 5.561957463622093,
+    "environment": {
+      "when": "2026-11-11T19:44:37",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 62,
+      "swap_used_gb_at_start": 11.44
+    }
+  },
+  "m | mlx float16 compiled": {
+    "tokens_per_s": 37243.581650825865,
+    "steps": 46,
+    "final_loss": NaN,
+    "loss_is_finite": false,
+    "peak_memory_gb": 5.561957463622093,
+    "environment": {
+      "when": "2026-11-11T19:44:59",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 62,
+      "swap_used_gb_at_start": 11.43
+    }
+  },
+  "m | torch-mps float32": {
+    "tokens_per_s": 21100.11862270555,
+    "steps": 26,
+    "final_loss": 47.7808837890625,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 10.73956298828125,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:45:22",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 52,
+      "swap_used_gb_at_start": 11.41
+    }
+  },
+  "m | torch-mps autocast float16": {
+    "tokens_per_s": 21086.05395273291,
+    "steps": 26,
+    "final_loss": 47.90315246582031,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 8.74737548828125,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:45:45",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 49,
+      "swap_used_gb_at_start": 11.41
+    }
+  },
+  "m | torch-mps autocast bfloat16": {
+    "tokens_per_s": 15640.344904137395,
+    "steps": 20,
+    "final_loss": 50.82204055786133,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 8.74737548828125,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:46:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 49,
+      "swap_used_gb_at_start": 11.3
+    }
+  },
+  "gpt2 | mlx float32 compiled": {
+    "tokens_per_s": 125.20158489658985,
+    "steps": 1,
+    "final_loss": 9.141433715820312,
+    "loss_is_finite": true,
+    "peak_memory_gb": 20.377011436969042,
+    "environment": {
+      "when": "2026-11-11T19:52:15",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 16.68
+    }
+  },
+  "gpt2 | mlx float32 not compiled": {
+    "tokens_per_s": 201.43169672787047,
+    "steps": 1,
+    "final_loss": 9.141432762145996,
+    "loss_is_finite": true,
+    "peak_memory_gb": 18.688775315880775,
+    "environment": {
+      "when": "2026-11-11T19:55:46",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 82,
+      "swap_used_gb_at_start": 16.61
+    }
+  },
+  "gpt2 | mlx bfloat16 compiled": {
+    "tokens_per_s": 11435.5152889403,
+    "steps": 14,
+    "final_loss": 9.130094528198242,
+    "loss_is_finite": true,
+    "peak_memory_gb": 10.33432636782527,
+    "environment": {
+      "when": "2026-11-11T19:56:10",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 51,
+      "swap_used_gb_at_start": 13.15
+    }
+  },
+  "gpt2 | mlx float16 compiled": {
+    "tokens_per_s": 13222.175134734067,
+    "steps": 17,
+    "final_loss": NaN,
+    "loss_is_finite": false,
+    "peak_memory_gb": 10.33432636782527,
+    "environment": {
+      "when": "2026-11-11T19:56:35",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 52,
+      "swap_used_gb_at_start": 12.9
+    }
+  },
+  "gpt2 | torch-mps float32": {
+    "tokens_per_s": 8191.284406043328,
+    "steps": 10,
+    "final_loss": 74.52932739257812,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 21.13250732421875,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:57:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 40,
+      "swap_used_gb_at_start": 13.9
+    }
+  },
+  "gpt2 | torch-mps autocast float16": {
+    "tokens_per_s": 8176.026990453159,
+    "steps": 10,
+    "final_loss": 74.46115112304688,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 18.13250732421875,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:57:37",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 26,
+      "swap_used_gb_at_start": 13.06
+    }
+  },
+  "gpt2 | torch-mps autocast bfloat16": {
+    "tokens_per_s": 5793.605265659399,
+    "steps": 8,
+    "final_loss": 78.68895721435547,
+    "loss_is_finite": true,
+    "driver_allocated_gb": 18.13250732421875,
+    "torch": "2.15.0",
+    "environment": {
+      "when": "2026-11-11T19:58:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 40,
+      "swap_used_gb_at_start": 12.89
+    }
+  }
+}

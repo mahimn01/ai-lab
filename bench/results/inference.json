@@ -1,0 +1,402 @@
+{
+  "qwen3.5-0.8b-bf16": {
+    "path": "/Users/mahimnpatel/Documents/Dev/neural-harness/models/base",
+    "load_s": 1.0475833746604621,
+    "weights_gb": 1.4014460444450378,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 3476.2645072041187,
+          "sd": 794.7406756407014,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 120.5359757840515,
+          "sd": 12.023850408872523,
+          "n": 3
+        },
+        "peak_memory_gb": 2.29846248
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 5599.607534137262,
+          "sd": 66.12728881047508,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 377.45568542458886,
+          "sd": 10.575412909497262,
+          "n": 3
+        },
+        "peak_memory_gb": 3.536707346
+      },
+      "32": {
+        "prompt_tps": {
+          "mean": 5044.295793121127,
+          "sd": 14.02984308981508,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 1076.3235037067516,
+          "sd": 1.7399146825222298,
+          "n": 3
+        },
+        "peak_memory_gb": 4.267701214
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:04:39",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 72,
+      "swap_used_gb_at_start": 12.94
+    }
+  },
+  "qwen3.5-0.8b-4bit": {
+    "path": "mlx-community/Qwen3.5-0.8B-4bit",
+    "load_s": 1.2607759167440236,
+    "weights_gb": 0.39482325315475464,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 3542.7748020238673,
+          "sd": 105.00956142615071,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 234.5776599473887,
+          "sd": 9.612056690817283,
+          "n": 3
+        },
+        "peak_memory_gb": 1.17327842
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 4062.0167689137406,
+          "sd": 11.377495355339708,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 568.567517502341,
+          "sd": 2.6166502696923413,
+          "n": 3
+        },
+        "peak_memory_gb": 2.390990098
+      },
+      "32": {
+        "prompt_tps": {
+          "mean": 4065.2389074142543,
+          "sd": 8.34396617156251,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 1350.8603234381842,
+          "sd": 5.9682003030618045,
+          "n": 3
+        },
+        "peak_memory_gb": 3.121983966
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:05:59",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 67,
+      "swap_used_gb_at_start": 12.58
+    }
+  },
+  "qwen3.5-4b-bf16": {
+    "path": "/Users/mahimnpatel/Documents/Dev/neural-harness/models/qwen3.5-4b",
+    "load_s": 3.266660625115037,
+    "weights_gb": 7.833829402923584,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 756.198150421709,
+          "sd": 4.419985975713591,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 31.406634434002598,
+          "sd": 0.6076539249481367,
+          "n": 3
+        },
+        "peak_memory_gb": 9.041006212
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 888.4862258859297,
+          "sd": 135.30073532585067,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 96.14414368160344,
+          "sd": 2.1951309671571786,
+          "n": 3
+        },
+        "peak_memory_gb": 11.364764598
+      },
+      "32": {
+        "prompt_tps": {
+          "mean": 852.1722201087831,
+          "sd": 104.45290333499713,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 299.1014477403975,
+          "sd": 13.898125954363584,
+          "n": 3
+        },
+        "peak_memory_gb": 13.244786522
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:07:04",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 68,
+      "swap_used_gb_at_start": 12.35
+    }
+  },
+  "qwen3.5-4b-4bit": {
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "load_s": 1.6978934998624027,
+    "weights_gb": 2.2045512199401855,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 705.8630395613769,
+          "sd": 3.972617255438918,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 96.08282558887376,
+          "sd": 0.4335913090242168,
+          "n": 3
+        },
+        "peak_memory_gb": 3.391686364
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 724.3615082145249,
+          "sd": 27.729930559551747,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 130.20505448504025,
+          "sd": 6.630485543270356,
+          "n": 3
+        },
+        "peak_memory_gb": 5.312164784
+      },
+      "32": {
+        "prompt_tps": {
+          "mean": 720.2893693492301,
+          "sd": 21.86819073467803,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 413.1068194904302,
+          "sd": 7.560750491986789,
+          "n": 3
+        },
+        "peak_memory_gb": 7.372638586
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:12:43",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 59,
+      "swap_used_gb_at_start": 10.8
+    }
+  },
+  "qwen3.5-9b-4bit": {
+    "path": "mlx-community/Qwen3.5-9B-4bit",
+    "load_s": 2.0135651249438524,
+    "weights_gb": 4.692041873931885,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 337.0529588968646,
+          "sd": 25.99409758519993,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 56.740638252708905,
+          "sd": 2.4264620739125418,
+          "n": 3
+        },
+        "peak_memory_gb": 5.926847126
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 365.1399892257521,
+          "sd": 22.12609977276697,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 74.12169782348745,
+          "sd": 1.993406950182629,
+          "n": 3
+        },
+        "peak_memory_gb": 8.069709738
+      },
+      "32": {
+        "prompt_tps": {
+          "mean": 393.18182247119273,
+          "sd": 2.5893896803560135,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 257.73417050522835,
+          "sd": 4.8842141706361435,
+          "n": 3
+        },
+        "peak_memory_gb": 9.949731658
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:17:13",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 63,
+      "swap_used_gb_at_start": 10.46
+    }
+  },
+  "qwen3.5-9b-8bit": {
+    "path": "mlx-community/Qwen3.5-9B-8bit",
+    "load_s": 3.4770545000210404,
+    "weights_gb": 8.860987186431885,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 379.29164868203736,
+          "sd": 1.850978333810036,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 35.85760268114409,
+          "sd": 0.21216885548280415,
+          "n": 3
+        },
+        "peak_memory_gb": 10.262626948
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 393.50197899572095,
+          "sd": 16.09282446446997,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 74.21534638096257,
+          "sd": 0.07978789390181368,
+          "n": 3
+        },
+        "peak_memory_gb": 12.512591786
+      },
+      "32": {
+        "prompt_tps": {
+          "mean": 402.66513177555845,
+          "sd": 3.4485487188241506,
+          "n": 3
+        },
+        "generation_tps": {
+          "mean": 258.5731524990617,
+          "sd": 2.433336707616762,
+          "n": 3
+        },
+        "peak_memory_gb": 14.392613718
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:25:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 59,
+      "swap_used_gb_at_start": 9.75
+    }
+  },
+  "qwen3.8-27b-4bit": {
+    "path": "mlx-community/Qwen3.8-27B-4bit",
+    "load_s": 5.6071048327721655,
+    "weights_gb": 14.093520164489746,
+    "prompt_tokens": 512,
+    "generation_tokens": 256,
+    "batches": {
+      "1": {
+        "prompt_tps": {
+          "mean": 108.15281817593828,
+          "sd": 0.31694854730327854,
+          "n": 2
+        },
+        "generation_tps": {
+          "mean": 19.703405928515238,
+          "sd": 0.09151036680125939,
+          "n": 2
+        },
+        "peak_memory_gb": 16.395523186
+      },
+      "8": {
+        "prompt_tps": {
+          "mean": 112.55560240996672,
+          "sd": 1.0536905562297367,
+          "n": 2
+        },
+        "generation_tps": {
+          "mean": 21.94354969765057,
+          "sd": 0.025509699417994563,
+          "n": 2
+        },
+        "peak_memory_gb": 21.609748274
+      }
+    },
+    "environment": {
+      "when": "2026-11-11T19:33:16",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 70,
+      "swap_used_gb_at_start": 10.68
+    }
+  }
+}

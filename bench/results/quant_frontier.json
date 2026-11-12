@@ -1,0 +1,154 @@
+{
+  "qwen3.5-4b | full precision (bf16)": {
+    "size_gb": 8.679766297340393,
+    "perplexity": 11.599583812173385,
+    "perplexity_se": 0.1723746716531325,
+    "single_tps": 35.27125475226967,
+    "batch32_tps": 303.1504192832353,
+    "peak_memory_gb_batch32": 13.245802332,
+    "environment": {
+      "when": "2026-11-11T21:18:20",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 55,
+      "swap_used_gb_at_start": 10.36
+    }
+  },
+  "qwen3.5-4b | 8-bit": {
+    "size_gb": 4.162671086378396,
+    "perplexity": 11.599462128334855,
+    "perplexity_se": 0.1723178105045204,
+    "single_tps": 61.832264188637666,
+    "batch32_tps": 408.58705739737604,
+    "peak_memory_gb_batch32": 9.240776522,
+    "environment": {
+      "when": "2026-11-11T21:21:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 10.32
+    }
+  },
+  "qwen3.5-4b | 6-bit": {
+    "size_gb": 3.1836669696494937,
+    "perplexity": 11.624888558021901,
+    "perplexity_se": 0.17287385507695519,
+    "single_tps": 74.32088719901502,
+    "batch32_tps": 398.35662618610894,
+    "peak_memory_gb_batch32": 8.244236106,
+    "environment": {
+      "when": "2026-11-11T21:23:58",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 10.27
+    }
+  },
+  "qwen3.5-4b | 5-bit": {
+    "size_gb": 2.694164895452559,
+    "perplexity": 11.778953247112742,
+    "perplexity_se": 0.17549345552259638,
+    "single_tps": 83.8868304016238,
+    "batch32_tps": 399.3997041228215,
+    "peak_memory_gb_batch32": 7.761942574,
+    "environment": {
+      "when": "2026-11-11T21:26:45",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 10.26
+    }
+  },
+  "qwen3.5-4b | mixed 4/6-bit": {
+    "size_gb": 2.2949948767200112,
+    "perplexity": 12.209131466199514,
+    "perplexity_se": 0.18376646999302754,
+    "single_tps": 94.57135556193026,
+    "batch32_tps": 403.7782691360086,
+    "peak_memory_gb_batch32": 7.290195786,
+    "environment": {
+      "when": "2026-11-11T21:29:30",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 10.24
+    }
+  },
+  "qwen3.5-4b | 4-bit": {
+    "size_gb": 2.204662804491818,
+    "perplexity": 12.277202334841782,
+    "perplexity_se": 0.1842354426879211,
+    "single_tps": 97.57502636897635,
+    "batch32_tps": 405.1090303556554,
+    "peak_memory_gb_batch32": 7.20809696,
+    "environment": {
+      "when": "2026-11-11T21:32:13",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 59,
+      "swap_used_gb_at_start": 10.22
+    }
+  },
+  "qwen3.5-4b | mixed 3/6-bit": {
+    "size_gb": 1.8506587212905288,
+    "perplexity": 15.025478313941893,
+    "perplexity_se": 0.23127547297677487,
+    "single_tps": 97.5432584200455,
+    "batch32_tps": 401.46136773869597,
+    "peak_memory_gb_batch32": 6.812802386,
+    "environment": {
+      "when": "2026-11-11T21:34:57",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 10.21
+    }
+  },
+  "qwen3.5-4b | 3-bit": {
+    "size_gb": 1.715160514228046,
+    "perplexity": 15.524227036992546,
+    "perplexity_se": 0.23954784528380746,
+    "single_tps": 101.13457348337971,
+    "batch32_tps": 398.12984997138375,
+    "peak_memory_gb_batch32": 6.68181072,
+    "environment": {
+      "when": "2026-11-11T21:37:41",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 10.17
+    }
+  }
+}
