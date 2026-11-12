@@ -1,0 +1,104 @@
+{
+  "qwen3-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:09:05",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 13.11
+    },
+    "path": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "prompts": 8,
+    "tokens_each": 256,
+    "depth": 36,
+    "full_pass": {
+      "mlx": 676.9121144246096,
+      "lab": 900.8556588058705
+    },
+    "full_pass_last_token": {
+      "mlx": 745.3411742483773,
+      "lab": 991.6641259403116
+    },
+    "layers": {
+      "8": {
+        "layers_below_or_at": 9,
+        "collect_mlx": 2982.1004804333434,
+        "sweep_mlx": 993.2622178530348,
+        "collect_lab": 3963.9809381545324,
+        "sweep_lab": 1323.2050215940728,
+        "largest_score_difference": 0.03125
+      },
+      "17": {
+        "layers_below_or_at": 18,
+        "collect_mlx": 1489.7064867105448,
+        "sweep_mlx": 1486.081230813766,
+        "collect_lab": 1981.7206913073098,
+        "sweep_lab": 1974.1660264571854,
+        "largest_score_difference": 0.03125
+      },
+      "26": {
+        "layers_below_or_at": 27,
+        "collect_mlx": 994.5589420550521,
+        "sweep_mlx": 2960.901602200161,
+        "collect_lab": 1318.9915195215453,
+        "sweep_lab": 3962.7869543178545,
+        "largest_score_difference": 0.03125
+      }
+    }
+  },
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:10:59",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 80,
+      "swap_used_gb_at_start": 13.01
+    },
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "prompts": 8,
+    "tokens_each": 256,
+    "depth": 32,
+    "full_pass": {
+      "mlx": 624.9600197642383,
+      "lab": 826.7477939990133
+    },
+    "full_pass_last_token": {
+      "mlx": 726.1513528369351,
+      "lab": 960.651441560839
+    },
+    "layers": {
+      "7": {
+        "layers_below_or_at": 8,
+        "collect_mlx": 2908.934067031855,
+        "sweep_mlx": 966.8762082171836,
+        "collect_lab": 3838.908310292664,
+        "sweep_lab": 1281.2937062265714,
+        "largest_score_difference": 0.0625
+      },
+      "15": {
+        "layers_below_or_at": 16,
+        "collect_mlx": 1450.3422855206063,
+        "sweep_mlx": 1446.078840358516,
+        "collect_lab": 1923.0070282032932,
+        "sweep_lab": 1920.0522010064296,
+        "largest_score_difference": 0.0625
+      },
+      "23": {
+        "layers_below_or_at": 24,
+        "collect_mlx": 968.1287643989585,
+        "sweep_mlx": 2880.9437315742407,
+        "collect_lab": 1278.5162548859412,
+        "sweep_lab": 3843.612392023829,
+        "largest_score_difference": 0.0625
+      }
+    }
+  }
+}

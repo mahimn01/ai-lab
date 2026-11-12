@@ -118,3 +118,43 @@ def test_mean_difference_is_a_unit_vector():
     a, b = mx.array(rng.normal(size=(2, 5, 8)) + 1.0), mx.array(rng.normal(size=(2, 5, 8)))
     d = hooks.mean_difference(a, b)
     assert d.shape == (8,) and abs(np.linalg.norm(d) - 1.0) < 1e-6
+
+
+def test_run_to_stops_early_and_matches_capture(tokens):
+    model = tiny_model()
+    logits, acts = hooks.capture(model, tokens, layers=[1])
+    early = hooks.run_to(model, tokens, 1)
+    assert mx.array_equal(early, acts[1]).item()
+    assert mx.array_equal(model(tokens), logits).item(), "the model is unchanged afterwards"
+
+
+def test_save_activations_writes_every_token_of_every_batch(tmp_path, tokens):
+    model = tiny_model()
+    summary = hooks.save_activations(model, [tokens, tokens[:1]], layer=1, path=tmp_path / "acts.npy")
+    saved = np.load(tmp_path / "acts.npy", mmap_mode="r")
+    assert saved.shape == (2 * 12 + 12, CFG.n_embd) and summary["tokens"] == 36 and not summary["overflowed"]
+    direct = np.array(hooks.run_to(model, tokens, 1).astype(mx.float32)).reshape(-1, CFG.n_embd)
+    assert np.allclose(saved[:24], direct, rtol=2e-3, atol=2e-3)
+
+
+def test_run_from_resumes_after_a_layer_and_matches_the_full_pass(tokens):
+    model = tiny_model()
+    base = model(tokens)
+    states = hooks.run_to(model, tokens, 0)
+    assert mx.allclose(hooks.run_from(model, states, 0), base, atol=1e-5).item()
+    with hooks.steer(model, 2, np.ones(CFG.n_embd), scale=2.0):  # a change above the resume point still applies
+        steered_full, steered_top = model(tokens), hooks.run_from(model, states, 0)
+    assert mx.allclose(steered_top, steered_full, atol=1e-5).item()
+    assert mx.abs(steered_full - base).max().item() > 1e-3
+    assert len(hooks.layer_list(model)) == CFG.n_layer, "the layer list is restored"
+    assert mx.allclose(model(tokens), base, atol=1e-6).item()
+
+
+def test_last_token_scores_and_last_only_match_the_full_scores(tokens):
+    model = tiny_model()
+    base = model(tokens)[:, -1, :]
+    assert mx.allclose(hooks.last_token_scores(model, tokens), base, atol=1e-5).item()
+    for layer in range(CFG.n_layer):  # the last value resumes after the final layer
+        states = hooks.run_to(model, tokens, layer)
+        assert mx.allclose(hooks.run_from(model, states, layer, last_only=True), base, atol=1e-5).item(), layer
+    assert len(hooks.layer_list(model)) == CFG.n_layer and mx.allclose(model(tokens)[:, -1, :], base, atol=1e-6).item()
