@@ -49,7 +49,7 @@ Words used here:
 | 13 | Fine-tuning through the lab: its GPU paths, Qwen3.5's recurrent layers done 64 tokens at a time, sorted batches | Qwen3-4B 1.3-1.5x; Qwen3.5 2.6-5.5x on short examples and 6-10x on full-length ones; Qwen3.5-4B at full length no longer runs out of memory | keep, the default |
 | 14 | Fine-tuning with the frozen bottom layers computed once | 1.2-2.6x per step after a one-off cache (most when few layers are trained); pays back after about 290-470 steps | keep, for sweeps and repeated passes |
 | 15 | Stop after a layer, resume from a layer, score only the last token | collecting an early layer 6x faster than a full pass; sweeps from three quarters up 5.3x faster | keep |
-| 16 | float16 instead of bfloat16 for inference | prompts read 1.4x faster with MLX's kernels and 1.4-1.6x with the lab's on top; 32 prompts at once 1.16-1.31x; a 64-question eval 1.29x faster end to end; one prompt unchanged; the model's values must stay under 65,504 | keep, one line, checks first |
+| 16 | float16 instead of bfloat16 for inference | prompts read 1.4x faster with MLX's kernels and 1.4-1.6x with the lab's on top; 32 prompts at once 1.16-1.31x; a 64-question eval 1.29x faster end to end; one request with a 2,048-token prompt 1.29 to 1.32x faster; writing speed for one prompt unchanged; the model's values must stay under 65,504 | keep, one line, checks first |
 | 17 | Eight smaller ideas (other kernel layouts, resident decoded weights, compiled steps, two trainings at once, ...) | 0-10% each | reject |
 | 18 | Raising the GPU memory cap | not tested | not settled |
 
@@ -70,10 +70,12 @@ Words used here:
   numbers in software. Decoding once and running in float16 give 1.2 to 1.5x on prompt
   reading, 1.16 to 1.31x at 32 prompts at once, and 24% in from-scratch training.
 
-What none of this changes: one prompt writing fresh text. That is limited by how fast
-the Mac reads memory (about 375 GB/s, measured) and by the cost of issuing a thousand
-small GPU operations per token (section 17). Everything here was measured only on this
-Mac and with these versions of MLX and mlx-lm.
+What none of this changes: the speed at which one prompt's answer is written when the
+text is new. That is limited by how fast the Mac reads memory (about 375 GB/s, measured)
+and by the cost of issuing a thousand small GPU operations per token (section 17). A
+whole request still gets faster when it has a lot to read: 1.29 to 1.32x with a
+2,048-token prompt and 128 new tokens (section 16). Everything here was measured only on
+this Mac and with these versions of MLX and mlx-lm.
 
 ## 1. Batch size and sorting
 
@@ -829,7 +831,8 @@ Verdict: **keep**.
 
 ## 16. Running a model in float16 instead of bfloat16
 
-Command: `uv run python -m bench.float16 --model LABEL=PATH`. Code: `lab/infer/float16.py`
+Commands: `uv run python -m bench.float16 --model LABEL=PATH [--eval] [--small]` and
+`uv run python -m bench.request --model LABEL=PATH`. Code: `lab/infer/float16.py`
 (`float16.convert(model, tokenizer)`).
 
 **The finding.** The Qwen models in MLX format store their 16-bit numbers as bfloat16
@@ -892,6 +895,27 @@ model; tok/s, bfloat16 → float16):
   therefore leaves that path off for a float16 model whose weights take more than a
   third of the Mac's memory, and the 27B column above was measured that way.
 
+**One request, end to end** (`uv run python -m bench.request --model LABEL=PATH`: one
+prompt of the given length, 128 new tokens, greedy decoding through mlx-lm's own
+generator; seconds from sending the prompt to the last token):
+
+| Model, prompt | As shipped | Lab paths | float16 | float16 + lab paths |
+|---|---|---|---|---|
+| Qwen3.5-4B, 512 tokens | 2.06 s | 1.95 s (1.06x) | 1.83 s (1.13x) | 1.80 s (1.14x) |
+| Qwen3.5-4B, 2,048 tokens | 4.23 s | 3.68 s (1.15x) | 3.35 s (1.26x) | 3.21 s (1.32x) |
+| Qwen3.5-4B, 8,192 tokens | 13.29 s | 10.97 s (1.21x) | 9.80 s (1.36x) | 9.22 s (1.44x) |
+| Qwen3.5-9B, 512 tokens | 3.49 s | 3.24 s (1.08x) | 3.14 s (1.11x) | 3.02 s (1.16x) |
+| Qwen3.5-9B, 2,048 tokens | 7.43 s | 6.41 s (1.16x) | 5.85 s (1.27x) | 5.77 s (1.29x) |
+| Qwen3.5-9B, 8,192 tokens | 23.70 s | 19.55 s (1.21x) | 17.46 s (1.36x) | 17.04 s (1.39x) |
+| Qwen3-4B, 512 tokens | 1.97 s | 1.84 s (1.07x) | 1.74 s (1.13x) | 1.72 s (1.15x) |
+| Qwen3-4B, 2,048 tokens | 4.30 s | 3.65 s (1.18x) | 3.44 s (1.25x) | 3.32 s (1.29x) |
+| Qwen3-4B, 8,192 tokens | 16.25 s | 13.62 s (1.19x) | 12.25 s (1.33x) | 11.79 s (1.38x) |
+
+- **A single request is 1.14 to 1.16x faster with a 512-token prompt, 1.29 to 1.32x with
+  2,048 tokens and 1.38 to 1.44x with 8,192.** Writing the answer is no faster (section
+  17); all of the gain is in reading the prompt, so it grows with the prompt and shrinks
+  with the length of the answer.
+
 Limits:
 
 - **The check covers the prompts it is given.** A very different input could still
@@ -936,9 +960,10 @@ their figures as approximate.
 
 **Where the limits are now.** What any further speed-up would have to beat:
 
-- **One prompt writing fresh text: unchanged.** A Qwen3.5-4B step takes about 12 ms.
-  Reading its 2.2 GB of weights at this Mac's memory speed (375 GB/s, section 9)
-  accounts for about 6 ms. The rest is the cost of issuing the step's 1,117 separate
+- **One prompt writing fresh text: the writing is unchanged** (a request with a long
+  prompt is still faster overall, because the reading is: section 16). A Qwen3.5-4B step
+  takes about 12 ms. Reading its 2.2 GB of weights at this Mac's memory speed (375 GB/s,
+  section 9) accounts for about 6 ms. The rest is the cost of issuing the step's 1,117 separate
   small GPU operations (249 quantized multiplies, 153 normalisations, 160 reshapes and
   so on); the program's main thread is busy for 4 of the 12 ms. For the 0.8B model it is
   3 of 5 ms. Cutting that means replacing groups of MLX operations with one hand-written

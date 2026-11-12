@@ -1,0 +1,314 @@
+{
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T06:18:58",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 12.66
+    },
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "new_tokens": 128,
+    "prompts": {
+      "512": {
+        "as shipped": {
+          "seconds": 2.062120375223458,
+          "read_tokens_per_s": 696.1407807295905,
+          "write_tokens_per_s": 97.04727345953383,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 1.954227083362639,
+          "read_tokens_per_s": 815.9970485428,
+          "write_tokens_per_s": 97.0524795736773,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 1.8286127923056483,
+          "read_tokens_per_s": 938.4881660236788,
+          "write_tokens_per_s": 100.36116300665994,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 1.8017565826885402,
+          "read_tokens_per_s": 989.0564706025242,
+          "write_tokens_per_s": 100.28490767528461,
+          "new_tokens": 128
+        }
+      },
+      "2048": {
+        "as shipped": {
+          "seconds": 4.225668041035533,
+          "read_tokens_per_s": 712.5572973251041,
+          "write_tokens_per_s": 95.23662779119472,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 3.6775773749686778,
+          "read_tokens_per_s": 885.4997895635428,
+          "write_tokens_per_s": 94.2969268247631,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 3.3462182502262294,
+          "read_tokens_per_s": 1010.425626338181,
+          "write_tokens_per_s": 97.52023065600417,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 3.2057644170708954,
+          "read_tokens_per_s": 1087.255506106678,
+          "write_tokens_per_s": 97.35501759222424,
+          "new_tokens": 128
+        }
+      },
+      "8192": {
+        "as shipped": {
+          "seconds": 13.287505000364035,
+          "read_tokens_per_s": 691.6551893188793,
+          "write_tokens_per_s": 89.16416516504393,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 10.96743275038898,
+          "read_tokens_per_s": 860.2417165551504,
+          "write_tokens_per_s": 89.10729979706225,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 9.802199417259544,
+          "read_tokens_per_s": 976.5203205830175,
+          "write_tokens_per_s": 91.14234651531788,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 9.222929167095572,
+          "read_tokens_per_s": 1048.9093125419265,
+          "write_tokens_per_s": 91.10511028506225,
+          "new_tokens": 128
+        }
+      }
+    },
+    "check": {
+      "converted_parameters": 651,
+      "largest_value": 172.0,
+      "headroom": 380.83720930232556,
+      "same_top_token": 0.9864864864864865,
+      "last_position_score_difference": 0.03459548045481954,
+      "prompts_checked": 7,
+      "tokens_checked": 1480
+    }
+  },
+  "qwen3.5-9b-4bit": {
+    "environment": {
+      "when": "2026-11-12T06:21:27",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 82,
+      "swap_used_gb_at_start": 12.44
+    },
+    "path": "mlx-community/Qwen3.5-9B-4bit",
+    "new_tokens": 128,
+    "prompts": {
+      "512": {
+        "as shipped": {
+          "seconds": 3.4932577908039093,
+          "read_tokens_per_s": 373.37268159703245,
+          "write_tokens_per_s": 60.583824535708445,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 3.2396763330325484,
+          "read_tokens_per_s": 456.8764308793092,
+          "write_tokens_per_s": 60.67652550339168,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 3.137278208974749,
+          "read_tokens_per_s": 484.04760239927873,
+          "write_tokens_per_s": 61.827938152172514,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 3.015179625246674,
+          "read_tokens_per_s": 541.5975861945893,
+          "write_tokens_per_s": 62.11500877998199,
+          "new_tokens": 128
+        }
+      },
+      "2048": {
+        "as shipped": {
+          "seconds": 7.429168957751244,
+          "read_tokens_per_s": 387.2040865676643,
+          "write_tokens_per_s": 60.08010013993387,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 6.4147568750195205,
+          "read_tokens_per_s": 478.4363029028866,
+          "write_tokens_per_s": 60.24218299470662,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 5.853615874890238,
+          "read_tokens_per_s": 545.2501794468109,
+          "write_tokens_per_s": 61.298340762772,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 5.766762499697506,
+          "read_tokens_per_s": 557.8298477057898,
+          "write_tokens_per_s": 61.3692915396631,
+          "new_tokens": 128
+        }
+      },
+      "8192": {
+        "as shipped": {
+          "seconds": 23.704816000070423,
+          "read_tokens_per_s": 381.731288930042,
+          "write_tokens_per_s": 57.2582971541847,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 19.55045104213059,
+          "read_tokens_per_s": 473.092586068769,
+          "write_tokens_per_s": 57.51842163084935,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 17.461408709175885,
+          "read_tokens_per_s": 537.1231447861945,
+          "write_tokens_per_s": 58.16145284666123,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 17.044924208894372,
+          "read_tokens_per_s": 551.9050412751945,
+          "write_tokens_per_s": 58.37541784145966,
+          "new_tokens": 128
+        }
+      }
+    },
+    "check": {
+      "converted_parameters": 653,
+      "largest_value": 396.0,
+      "headroom": 165.41414141414143,
+      "same_top_token": 0.9837837837837838,
+      "last_position_score_difference": 0.03788833213703973,
+      "prompts_checked": 7,
+      "tokens_checked": 1480
+    }
+  },
+  "qwen3-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T06:25:35",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 12.24
+    },
+    "path": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "new_tokens": 128,
+    "prompts": {
+      "512": {
+        "as shipped": {
+          "seconds": 1.9680718341842294,
+          "read_tokens_per_s": 699.4376274176446,
+          "write_tokens_per_s": 104.25834598017788,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 1.8363466667942703,
+          "read_tokens_per_s": 852.5014931593767,
+          "write_tokens_per_s": 104.2733577812797,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 1.743325499817729,
+          "read_tokens_per_s": 930.3906097053853,
+          "write_tokens_per_s": 108.00635044612804,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 1.7163188331760466,
+          "read_tokens_per_s": 978.9121239060618,
+          "write_tokens_per_s": 107.98638017852,
+          "new_tokens": 128
+        }
+      },
+      "2048": {
+        "as shipped": {
+          "seconds": 4.302237750031054,
+          "read_tokens_per_s": 700.4015638718603,
+          "write_tokens_per_s": 93.44888907614165,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 3.6546819168142974,
+          "read_tokens_per_s": 899.990398199346,
+          "write_tokens_per_s": 93.32157743562462,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 3.4411004171706736,
+          "read_tokens_per_s": 967.9914311082487,
+          "write_tokens_per_s": 97.17151498331673,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 3.3222550000064075,
+          "read_tokens_per_s": 1026.0562591569012,
+          "write_tokens_per_s": 97.10439252552564,
+          "new_tokens": 128
+        }
+      },
+      "8192": {
+        "as shipped": {
+          "seconds": 16.245005417149514,
+          "read_tokens_per_s": 568.1805406973397,
+          "write_tokens_per_s": 70.3400007278792,
+          "new_tokens": 128
+        },
+        "lab paths": {
+          "seconds": 13.62305508274585,
+          "read_tokens_per_s": 694.3276831450864,
+          "write_tokens_per_s": 70.43535076644362,
+          "new_tokens": 128
+        },
+        "float16": {
+          "seconds": 12.245649791322649,
+          "read_tokens_per_s": 778.8127811804897,
+          "write_tokens_per_s": 74.41590957598531,
+          "new_tokens": 128
+        },
+        "float16 + lab": {
+          "seconds": 11.789982459042221,
+          "read_tokens_per_s": 814.2758803408933,
+          "write_tokens_per_s": 74.30385487528345,
+          "new_tokens": 128
+        }
+      }
+    },
+    "check": {
+      "converted_parameters": 651,
+      "largest_value": 6944.0,
+      "headroom": 9.433179723502304,
+      "same_top_token": 0.9917582417582418,
+      "last_position_score_difference": 0.04312835367662566,
+      "prompts_checked": 7,
+      "tokens_checked": 1456
+    }
+  }
+}

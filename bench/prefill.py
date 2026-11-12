@@ -11,9 +11,10 @@ What it measures
   Tokens per second for reading a few prompt shapes and scoring every position (what
   scoring a text needs; reading a prompt before generating skips the output layer, and
   bench/float16.py times that case), with MLX's kernels and with the lab path installed,
-  the peak memory of each, and how far apart the two sets of last-token scores are. MLX's own block kernel also rounds the decoded weights to 16 bits, so the
-  two usually agree exactly; when the sums happen to run in a different order they
-  differ by rounding, which the largest difference shows.
+  the peak memory of each, and how far apart the two sets of last-token scores are.
+  MLX's own block kernel also rounds the decoded weights to 16 bits, so the two usually
+  agree exactly; when the sums happen to run in a different order they differ by
+  rounding, which the largest difference shows.
 
 Run:     uv run python -m bench.prefill --model LABEL=PATH_OR_REPO
          (one model per run: with several in one process, the first memory peak of each

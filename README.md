@@ -33,9 +33,11 @@ cd ~/Documents/Dev/ai-lab
 4. **For inference, run the model in float16**: `float16.convert(model, tokenizer)`.
    MLX's GPU code converts the models' bfloat16 numbers in software; float16 is native.
    Prompts are read 1.4x faster and 32 prompts at once decode 1.16-1.31x faster; a
-   64-question eval finished 1.29x sooner end to end; one prompt is unchanged. `convert`
-   first checks on sample prompts that no value inside the model comes near float16's
-   limit of 65,504, and refuses otherwise. Not for fine-tuning (section 16).
+   64-question eval finished 1.29x sooner end to end. For one prompt the writing is
+   unchanged, but with the lab's paths on as well a request with a 2,048-token prompt
+   finishes 1.29 to 1.32x sooner. `convert` first checks on sample prompts that no
+   value inside the model comes near float16's limit of 65,504, and refuses otherwise.
+   Not for fine-tuning (section 16).
 5. **Train from scratch with a small vocabulary and the default number format.** 8,192
    tokens instead of GPT-2's 50,257 made training 2.6x faster. The trainer's default
    format (`mixed16`: 32-bit weights, 16-bit arithmetic) trains 24% more tokens per
@@ -81,6 +83,7 @@ cd ~/Documents/Dev/ai-lab
 | Serve a model to other programs (lab paths on) | `uv run python -m lab.serve --model mlx-community/Qwen3.5-9B-4bit --port 8642 --decode-concurrency 8 --float16` | nothing |
 | Compare the lab kernel with MLX's on a model | `uv run python -m bench.kernel_rows --model LABEL=PATH` | `bench/results/kernel_rows.json` |
 | Check what float16 does for a model | `uv run python -m bench.float16 --model LABEL=PATH` | `bench/results/float16.json` |
+| Time one whole request, four set-ups | `uv run python -m bench.request --model LABEL=PATH` | `bench/results/request.json` |
 | Run the example eval | see the top of `examples/inspect_local.py` | one log under `runs/inspect-logs/` |
 | Start the experiment loop | `uv run python -m lab.loop --rounds 10 --agent "claude -p --permission-mode acceptEdits"` | a `loop/...` git branch, `results.tsv` |
 | Re-measure the baseline | `uv run python -m bench.inference --model LABEL=PATH`, then `uv run python -m bench.report` | `bench/results/`, `BASELINE.md` |
