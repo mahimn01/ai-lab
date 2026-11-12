@@ -9,6 +9,10 @@ What it does
   examples). `--mlx-kernels --file-order` together give mlx-lm exactly as it comes.
   One model per run is the fair way to time: every run then starts from a fresh process.
 
+  To check that the lab trains the same model as mlx-lm, run both with `--file-order
+  --val-batches -1`: they then see the same batches in the same order, and both score
+  the whole validation set, so their losses can be compared number for number.
+
   WikiSQL examples are short (about 100 tokens). --long-text trains on passages cut from
   the lab's held-out text instead, every one longer than the 512-token limit, to check
   the speed and memory on full-length examples.
@@ -52,6 +56,7 @@ def main() -> None:
     ap.add_argument("--grad-checkpoint", choices=list(GRAD_CHECKPOINT), default="auto")
     ap.add_argument("--mlx-kernels", action="store_true", help="use MLX's own quantized kernels (for comparison)")
     ap.add_argument("--file-order", action="store_true", help="keep mlx-lm's batch order (for comparison)")
+    ap.add_argument("--val-batches", type=int, default=2, help="validation batches to score before and after (-1 = all)")
     ap.add_argument("--long-text", action="store_true", help="train on passages longer than --max-seq-length")
     args = ap.parse_args()
     data = str(long_text_dataset()) if args.long_text else CONFIG_DEFAULTS["data"]
@@ -61,10 +66,11 @@ def main() -> None:
         label += "" if args.mlx_kernels else ", lab kernels"
         label += ", file order" if args.file_order else ""
         label += ", long text" if args.long_text else ""
+        label += f", {args.iters} steps, whole validation set" if args.val_batches == -1 else ""
         env = environment()
         try:
             entry = finetune(path, adapter_path=ROOT / "runs/lora-bench" / label.replace(" | ", "-").replace(", ", "-").replace(" ", ""),
-                             data=data, iters=args.iters, val_batches=2, max_seq_length=args.max_seq_length,
+                             data=data, iters=args.iters, val_batches=args.val_batches, max_seq_length=args.max_seq_length,
                              batch_size=args.batch_size,
                              grad_checkpoint=GRAD_CHECKPOINT[args.grad_checkpoint], lab_kernels=not args.mlx_kernels,
                              sort_by_length=not args.file_order)
