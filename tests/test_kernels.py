@@ -98,3 +98,23 @@ def test_install_switches_layers_and_falls_back() -> None:
     net.eval()
 
     assert qmm.uninstall(net) == 1 and type(layer) is nn.QuantizedLinear
+
+
+def test_dense_path_for_many_rows_matches_mlx_and_has_gradients() -> None:
+    """256+ rows: decode the weights and use MLX's dense multiply. Same numbers as MLX's kernel, with gradients."""
+    mx.random.seed(5)
+    net = nn.Sequential(nn.Linear(512, 1024, bias=False))
+    net.set_dtype(mx.bfloat16)
+    nn.quantize(net, group_size=64, bits=4)
+    layer = net.layers[0]
+    x = mx.random.normal((4, 96, 512)).astype(mx.bfloat16)  # 384 rows
+    plain = layer(x)
+    plain_grad = mx.grad(lambda inp: layer(inp).astype(mx.float32).sum())(x)
+
+    assert qmm.install(net) == 1
+    assert mx.array_equal(layer(x), plain).item(), "MLX's block kernel rounds decoded weights the same way"
+    net.train()  # the dense path is made of MLX's own operations, so it also works in training
+    grad = mx.grad(lambda inp: layer(inp).astype(mx.float32).sum())(x)
+    assert mx.allclose(grad.astype(mx.float32), plain_grad.astype(mx.float32), rtol=0.02, atol=0.02).item()
+    assert not layer._row_calls, "the dense path needs no prepared kernel"
+    qmm.uninstall(net)

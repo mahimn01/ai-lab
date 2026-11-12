@@ -1,0 +1,210 @@
+{
+  "qwen3.5-0.8b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:38:32",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 80,
+      "swap_used_gb_at_start": 12.88
+    },
+    "path": "mlx-community/Qwen3.5-0.8B-4bit",
+    "shapes": {
+      "1 x 512": {
+        "mlx_tokens_per_s": 3084.7306705273377,
+        "lab_tokens_per_s": 3466.905688527929,
+        "mlx_peak_gb": 1.2496075183153152,
+        "lab_peak_gb": 2.2350162155926228,
+        "largest_score_difference": 0.1875,
+        "score_spread": 1.836998462677002,
+        "same_top_token": true
+      },
+      "1 x 2048": {
+        "mlx_tokens_per_s": 3092.37547298193,
+        "lab_tokens_per_s": 3743.7667675470902,
+        "mlx_peak_gb": 2.670496264472604,
+        "lab_peak_gb": 3.843515656888485,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.7029132843017578,
+        "same_top_token": true
+      },
+      "8 x 512": {
+        "mlx_tokens_per_s": 3238.4815326733624,
+        "lab_tokens_per_s": 4196.2451479588335,
+        "mlx_peak_gb": 4.9834349155426025,
+        "lab_peak_gb": 6.332555994391441,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.8738884925842285,
+        "same_top_token": true
+      },
+      "32 x 256": {
+        "mlx_tokens_per_s": 3156.5597972762466,
+        "lab_tokens_per_s": 4057.092567639949,
+        "mlx_peak_gb": 8.589405266568065,
+        "lab_peak_gb": 10.926319329068065,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.946223258972168,
+        "same_top_token": true
+      }
+    }
+  },
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:39:09",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 12.87
+    },
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "shapes": {
+      "1 x 512": {
+        "mlx_tokens_per_s": 608.1982934119773,
+        "lab_tokens_per_s": 741.8729946647879,
+        "mlx_peak_gb": 3.154439616948366,
+        "lab_peak_gb": 4.576001688838005,
+        "largest_score_difference": 0.09814453125,
+        "score_spread": 1.5604438781738281,
+        "same_top_token": true
+      },
+      "1 x 2048": {
+        "mlx_tokens_per_s": 608.7927072684993,
+        "lab_tokens_per_s": 774.0377240895085,
+        "mlx_peak_gb": 4.333861883729696,
+        "lab_peak_gb": 6.168715978041291,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.5435266494750977,
+        "same_top_token": true
+      },
+      "8 x 512": {
+        "mlx_tokens_per_s": 621.9515451781332,
+        "lab_tokens_per_s": 827.3158443105254,
+        "mlx_peak_gb": 6.539088753983378,
+        "lab_peak_gb": 8.821803597733378,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.5708801746368408,
+        "same_top_token": true
+      },
+      "32 x 256": {
+        "mlx_tokens_per_s": 622.5465330410852,
+        "lab_tokens_per_s": 825.6188355651847,
+        "mlx_peak_gb": 10.6260752864182,
+        "lab_peak_gb": 13.652869718149304,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.688616394996643,
+        "same_top_token": true
+      }
+    }
+  },
+  "qwen3-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:42:01",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 82,
+      "swap_used_gb_at_start": 12.75
+    },
+    "path": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "shapes": {
+      "1 x 512": {
+        "mlx_tokens_per_s": 649.451068542563,
+        "lab_tokens_per_s": 813.7449253251276,
+        "mlx_peak_gb": 2.8360911533236504,
+        "lab_peak_gb": 3.719635993242264,
+        "largest_score_difference": 0.109375,
+        "score_spread": 1.095467448234558,
+        "same_top_token": true
+      },
+      "1 x 2048": {
+        "mlx_tokens_per_s": 632.9933325441965,
+        "lab_tokens_per_s": 825.872304961878,
+        "mlx_peak_gb": 3.6769781559705734,
+        "lab_peak_gb": 4.809790633618832,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.1343824863433838,
+        "same_top_token": true
+      },
+      "8 x 512": {
+        "mlx_tokens_per_s": 670.7540056410797,
+        "lab_tokens_per_s": 894.6504176013264,
+        "mlx_peak_gb": 4.979475997388363,
+        "lab_peak_gb": 6.424178145825863,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.3270004987716675,
+        "same_top_token": true
+      },
+      "32 x 256": {
+        "mlx_tokens_per_s": 674.8662415795865,
+        "lab_tokens_per_s": 898.5866442276358,
+        "mlx_peak_gb": 7.4815359339118,
+        "lab_peak_gb": 9.4848318323493,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.3983314037322998,
+        "same_top_token": true
+      }
+    }
+  },
+  "qwen3.5-9b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:44:42",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 82,
+      "swap_used_gb_at_start": 12.6
+    },
+    "path": "mlx-community/Qwen3.5-9B-4bit",
+    "shapes": {
+      "1 x 512": {
+        "mlx_tokens_per_s": 328.4649698765796,
+        "lab_tokens_per_s": 400.14996514985415,
+        "mlx_peak_gb": 5.545658711344004,
+        "lab_peak_gb": 7.66104176454246,
+        "largest_score_difference": 0.09375,
+        "score_spread": 1.5881378650665283,
+        "same_top_token": true
+      },
+      "1 x 2048": {
+        "mlx_tokens_per_s": 334.64124055099126,
+        "lab_tokens_per_s": 422.88032398070135,
+        "mlx_peak_gb": 6.775545638054609,
+        "lab_peak_gb": 9.387758756056428,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.6187334060668945,
+        "same_top_token": true
+      },
+      "8 x 512": {
+        "mlx_tokens_per_s": 336.99727249701556,
+        "lab_tokens_per_s": 432.7441220822459,
+        "mlx_peak_gb": 9.131666688248515,
+        "lab_peak_gb": 12.106028096750379,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.6534215211868286,
+        "same_top_token": true
+      },
+      "32 x 256": {
+        "mlx_tokens_per_s": 335.31407314137465,
+        "lab_tokens_per_s": 427.9628973587504,
+        "mlx_peak_gb": 13.097498433664441,
+        "lab_peak_gb": 16.91781093366444,
+        "largest_score_difference": 0.0,
+        "score_spread": 1.7228392362594604,
+        "same_top_token": true
+      }
+    }
+  }
+}

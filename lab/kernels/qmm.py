@@ -1,4 +1,4 @@
-"""A GPU kernel that makes small batches cheap on Apple GPUs: quantized matmul for 2-18 rows.
+"""Faster quantized matmul on Apple GPUs: a custom kernel for 2-18 rows, and a dense path for 256+ rows.
 
 The problem (measured on the M1 Max, MLX 0.32.4, SPEED-RESULTS.md section 9)
   Every weight table in a quantized model is used through y = x @ W.T, where x has one
@@ -15,6 +15,19 @@ What this kernel does differently
   pass; 9-18 rows are split into 2 or 3 equal chunks. From 19 rows MLX's block kernel
   is as fast and is used as before. One row is left to MLX too: that case is already
   limited by how fast the Mac can read the weights from memory (about 375 GB/s).
+
+Many rows (256 and more: reading prompts, fine-tuning)
+  Measured here (SPEED-RESULTS.md section 11): MLX's quantized block kernel reaches about
+  half of this GPU's arithmetic limit however many rows it gets, because it decodes each
+  block of weights again for every 32 rows. MLX's dense kernel reaches 71-87%. So for 256
+  rows or more the layer decodes its weights to a temporary dense matrix (0.24 ms for a
+  34-million-weight layer) and uses the dense kernel. Prompts are read 1.2-1.33x faster,
+  and the result is the same bit for bit in most cases, because MLX's block kernel also
+  rounds the decoded weights to 16 bits (only the order of the sums can differ). This
+  path uses only MLX's own operations, so it has gradients and also runs in training
+  mode. Its backward pass decodes the weights a second time instead of keeping the
+  decoded copy alive between forward and backward (that copy cost 3.5 GB when
+  fine-tuning a 4B model).
 
 Why the code is generated
   The kernel source is written out as plain scalars for one exact row count. With
@@ -53,6 +66,7 @@ VPT = 8  # inputs each thread owns per block
 BLOCK = LANES * VPT  # inputs covered by one SIMD group per loop step
 RPS = 4  # outputs each SIMD group produces (8 halves the reads of x but needs too many registers)
 MAX_ROWS = 18  # above this MLX's 32-row block kernel is as fast or faster (measured)
+DENSE_MIN_ROWS = 256  # from here decoding the weights and using MLX's dense kernel beats its quantized kernel
 MIN_OUTPUTS = 1024  # smaller layers have too few threads to fill the GPU; MLX's kernel is faster there
 MSL_TYPES = {mx.bfloat16: "bfloat16_t", mx.float16: "half"}
 
@@ -175,9 +189,29 @@ def matmul_rows(x: mx.array, w: mx.array, scales: mx.array, biases: mx.array, *,
     return kernel(inputs=[w, scales, biases, x], **fixed)[0]
 
 
+def _dense(layer: nn.Module):
+    """x -> x @ W.T through the decoded weights. The gradient for x decodes them again rather than storing them."""
+
+    def decoded() -> mx.array:
+        return mx.dequantize(layer["weight"], layer["scales"], layer["biases"], group_size=layer.group_size,
+                             bits=layer.bits)
+
+    @mx.custom_function
+    def forward(x: mx.array) -> mx.array:
+        return x @ decoded().T
+
+    @forward.vjp
+    def backward(x: mx.array, cotangent: mx.array, output: mx.array) -> mx.array:
+        return cotangent @ decoded()
+
+    return forward
+
+
 def _fast(layer: nn.Module, x: mx.array) -> mx.array | None:
     """The fast path for a quantized layer, or None when MLX's own kernel should run."""
     rows = x.size // layer._row_k
+    if rows >= DENSE_MIN_ROWS and x.dtype == layer["scales"].dtype:  # many rows: decode once, dense multiply
+        return layer._row_dense(x)
     if rows < 2 or rows > MAX_ROWS or layer.training:  # checked first: one row is the common single-prompt case
         return None
     key = (x.shape, x.dtype)
@@ -193,7 +227,7 @@ def _fast(layer: nn.Module, x: mx.array) -> mx.array | None:
 
 
 class RowsQuantizedLinear(nn.QuantizedLinear):
-    """nn.QuantizedLinear that uses the multi-row kernel for 2-18 rows."""
+    """nn.QuantizedLinear that uses the multi-row kernel for 2-18 rows and the dense path for 256+."""
 
     def __call__(self, x: mx.array) -> mx.array:
         y = _fast(self, x)
@@ -259,6 +293,7 @@ def install(model: nn.Module) -> int:
         # plain attributes (not parameters): the prepared calls per input shape, and K to spot a single row
         object.__setattr__(module, "_row_calls", {})
         object.__setattr__(module, "_row_k", layer_inputs(module))
+        object.__setattr__(module, "_row_dense", _dense(module))
     return len(chosen)
 
 
@@ -269,7 +304,7 @@ def uninstall(model: nn.Module) -> int:
     for _, module in model.named_modules():
         if type(module) in back:
             module.__class__ = back[type(module)]
-            module.__dict__.pop("_row_calls", None)
-            module.__dict__.pop("_row_k", None)
+            for name in ("_row_calls", "_row_k", "_row_dense"):
+                module.__dict__.pop(name, None)
             switched += 1
     return switched

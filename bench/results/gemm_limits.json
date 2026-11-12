@@ -1,0 +1,270 @@
+{
+  "mlx-community/Qwen3.5-9B-4bit": {
+    "environment": {
+      "when": "2026-11-12T02:49:58",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 16.75
+    },
+    "limit_multiply_adds_per_s": 5308416000000.0,
+    "dense": {
+      "16384 x 384 x 1536 (small GPT, into the wide layer)": {
+        "float32": {
+          "ms": 2.3101664846763015,
+          "share_of_limit": 0.7880143948584396
+        },
+        "float16": {
+          "ms": 2.115853945724666,
+          "share_of_limit": 0.8603828483165714
+        },
+        "bfloat16": {
+          "ms": 2.562051988206804,
+          "share_of_limit": 0.7105415709064455
+        }
+      },
+      "16384 x 1536 x 384 (small GPT, out of the wide layer)": {
+        "float32": {
+          "ms": 2.31156253721565,
+          "share_of_limit": 0.7875384789014738
+        },
+        "float16": {
+          "ms": 2.0936457440257072,
+          "share_of_limit": 0.8695092995742701
+        },
+        "bfloat16": {
+          "ms": 2.4594374699518085,
+          "share_of_limit": 0.7401873260392814
+        }
+      },
+      "16384 x 384 x 8192 (small GPT, output over the vocabulary)": {
+        "float32": {
+          "ms": 12.047666474245489,
+          "share_of_limit": 0.8058852772686078
+        },
+        "float16": {
+          "ms": 11.154353967867792,
+          "share_of_limit": 0.8704257606496745
+        },
+        "bfloat16": {
+          "ms": 13.371489476412535,
+          "share_of_limit": 0.7260998899310277
+        }
+      },
+      "2048 x 2560 x 9728 (4B-size layer, 2,048 rows)": {
+        "float32": {
+          "ms": 13.153697946108878,
+          "share_of_limit": 0.73043347003495
+        },
+        "float16": {
+          "ms": 11.315979296341538,
+          "share_of_limit": 0.8490560987217554
+        },
+        "bfloat16": {
+          "ms": 13.35917692631483,
+          "share_of_limit": 0.7191985919164161
+        }
+      },
+      "512 x 4096 x 12288 (9B-size layer, 512 rows)": {
+        "float32": {
+          "ms": 6.797864683903754,
+          "share_of_limit": 0.7141240292724912
+        },
+        "float16": {
+          "ms": 5.776583217084408,
+          "share_of_limit": 0.840378877285303
+        },
+        "bfloat16": {
+          "ms": 6.759687559679151,
+          "share_of_limit": 0.7181572336974905
+        }
+      }
+    },
+    "quantized": {
+      "12288 x 4096, 32 rows": {
+        "quantized_ms": 0.6130624872942766,
+        "decoded_ms": 1.4833471893022458,
+        "quantized_share": 0.4949045386001062,
+        "decoded_share": 0.20454240894886364
+      },
+      "12288 x 4096, 64 rows": {
+        "quantized_ms": 1.1877291835844517,
+        "decoded_ms": 1.4487916293243568,
+        "quantized_share": 0.5109033466564377,
+        "decoded_share": 0.41884202153887556
+      },
+      "12288 x 4096, 128 rows": {
+        "quantized_ms": 2.37724999897182,
+        "decoded_ms": 2.2244513190040984,
+        "quantized_share": 0.5105183006223722,
+        "decoded_share": 0.5455860594750978
+      },
+      "12288 x 4096, 256 rows": {
+        "quantized_ms": 4.663882000992696,
+        "decoded_ms": 3.8631667072574296,
+        "quantized_share": 0.5204375365291453,
+        "decoded_share": 0.6283081842415335
+      },
+      "12288 x 4096, 512 rows": {
+        "quantized_ms": 9.390416710327068,
+        "decoded_ms": 7.199465374772747,
+        "quantized_share": 0.5169651857068052,
+        "decoded_share": 0.6742887514299286
+      },
+      "12288 x 4096, 2048 rows": {
+        "quantized_ms": 37.384451366961,
+        "decoded_ms": 27.828034789611895,
+        "quantized_share": 0.5194157828737069,
+        "decoded_share": 0.6977881916880013
+      },
+      "4096 x 12288, 32 rows": {
+        "quantized_ms": 0.6908401846885681,
+        "decoded_ms": 1.7354304436594248,
+        "quantized_share": 0.4391861014051809,
+        "decoded_share": 0.1748312117699317
+      },
+      "4096 x 12288, 64 rows": {
+        "quantized_ms": 1.3113681537409623,
+        "decoded_ms": 1.8778263280789058,
+        "quantized_share": 0.46273413997720153,
+        "decoded_share": 0.3231474635013833
+      },
+      "4096 x 12288, 128 rows": {
+        "quantized_ms": 2.423944494997462,
+        "decoded_ms": 2.7900137938559055,
+        "quantized_share": 0.5006837541595194,
+        "decoded_share": 0.43499054818375904
+      },
+      "4096 x 12288, 256 rows": {
+        "quantized_ms": 4.7187151697774725,
+        "decoded_ms": 4.150375025346875,
+        "quantized_share": 0.5143898650220342,
+        "decoded_share": 0.5848288996622412
+      },
+      "4096 x 12288, 512 rows": {
+        "quantized_ms": 9.522062493488193,
+        "decoded_ms": 7.50025004769365,
+        "quantized_share": 0.509817964525895,
+        "decoded_share": 0.6472475567679637
+      },
+      "4096 x 12288, 2048 rows": {
+        "quantized_ms": 39.90349305483202,
+        "decoded_ms": 32.86218068872889,
+        "quantized_share": 0.48662592137964944,
+        "decoded_share": 0.5908942640782846
+      },
+      "4096 x 4096, 32 rows": {
+        "quantized_ms": 0.28376382154723007,
+        "decoded_ms": 0.446055472518007,
+        "quantized_share": 0.35640837481568316,
+        "decoded_share": 0.22673368829715013
+      },
+      "4096 x 4096, 64 rows": {
+        "quantized_ms": 0.48590265214443207,
+        "decoded_ms": 0.5623609758913517,
+        "quantized_share": 0.41628010064482507,
+        "decoded_share": 0.35968286138217126
+      },
+      "4096 x 4096, 128 rows": {
+        "quantized_ms": 0.8072013345857462,
+        "decoded_ms": 0.8794583069781462,
+        "quantized_share": 0.501167667276162,
+        "decoded_share": 0.45999134543008613
+      },
+      "4096 x 4096, 256 rows": {
+        "quantized_ms": 1.5683194311956565,
+        "decoded_ms": 1.2908888359864552,
+        "quantized_share": 0.5158938948656999,
+        "decoded_share": 0.6267669199686036
+      },
+      "4096 x 4096, 512 rows": {
+        "quantized_ms": 3.125992991651098,
+        "decoded_ms": 2.373423660174012,
+        "quantized_share": 0.5176508212999802,
+        "decoded_share": 0.681788450439368
+      },
+      "4096 x 4096, 2048 rows": {
+        "quantized_ms": 12.383145823453864,
+        "decoded_ms": 9.360381945346793,
+        "quantized_share": 0.5227016987690896,
+        "decoded_share": 0.6914986371087536
+      },
+      "1024 x 4096, 32 rows": {
+        "quantized_ms": 0.10786120158930619,
+        "decoded_ms": 0.15317345969378948,
+        "quantized_share": 0.23441191313217027,
+        "decoded_share": 0.16506743836581964
+      },
+      "1024 x 4096, 64 rows": {
+        "quantized_ms": 0.1547638482103745,
+        "decoded_ms": 0.18712497937182584,
+        "quantized_share": 0.3267423356249816,
+        "decoded_share": 0.2702359749314237
+      },
+      "1024 x 4096, 128 rows": {
+        "quantized_ms": 0.25906949304044247,
+        "decoded_ms": 0.31564586485425633,
+        "quantized_share": 0.39038097956731566,
+        "decoded_share": 0.3204090841355815
+      },
+      "1024 x 4096, 256 rows": {
+        "quantized_ms": 0.46490963237981003,
+        "decoded_ms": 0.44787504399816197,
+        "quantized_share": 0.4350772512560568,
+        "decoded_share": 0.451625085275128
+      },
+      "1024 x 4096, 512 rows": {
+        "quantized_ms": 0.8007846772670746,
+        "decoded_ms": 0.7802291462818781,
+        "quantized_share": 0.5051835048307518,
+        "decoded_share": 0.518492819454852
+      },
+      "1024 x 4096, 2048 rows": {
+        "quantized_ms": 3.1667916725079217,
+        "decoded_ms": 2.2985208003471294,
+        "quantized_share": 0.5109817780418345,
+        "decoded_share": 0.7040061761728638
+      },
+      "8192 x 4096, 32 rows": {
+        "quantized_ms": 0.4701875150203705,
+        "decoded_ms": 1.0621179826557636,
+        "quantized_share": 0.4301934834009966,
+        "decoded_share": 0.19044174775433453
+      },
+      "8192 x 4096, 64 rows": {
+        "quantized_ms": 0.8236875291913748,
+        "decoded_ms": 1.0248265073945124,
+        "quantized_share": 0.4911367424412614,
+        "decoded_share": 0.39474311696429626
+      },
+      "8192 x 4096, 128 rows": {
+        "quantized_ms": 1.590951345860958,
+        "decoded_ms": 1.4997221684704225,
+        "quantized_share": 0.5085550993485862,
+        "decoded_share": 0.5394908715514151
+      },
+      "8192 x 4096, 256 rows": {
+        "quantized_ms": 3.130708277846376,
+        "decoded_ms": 2.6118471287190914,
+        "quantized_share": 0.516871166488664,
+        "decoded_share": 0.6195511298166065
+      },
+      "8192 x 4096, 512 rows": {
+        "quantized_ms": 6.289312460770209,
+        "decoded_ms": 4.886680670703451,
+        "quantized_share": 0.5145786123998699,
+        "decoded_share": 0.6622789367872619
+      },
+      "8192 x 4096, 2048 rows": {
+        "quantized_ms": 25.276965306450922,
+        "decoded_ms": 18.833847328399617,
+        "quantized_share": 0.5121414916348996,
+        "decoded_share": 0.6873466950392552
+      }
+    }
+  }
+}
