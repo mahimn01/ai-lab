@@ -18,6 +18,13 @@ Run (two terminals, both from ~/Documents/Dev/ai-lab):
 
 Checked: 2026-11-11, 20 samples in 57 s, accuracy 0.70.
 
+With fewer requests at a time, start the server through the lab instead, which switches on
+the lab's GPU kernel (same options):
+       uv run python -m lab.serve --model mlx-community/Qwen3.5-9B-4bit --port 8642 \\
+           --decode-concurrency 8 --prompt-concurrency 8 --chat-template-args '{"enable_thinking": false}'
+Checked 2026-11-12 on Qwen3.5-9B-4bit with --max-connections 8: 73 s through lab.serve against
+138 s through mlx_lm.server, accuracy 0.65 both times.
+
 Changes: Inspect writes one log file under runs/inspect-logs/. Nothing is sent outside this Mac
          (the "API key" is a placeholder; the server ignores it).
 """

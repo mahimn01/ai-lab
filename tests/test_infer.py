@@ -69,3 +69,41 @@ def test_hooks_work_on_a_real_quantized_model(loaded):
     with hooks.hook(model, n_layers // 2, lambda out: mx.zeros_like(out)):
         assert mx.abs(model(tokens) - base).max().item() > 0.1, "zeroing a middle layer changes the output"
     assert mx.allclose(model(tokens), base, atol=1e-3).item(), "the model is restored afterwards"
+
+
+def test_lookup_finds_what_followed_a_repeat() -> None:
+    from lab.infer.lookahead import _Lookup
+
+    seen = _Lookup(3)
+    seen.extend([5, 6, 7, 8, 9, 1, 2, 5, 6, 7])  # "5 6 7" appeared before and was followed by 8 9 1 2
+    assert seen.guess(3) == [8, 9, 1]
+    assert seen.guess(10) == [8, 9, 1, 2, 5, 6, 7], "a guess can run up to the present, not past it"
+    seen.extend([8])
+    assert seen.guess(2) == [9, 1], "after 6 7 8 the earlier text continued with 9 1"
+    seen.extend([4])
+    assert seen.guess(4) == [], "7 8 4 never appeared before"
+
+
+@pytest.mark.slow
+def test_lookahead_writes_the_same_text_in_fewer_passes() -> None:
+    """A copy-heavy prompt on a real model: guessing must not change the text, and must save passes."""
+    from mlx_lm import load
+
+    from lab.infer.lookahead import generate
+    from lab.kernels import qmm
+
+    model, tokenizer = load("mlx-community/Qwen3-0.6B-4bit")
+    passage = ("The lab measures before it changes anything. A job that needs more memory than is free pushes "
+               "the Mac into swap and runs five to ten times slower. Models stay on the internal disk.")
+    prompt = batch.chat_tokens(tokenizer, f"Repeat this passage twice, word for word, and add nothing.\n\n{passage}")
+    plain = generate(model, tokenizer, prompt, max_tokens=120, lookahead=False)
+    ahead = generate(model, tokenizer, prompt, max_tokens=120)
+    assert plain.passes == len(plain.token_ids) and plain.guessed == 0
+    assert ahead.token_ids == plain.token_ids, "with MLX's kernels the checked text is exactly the plain text"
+    assert ahead.accepted > 20 and ahead.passes < 0.7 * len(ahead.token_ids)
+
+    qmm.install(model)  # the multi-row kernel rounds differently, so allow a late divergence but not an early one
+    fast = generate(model, tokenizer, prompt, max_tokens=120)
+    qmm.uninstall(model)
+    same = next((i for i, (a, b) in enumerate(zip(fast.token_ids, plain.token_ids)) if a != b), len(plain.token_ids))
+    assert same >= 40 and fast.accepted > 20
