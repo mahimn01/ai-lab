@@ -1,0 +1,198 @@
+{
+  "qwen3.5-0.8b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:34:31",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 66,
+      "swap_used_gb_at_start": 11.9
+    },
+    "path": "mlx-community/Qwen3.5-0.8B-4bit",
+    "passages": 8,
+    "tokens_each": 512,
+    "check": {
+      "converted_parameters": 489,
+      "largest_value": 81.0,
+      "headroom": 808.6913580246913,
+      "same_top_token": 0.9784755134281201,
+      "mean_score_difference": 0.031111624224909713,
+      "prompts_checked": 14,
+      "tokens_checked": 5064
+    },
+    "bfloat16": {
+      "loss": 3.128647804260254,
+      "read_mlx": 4597.604168334953,
+      "decode_1": 204.8075583844095,
+      "decode_8_mlx": 565.0395877791038,
+      "decode_32": 1573.3726353301504,
+      "read_lab": 5924.759465246215,
+      "decode_8_lab": 803.3029987274448
+    },
+    "float16": {
+      "loss": 3.1282219886779785,
+      "read_mlx": 6475.328386819765,
+      "decode_1": 212.35687021275461,
+      "decode_8_mlx": 654.9184970072909,
+      "decode_32": 1855.3305963322348,
+      "read_lab": 7167.4798280808345,
+      "decode_8_lab": 849.4642121414083
+    },
+    "same_top_token_on_text": 0.974609375
+  },
+  "qwen3.5-9b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:38:28",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 62,
+      "swap_used_gb_at_start": 12.88
+    },
+    "path": "mlx-community/Qwen3.5-9B-4bit",
+    "passages": 8,
+    "tokens_each": 512,
+    "check": {
+      "converted_parameters": 653,
+      "largest_value": 404.0,
+      "headroom": 162.13861386138615,
+      "same_top_token": 0.9806477093206951,
+      "mean_score_difference": 0.027344700481210436,
+      "prompts_checked": 14,
+      "tokens_checked": 5064
+    },
+    "bfloat16": {
+      "loss": 2.38864803314209,
+      "read_mlx": 384.27778629365605,
+      "decode_1": 54.80972778393388,
+      "decode_8_mlx": 75.17540683247897,
+      "decode_32": 278.5700520446243,
+      "read_lab": 490.20884575818855,
+      "decode_8_lab": 170.223597360718
+    },
+    "float16": {
+      "loss": 2.3875362873077393,
+      "read_mlx": 542.9651197619264,
+      "decode_1": 55.75496666882999,
+      "decode_8_mlx": 96.53007682650203,
+      "decode_32": 363.6705223286187,
+      "read_lab": 557.3575293131591,
+      "decode_8_lab": 183.16743286157927
+    },
+    "same_top_token_on_text": 0.978759765625
+  },
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T05:12:47",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 60,
+      "swap_used_gb_at_start": 12.81
+    },
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "passages": 8,
+    "tokens_each": 512,
+    "check": {
+      "converted_parameters": 651,
+      "largest_value": 200.0,
+      "headroom": 327.52,
+      "same_top_token": 0.9855845181674565,
+      "mean_score_difference": 0.02967588191053697,
+      "prompts_checked": 14,
+      "tokens_checked": 5064
+    },
+    "bfloat16": {
+      "loss": 2.53444504737854,
+      "read_mlx": 724.4444044866939,
+      "decode_1": 82.30302377518103,
+      "decode_8_mlx": 131.08739205730905,
+      "decode_32": 450.5905002963648,
+      "eval_mlx": {
+        "wall_s": 51.72858237521723,
+        "tokens": 15792,
+        "tokens_per_s": 305.2857680392538
+      },
+      "read_lab": 959.8186466472386,
+      "decode_8_lab": 270.5202558575498,
+      "eval_lab": {
+        "wall_s": 49.10596991702914,
+        "tokens": 15808,
+        "tokens_per_s": 321.9160527062117
+      }
+    },
+    "float16": {
+      "loss": 2.533858299255371,
+      "read_mlx": 1022.748071223316,
+      "decode_1": 83.13998252752053,
+      "decode_8_mlx": 164.8692306959511,
+      "decode_32": 561.4768538788363,
+      "eval_mlx": {
+        "wall_s": 40.65394308324903,
+        "tokens": 15724,
+        "tokens_per_s": 386.77675048152673
+      },
+      "read_lab": 1115.774865418222,
+      "decode_8_lab": 288.50141542235764,
+      "eval_lab": {
+        "wall_s": 40.05399250006303,
+        "tokens": 15756,
+        "tokens_per_s": 393.3690255715508
+      }
+    },
+    "same_top_token_on_text": 0.984619140625
+  },
+  "qwen3-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:57:19",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 72,
+      "swap_used_gb_at_start": 14.52
+    },
+    "path": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "passages": 8,
+    "tokens_each": 512,
+    "check": {
+      "converted_parameters": 651,
+      "largest_value": 7008.0,
+      "headroom": 9.34703196347032,
+      "same_top_token": 0.9875,
+      "mean_score_difference": 0.04536598415247032,
+      "prompts_checked": 14,
+      "tokens_checked": 5040
+    },
+    "bfloat16": {
+      "loss": 2.73358154296875,
+      "read_mlx": 739.4659389424716,
+      "decode_1": 90.94311712977738,
+      "decode_8_mlx": 141.76907833692113,
+      "decode_32": 504.9013396038619,
+      "read_lab": 984.844106377616,
+      "decode_8_lab": 296.90336747360794
+    },
+    "float16": {
+      "loss": 2.7326900959014893,
+      "read_mlx": 1036.2164851235918,
+      "decode_1": 92.63714207232327,
+      "decode_8_mlx": 179.90642895374853,
+      "decode_32": 660.6754814669574,
+      "read_lab": 1114.4991792509893,
+      "decode_8_lab": 319.8695463005303
+    },
+    "same_top_token_on_text": 0.98486328125
+  }
+}

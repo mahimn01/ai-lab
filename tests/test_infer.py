@@ -1,8 +1,9 @@
-"""Batched inference: prefix detection (fast) and agreement with one-at-a-time generation (slow, real model)."""
+"""Inference: prefix detection, lookahead and the float16 switch (fast), and checks on a real model (slow)."""
 
 from __future__ import annotations
 
 import mlx.core as mx
+import numpy as np
 import pytest
 
 from lab.edit import hooks
@@ -107,3 +108,53 @@ def test_lookahead_writes_the_same_text_in_fewer_passes() -> None:
     qmm.uninstall(model)
     same = next((i for i, (a, b) in enumerate(zip(fast.token_ids, plain.token_ids)) if a != b), len(plain.token_ids))
     assert same >= 40 and fast.accepted > 20
+
+
+def test_float16_convert_checks_first_and_refuses_values_near_the_limit():
+    from lab.infer import float16
+    from lab.train.model import GPT, GPTConfig
+
+    mx.random.seed(0)
+    model = GPT(GPTConfig(vocab_size=256, n_layer=2, n_head=2, n_embd=32))
+    model.wte.weight = mx.random.normal(model.wte.weight.shape)  # wide scores, so the top token is rarely a near-tie
+    for block in model.blocks:
+        block.attn_out.weight = mx.random.normal(block.attn_out.weight.shape, scale=0.05)
+        block.mlp_out.weight = mx.random.normal(block.mlp_out.weight.shape, scale=0.05)
+    model.set_dtype(mx.bfloat16)
+    prompts = [list(range(1, 60)), np.arange(100, 180)]  # plain lists and numpy arrays are both accepted
+    before = model(mx.array(prompts[0])[None]).astype(mx.float32)
+
+    report = float16.convert(model, prompts=prompts)
+    assert report["converted_parameters"] > 0 and report["headroom"] > 4 and report["same_top_token"] >= 0.95
+    assert model.wte.weight.dtype == mx.float16
+    after = model(mx.array(prompts[0])[None]).astype(mx.float32)
+    assert mx.abs(after - before).max().item() < 0.05 * mx.abs(before).max().item()
+    assert float16.revert(model) == report["converted_parameters"] and model.wte.weight.dtype == mx.bfloat16
+
+    # A model whose values come near float16's limit is refused and left exactly as it was.
+    model.blocks[0].mlp_out.weight = model.blocks[0].mlp_out.weight * 1e6
+    kept = model(mx.array(prompts[0])[None]).astype(mx.float32)
+    with pytest.raises(ValueError, match="not converted"):
+        float16.convert(model, prompts=prompts)
+    assert model.wte.weight.dtype == mx.bfloat16
+    assert mx.array_equal(model(mx.array(prompts[0])[None]).astype(mx.float32), kept).item()
+
+
+@pytest.mark.slow
+def test_float16_convert_on_a_real_model_keeps_its_answers_and_the_lab_kernel(loaded):
+    from lab.infer import float16
+    from lab.kernels import qmm
+
+    model, tokenizer = loaded
+    prompts = mx.array([batch.chat_tokens(tokenizer, QUESTIONS[0], enable_thinking=False)] * 4)  # 4 rows: the lab kernel's range
+    qmm.install(model)
+    try:
+        before = mx.argmax(model(prompts)[:, -1, :], axis=-1)
+        report = float16.convert(model, tokenizer)
+        assert report["same_top_token"] >= 0.95 and report["headroom"] >= 4 and report["converted_parameters"] > 0
+        scores = model(prompts)[:, -1, :]
+        assert scores.dtype == mx.float16 and mx.isfinite(scores).all().item()
+        assert mx.array_equal(mx.argmax(scores, axis=-1), before).item(), "the same answer token in both formats"
+    finally:
+        float16.revert(model)
+        qmm.uninstall(model)
