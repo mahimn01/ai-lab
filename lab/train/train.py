@@ -36,7 +36,7 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
-from mlx.utils import tree_map
+from mlx.utils import tree_flatten, tree_map
 
 from lab.train.model import GPT, SIZES, n_params
 
@@ -48,6 +48,7 @@ DTYPES = {"float32": mx.float32, "bfloat16": mx.bfloat16, "float16": mx.float16}
 # 16-bit floats can hold (their smallest normal value is 6e-5), and divided out again afterwards.
 MIXED = {"mixed16": mx.float16, "mixedbf16": mx.bfloat16}
 GRAD_SCALE = 8.0
+SCALED_TOKENS = 32 * 512  # the batch the scale was measured at; bigger batches are not scaled further
 WARMUP_FRACTION = 0.03  # of the time budget
 VAL_BATCHES = 20
 
@@ -65,7 +66,7 @@ def get_args() -> argparse.Namespace:
     # 0.04 beat 0.02 by 0.05 val_bpb (noise 0.007) and 0.08 was worse: SPEED-RESULTS.md section 5.
     ap.add_argument("--muon-lr", type=float, default=0.04)
     ap.add_argument("--weight-decay", type=float, default=0.0)
-    # mixed16 trained 24% more tokens in the same time than float32 and scored 0.04 val_bpb better
+    # mixed16 trained 24% more tokens in the same time than float32 and scored 0.05 val_bpb better
     # (two seeds each, noise 0.007): SPEED-RESULTS.md section 12.
     ap.add_argument("--dtype", choices=[*DTYPES, *MIXED], default="mixed16",
                     help="number format; mixed16 (default) = 32-bit weights with 16-bit arithmetic")
@@ -109,7 +110,9 @@ def main() -> None:
     model.compute_dtype = MIXED.get(args.dtype)
     mx.eval(model.parameters())
     optimizer, schedule = make_optimizers(args)
-    grad_scale = GRAD_SCALE * B * T if args.dtype in MIXED else 1.0
+    # Per token the error signal is multiplied by GRAD_SCALE, so that small values survive 16 bits. A weight's
+    # gradient is a sum over the batch and grows with it, so beyond the measured batch size the scale stops growing.
+    grad_scale = GRAD_SCALE * min(B * T, SCALED_TOKENS) if args.dtype in MIXED else 1.0
 
     def loss_fn(model: nn.Module, x: mx.array, y: mx.array) -> tuple[mx.array, mx.array]:
         # The loss itself is always computed in 32-bit: adding up 16,384 losses overflows a 16-bit float.
@@ -118,12 +121,15 @@ def main() -> None:
 
     loss_and_grad = nn.value_and_grad(model, loss_fn)
 
-    def step(x: mx.array, y: mx.array) -> mx.array:
+    def step(x: mx.array, y: mx.array) -> tuple[mx.array, mx.array]:
+        """One training step. Returns the loss and whether every gradient value fitted in 16 bits."""
         (_, loss), grads = loss_and_grad(model, x, y)
-        if grad_scale != 1.0:  # undo the scaling; a gradient that overflowed 16 bits counts as zero
+        fitted = mx.array(True)
+        if grad_scale != 1.0:  # undo the scaling; a value that overflowed 16 bits counts as zero, and the step is counted
+            fitted = mx.stack([mx.isfinite(g).all() for _, g in tree_flatten(grads)]).all()
             grads = tree_map(lambda g: mx.nan_to_num(g * (1.0 / grad_scale), nan=0.0, posinf=0.0, neginf=0.0), grads)
         optimizer.update(model, grads)
-        return loss
+        return loss, fitted
 
     def eval_loss(x: mx.array, y: mx.array) -> mx.array:
         return loss_fn(model, x, y)[1]
@@ -143,30 +149,35 @@ def main() -> None:
         return batch(train, rng.integers(0, len(train) - T - 1, B))
 
     # First step: compiles the GPU code. Not counted in the budget or the speed.
-    loss = step(*train_batch())
-    mx.eval(loss, model.parameters(), optimizer.state)
+    mx.eval(step(*train_batch()), model.parameters(), optimizer.state)
     mx.reset_peak_memory()
 
-    steps, last_log, losses = 0, 0.0, []
+    steps, overflowed, last_log = 0, 0, 0.0
     t0 = time.perf_counter()
     while (elapsed := time.perf_counter() - t0) < args.budget_s:
         scale = lr_scale(elapsed / args.budget_s)
         for opt, peak in schedule:
             opt.learning_rate = peak * scale
-        loss = step(*train_batch())
-        mx.eval(loss, model.parameters(), optimizer.state)
+        loss, fitted = step(*train_batch())
+        mx.eval(loss, fitted, model.parameters(), optimizer.state)
         steps += 1
+        overflowed += not fitted.item()
+        if not math.isfinite(loss.item()):
+            raise RuntimeError(f"training loss became {loss.item()} at step {steps}: the run diverged")
         if elapsed - last_log >= 20:
             last_log = elapsed
-            losses.append(loss.item())
-            if not math.isfinite(losses[-1]):
-                raise RuntimeError(f"training loss became {losses[-1]} at step {steps}: the run diverged")
-            print(f"  {elapsed:5.0f}s step {steps:6d} loss {losses[-1]:.4f} "
+            print(f"  {elapsed:5.0f}s step {steps:6d} loss {loss.item():.4f} "
                   f"{steps * B * T / elapsed:,.0f} tok/s", flush=True)
     train_s = time.perf_counter() - t0
+    peak_gb = mx.get_peak_memory() / 2**30  # of training; the scoring below is not part of it
+    if overflowed:
+        print(f"  note: in {overflowed} of {steps} steps some gradient values were too large for 16 bits and were left out. "
+              "If that is more than a few, use a smaller batch or --dtype bfloat16.", flush=True)
 
     # Score on the first VAL_BATCHES * B windows of the validation tokens (always the same ones).
     model.eval()
+    if args.dtype in MIXED:
+        model.compute_dtype = None  # score in the weights' own 32-bit format, as the float32 runs do
     val_losses = []
     for i in range(VAL_BATCHES):
         starts = (np.arange(B) + i * B) * T
@@ -181,7 +192,8 @@ def main() -> None:
         "steps": steps,
         "train_s": train_s,
         "params": n_params(model),
-        "peak_memory_gb": mx.get_peak_memory() / 2**30,
+        "peak_memory_gb": peak_gb,
+        "overflowed_steps": overflowed,
         "config": {k: v for k, v in vars(args).items() if k not in ("name", "save")},
     }
     out_dir = ROOT / "runs" / "train" / args.name

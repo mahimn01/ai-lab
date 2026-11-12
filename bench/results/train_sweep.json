@@ -557,13 +557,14 @@
   },
   "mixed16 seed 0": {
     "name": "sweep-mixed16-seed-0",
-    "val_bpb": 1.6526876660370833,
-    "val_loss": 4.473080778121949,
-    "train_tokens_per_s": 59911.0772041662,
-    "steps": 549,
-    "train_s": 150.13610870903358,
+    "val_bpb": 1.6349188777205395,
+    "val_loss": 4.4249886751174925,
+    "train_tokens_per_s": 60503.37020243303,
+    "steps": 554,
+    "train_s": 150.02033720817417,
     "params": 13767552,
     "peak_memory_gb": 4.547156777232885,
+    "overflowed_steps": 0,
     "config": {
       "size": "s",
       "budget_s": 150.0,
@@ -580,26 +581,27 @@
     "group": "precision",
     "budget_s": 150.0,
     "environment": {
-      "when": "2026-11-12T01:27:21",
+      "when": "2026-11-12T06:00:47",
       "chip": "Apple M1 Max",
       "memory_gb": 32,
       "macos": "27.0.1",
       "python": "3.13.17",
       "mlx": "0.32.4",
       "mlx_lm": "0.32.2",
-      "free_memory_pct_at_start": 60,
-      "swap_used_gb_at_start": 12.07
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 12.26
     }
   },
   "mixed16 seed 1": {
     "name": "sweep-mixed16-seed-1",
-    "val_bpb": 1.6436496129611122,
-    "val_loss": 4.448618841171265,
-    "train_tokens_per_s": 60814.53965583315,
-    "steps": 557,
-    "train_s": 150.06095666671172,
+    "val_bpb": 1.6353283177122073,
+    "val_loss": 4.426096844673157,
+    "train_tokens_per_s": 60991.793479175816,
+    "steps": 559,
+    "train_s": 150.16210341686383,
     "params": 13767552,
     "peak_memory_gb": 4.547156777232885,
+    "overflowed_steps": 0,
     "config": {
       "size": "s",
       "budget_s": 150.0,
@@ -616,15 +618,15 @@
     "group": "precision",
     "budget_s": 150.0,
     "environment": {
-      "when": "2026-11-12T01:29:53",
+      "when": "2026-11-12T06:03:19",
       "chip": "Apple M1 Max",
       "memory_gb": 32,
       "macos": "27.0.1",
       "python": "3.13.17",
       "mlx": "0.32.4",
       "mlx_lm": "0.32.2",
-      "free_memory_pct_at_start": 63,
-      "swap_used_gb_at_start": 11.96
+      "free_memory_pct_at_start": 71,
+      "swap_used_gb_at_start": 12.21
     }
   },
   "bfloat16 weights seed 0": {
@@ -665,13 +667,14 @@
   },
   "mixedbf16 seed 0": {
     "name": "sweep-mixedbf16-seed-0",
-    "val_bpb": 1.6593911712087552,
-    "val_loss": 4.491224145889282,
-    "train_tokens_per_s": 53745.01922738983,
-    "steps": 493,
-    "train_s": 150.2894987501204,
+    "val_bpb": 1.6543474659964212,
+    "val_loss": 4.477573108673096,
+    "train_tokens_per_s": 54297.77729400021,
+    "steps": 498,
+    "train_s": 150.268250499852,
     "params": 13767552,
-    "peak_memory_gb": 4.547156777232885,
+    "peak_memory_gb": 4.559150900691748,
+    "overflowed_steps": 0,
     "config": {
       "size": "s",
       "budget_s": 150.0,
@@ -688,15 +691,15 @@
     "group": "precision",
     "budget_s": 150.0,
     "environment": {
-      "when": "2026-11-12T01:34:59",
+      "when": "2026-11-12T06:05:52",
       "chip": "Apple M1 Max",
       "memory_gb": 32,
       "macos": "27.0.1",
       "python": "3.13.17",
       "mlx": "0.32.4",
       "mlx_lm": "0.32.2",
-      "free_memory_pct_at_start": 62,
-      "swap_used_gb_at_start": 11.84
+      "free_memory_pct_at_start": 71,
+      "swap_used_gb_at_start": 11.91
     }
   }
 }

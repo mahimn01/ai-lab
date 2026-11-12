@@ -71,9 +71,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--budget-s", type=float, default=180.0)
     ap.add_argument("--only", default=",".join(GROUPS))
+    ap.add_argument("--match", default="", help="run only the setups whose name contains this text")
     args = ap.parse_args()
     for group in args.only.split(","):
         for label, extra in GROUPS[group].items():
+            if args.match not in label:
+                continue
             name = "sweep-" + label.replace(" ", "-").replace("(", "").replace(")", "")
             run = subprocess.run([sys.executable, "-m", "lab.train.train", "--name", name,
                                   "--budget-s", str(args.budget_s), *extra], cwd=ROOT, capture_output=True, text=True)
