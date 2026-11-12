@@ -1,13 +1,15 @@
 # Speed results: what was tested, and what to keep
 
 Every idea below was run on this Mac (Apple M1 Max, 32 GB, MLX 0.32.4, mlx-lm 0.32.2) on
-2026-11-11. Each section gives the command, the numbers (from `bench/results/*.json`)
+2026-11-11 and 2026-11-12. Each section gives the command, the numbers (from `bench/results/*.json`)
 and a verdict: **keep**, **reject**, or **not settled**.
 
 Words used here:
 
 - **tok/s**: tokens per second. A token is a piece of a word, about four characters.
 - **batch**: several prompts answered at the same time on the GPU.
+- **row**: one prompt's share of a batch. 8 prompts decoded together are 8 rows.
+- **kernel**: a small program that runs on the GPU. MLX ships its own; section 9 adds one.
 - **end to end**: counting all the time, both reading the prompts and writing the answers.
 - **quantization, N-bit**: storing each weight of a model in N bits instead of 16, to
   make it smaller.
@@ -22,7 +24,7 @@ Words used here:
 | 1 | Sort prompts by length | 9% faster on top of that (one run) | keep, now the default |
 | 1 | Batches of 8 or 64 | 8 is no faster than 4; 64 is no faster than 32 | reject |
 | 2 | Read a shared prompt opening once | 5.0x faster end to end on long shared prompts | keep, automatic |
-| 3 | Speculative decoding (small model drafts) | 12-19% slower on Qwen3; not supported on Qwen3.5 | reject |
+| 3 | Speculative decoding (small model drafts) | 11-19% slower on Qwen3 with MLX's kernels; 5-9% faster with the lab kernel | reject without the kernel |
 | 4 | 8-bit or 6-bit instead of 4-bit for batch work | same speed at batch 32, quality nearly untouched | keep |
 | 4 | 3-bit | 34% worse perplexity for no speed gain | reject |
 | 5 | Muon optimizer for training | 0.32 val_bpb better than the best AdamW in the same time | keep, the default |
@@ -33,13 +35,18 @@ Words used here:
 | 6 | A different GPU code path (mxfp4 format, architecture override) | no gain, or slower | reject |
 | 7 | Small vocabulary for from-scratch training | 2.6x faster, 40% less memory | keep, the default |
 | 8 | Gradient checkpointing for Qwen3.5 fine-tuning | 18.3 GB down to 3.9 GB, same speed | keep, automatic |
-| 9 | Raising the GPU memory cap | not tested | not settled |
+| 9 | A new GPU kernel for 2-18 prompts at once | 1.3-1.7x faster at 4 prompts, 2.1-2.6x at 8; the 27B model's best speed doubles | keep, one line to switch on |
+| 10 | Guess-and-check decoding for one prompt | 1.75-2.5x faster when the answer copies earlier text; no change on fresh text | keep, needs the kernel |
+| 11 | Raising the GPU memory cap | not tested | not settled |
 
-**Was a new, faster technique found?** No new GPU-level technique. The gains are at the
-workload level: batch at exactly 32, share the prompt opening, choose bits by the job,
-and train with Muon. One finding is new to me and may be worth reporting to the MLX
-project: on M1 chips a decoding step for 8 prompts costs as much as one for 32
-(section 1). A fix would have to be made inside MLX's GPU code, and it is untested.
+**Was a new, faster technique found?** Yes, one, with clear edges. Section 1 found that
+on this chip MLX pays for 32 prompts whenever it decodes 8, and re-reads all the weights
+for each of 2-6 prompts. Section 9 is a new GPU kernel that removes both: a step now
+costs the first prompt plus about a fifth of that for each extra one, up to 8. Section
+10 uses those cheap extra rows to make a single prompt faster when its answer repeats
+earlier text. What it does not change: one prompt writing fresh text is limited by how
+fast the Mac reads memory (about 375 GB/s, measured), and 32 prompts at once were
+already efficient. It was measured only on this Mac and this MLX version.
 
 ## 1. Batch size and sorting
 
@@ -88,10 +95,11 @@ small batch is handled one prompt at a time, and above a threshold of 6 to 14 pr
   reading the prompts faster (562 against 426 tok/s), because less padding is needed.
   It was measured once, so treat the 9% as approximate.
 
-**Possible upstream contribution.** A smaller block (8 or 16 rows) for batches of 8 to
-31 could make those sizes much cheaper. This is a guess from the numbers, not a tested
-change, and it needs new GPU kernel code in MLX. The MLX project does not accept
-AI-written issue or PR text, so any report has to be written by you.
+**What came of it.** Section 9 builds the missing kernel inside the lab, so the rule
+"never 8" only holds for MLX's own kernels. Two things there may interest the MLX
+project: the small-batch gap on M1 and M2 generation GPUs, and the extra rounding in
+its 32-row kernel. The MLX project does not accept AI-written issue or PR text, so any
+report has to be written by you.
 
 Verdict: **keep** batch 32 and sorting; **reject** 8 and 64.
 
@@ -120,21 +128,24 @@ Command: `uv run python -m bench.speed_speculative --model BIG --draft SMALL`
 A small "draft" model guesses the next few tokens and the big model checks them in one
 pass. The text is the same as the big model alone; only the speed changes.
 
-| Big model + draft | Drafted tokens per step | tok/s (spread) | Tokens accepted from the draft |
-|---|---|---|---|
-| Qwen3-4B 4-bit + Qwen3-0.6B 4-bit | none | 108.0 (0.7) | |
-| | 2 | 95.4 (5.3) | 62% |
-| | 3 | 92.3 (7.9) | 69% |
-| | 4 | 87.8 (11.7) | 74% |
-| Qwen3.5-9B 4-bit + Qwen3.5-0.8B 4-bit | none | 61.2 (0.1) | |
-| | 2, 3, 4 | failed | |
+| Big model + draft | Drafted tokens per step | tok/s, MLX's kernels (spread) | tok/s, lab kernel on the big model (spread) | Tokens accepted from the draft |
+|---|---|---|---|---|
+| Qwen3-4B 4-bit + Qwen3-0.6B 4-bit | none | 105.3 (1.1) | 105.2 (0.6) | |
+| | 2 | 93.5 (5.2) | 110.6 (7.5) | 62% |
+| | 3 | 89.8 (7.4) | 115.0 (9.4) | 69% |
+| | 4 | 85.8 (10.9) | 113.2 (15.1) | 74% |
+| Qwen3.5-9B 4-bit + Qwen3.5-0.8B 4-bit | none | 61.2 (0.1) | | |
+| | 2, 3, 4 | failed | | |
 
-The draft guessed right 62 to 74% of the time and it was still slower, because on this
-Mac the small model is not cheap enough next to the big one. For the Qwen3.5 family
-mlx-lm refuses outright ("requires a trimmable prompt cache"). It also only works one
-prompt at a time, where batching already gives more.
+With MLX's kernels the draft guessed right 62 to 74% of the time and it was still slower.
+The reason, found later (section 9): checking n guesses is a pass over n+1 rows, and
+MLX's kernels on this chip run that as n+1 sweeps of the weights. With the lab kernel
+on the big model (`--rows-kernel`) the same setup is 5 to 9% faster than no draft. The
+gain stays small because the draft model has its own cost for every token. For the
+Qwen3.5 family mlx-lm refuses outright ("requires a trimmable prompt cache").
 
-Verdict: **reject** on this Mac for these model pairs.
+Verdict: **reject** with MLX's kernels. With the lab kernel it is a small gain; guesses
+that cost nothing (section 10) do much better.
 
 ## 4. Quantization: quality against speed
 
@@ -271,7 +282,178 @@ models fine-tune 3.5 to 7 times slower per token than Qwen3 models of similar si
 
 Verdict: **keep**.
 
-## 9. Not tested
+## 9. A new GPU kernel for 2 to 18 prompts at once
+
+Commands: `uv run python -m bench.kernel_rows --model LABEL=PATH` (speed, and agreement on
+real text) and `uv run python -m bench.kernel_exact` (accuracy against the exact answer).
+Code: `lab/kernels/qmm.py`. Switch it on with `qmm.install(model)`, or serve through
+`uv run python -m lab.serve`.
+
+**The problem.** Every weight table of a model is used as y = x @ W.T, where x has one
+row per prompt being decoded. MLX's source shows what it does on M1-generation GPUs:
+for 2 to 6 rows it runs its one-row kernel once per row, so every row decodes all the
+weights again; from 7 to 14 rows (by layer size) it switches to a kernel that always
+computes a block of 32 rows. MLX does have a kernel meant for a few rows, but switches
+it off on this chip generation because it is slower here (confirmed in section 6).
+
+**The kernel.** One pass over the weights serves all the rows. Each GPU thread keeps
+its slice of every row's inputs in registers (the chip's fastest storage), decodes each
+weight once and uses it for every row. Up to 8 rows fit in one pass; 9 to 18 rows run
+as 2 or 3 passes. It handles 3, 4, 5, 6 and 8-bit weights. One row, and 19 rows or
+more, are left to MLX's kernels.
+
+**Result in a real decoding loop** (greedy decoding from 64-token prompts, 48 timed
+steps; tok/s with MLX's kernels → with the lab kernel):
+
+| Prompts at once | Qwen3.5-0.8B 4-bit | Qwen3.5-4B 4-bit | Qwen3-4B 4-bit | Qwen3.5-9B 4-bit | Qwen3.5-9B 8-bit | Qwen3.8-27B 4-bit |
+|---|---|---|---|---|---|---|
+| 1 | 180 → 180 | 78 → 77 | 89 → 89 | 52 → 53 | 33 → 33 | 18 → 18 |
+| 2 | 293 → 283 (0.96x) | 114 → 121 (1.06x) | 129 → 142 (1.10x) | 75 → 88 (1.16x) | 59 → 62 (1.05x) | 25 → 31 (1.22x) |
+| 3 | 365 → 387 (1.06x) | 125 → 154 (1.23x) | 143 → 173 (1.21x) | 80 → 111 (1.38x) | 64 → 90 (1.41x) | 27 → 38 (1.41x) |
+| 4 | 415 → 470 (1.13x) | 134 → 179 (1.34x) | 150 → 208 (1.39x) | 84 → 130 (1.54x) | 69 → 117 (1.71x) | 28 → 44 (1.60x) |
+| 6 | 487 → 574 (1.18x) | 144 → 232 (1.61x) | 160 → 259 (1.62x) | 87 → 152 (1.76x) | 71 → 141 (1.99x) | 28 → 52 (1.85x) |
+| 8 | 527 → 720 (1.37x) | 125 → 259 (2.07x) | 138 → 289 (2.09x) | 72 → 172 (2.38x) | 70 → 160 (2.27x) | 22 → 57 (2.64x) |
+| 12 | 667 → 861 (1.29x) | 171 → 270 (1.58x) | 186 → 311 (1.68x) | 101 → 174 (1.71x) | 101 → 164 (1.62x) | not run |
+| 16 | 821 → 960 (1.17x) | 224 → 303 (1.35x) | 244 → 343 (1.41x) | 134 → 191 (1.43x) | 132 → 183 (1.38x) | not run |
+| 18 | 898 → 996 (1.11x) | 245 → 294 (1.20x) | 271 → 331 (1.22x) | 149 → 182 (1.22x) | 147 → 173 (1.17x) | not run |
+| 24 | 1143 → 1129 | 315 → 314 | 355 → 355 | 194 → 193 | not run | not run |
+| 32 | 1447 → 1440 | 429 → 439 | 493 → 492 | 270 → 270 | not run | not run |
+
+How to read it:
+
+- **4 at once: 1.3 to 1.7x. 8 at once: 2.1 to 2.6x. 16 at once: about 1.4x.** One
+  prompt and 24 or more are unchanged, as designed.
+- **The 27B model's best speed doubles**: 57 tok/s at 8 prompts, against a best of 28
+  with MLX's kernels. This model cannot run 32 at once in 32 GB, so small batches are
+  all it has.
+- **The 0.8B model gains least**, and loses 4% at 2 prompts: most of its step is not
+  spent in the weight tables.
+- A locally made 6-bit copy of Qwen3.5-4B gave 101 → 175 tok/s at 4 prompts and 118 →
+  240 at 8.
+- Through the server with a real eval (Inspect, 20 MATH-500 questions, 8 requests at a
+  time, Qwen3.5-9B 4-bit): 73 s with `lab.serve` against 138 s with `mlx_lm.server`,
+  accuracy 0.65 both times.
+
+The same thing layer by layer (total ms to run all of a model's weight tables once,
+MLX → lab). Each layer runs on its own here, which lets the GPU overlap one layer with
+the next, so these are best-case figures; the decoding loop above is what counts.
+
+| Rows | Qwen3.5-0.8B 4-bit | Qwen3.5-4B 4-bit | Qwen3-4B 4-bit | Qwen3.5-9B 4-bit |
+|---|---|---|---|---|
+| 1 | 2.1 | 6.9 | 7.0 | 14.3 |
+| 2 | 2.2 → 2.1 | 11.0 → 8.6 | 10.7 → 9.2 | 21.8 → 17.3 |
+| 4 | 3.7 → 2.9 | 21.8 → 12.4 | 20.8 → 12.5 | 42.0 → 25.3 |
+| 8 | 6.9 → 5.1 | 48.1 → 19.2 | 46.7 → 20.1 | 100.4 → 38.6 |
+| 12 | 9.0 → 5.9 | 50.9 → 28.6 | 51.6 → 29.5 | 105.6 → 59.0 |
+| 16 | 8.8 → 7.0 | 50.8 → 35.8 | 52.1 → 36.3 | 105.0 → 71.0 |
+| 18 | 8.9 → 8.1 | 51.3 → 42.4 | 51.8 → 42.5 | 106.0 → 86.6 |
+| 32 | 8.6 | 49.2 | 49.3 | 99.5 |
+
+**Accuracy.** Three checks.
+
+1. Against the exact answer (weights fully decoded, 32-bit maths) on the 9B model's
+   real layers. The outputs are 16-bit numbers, so the best any kernel can do is the
+   exact answer rounded once: an error of 0.165% of the typical output. The lab kernel
+   and MLX's one-row kernel both sit exactly there. MLX's 32-row block kernel is at
+   0.217%, a third worse, because it rounds every decoded weight to 16 bits before
+   multiplying. So for 7 to 18 rows the lab kernel is the more exact of the two.
+2. On real text, 8 passages read together, one token per step, identical inputs for
+   both kernels at every step:
+
+   | Model | Same next token, lab vs MLX | Same next token, MLX (8 together) vs MLX (one at a time) | Loss with MLX | Loss with lab |
+   |---|---|---|---|---|
+   | Qwen3.5-0.8B 4-bit | 98.0% | 98.2% | 3.2162 | 3.2160 |
+   | Qwen3.5-4B 4-bit | 98.3% | 99.0% | 2.7094 | 2.7077 |
+   | Qwen3-4B 4-bit | 98.2% | 98.3% | 2.9393 | 2.9413 |
+   | Qwen3.5-9B 4-bit | 98.6% | 98.0% | 2.5738 | 2.5746 |
+   | Qwen3.5-9B 8-bit | 99.0% | 98.2% | 2.5261 | 2.5251 |
+   | Qwen3.8-27B 4-bit | 98.3% | 98.6% | 2.4987 | 2.5000 |
+
+   The lab kernel differs from MLX exactly as much as MLX's two own kernels differ from
+   each other, and the model's loss (lower is better) is the same to three decimals.
+   These models keep 8 significant bits between layers, so any change in the order of a
+   sum moves a near-tie now and then.
+3. On random-token prompts, where the model is unsure at every step, the two runs
+   wrote identical tokens in 50 to 100% of positions. One changed token changes all that
+   follow, so this number says little; it is in the results file for completeness.
+
+**What limits it.** Command: `uv run python -m bench.kernel_limits` (the kernel built up one
+step at a time on the 9B model's weight tables; total ms for all layers).
+
+| Step added | 1 row | 4 rows | 8 rows |
+|---|---|---|---|
+| Start threads, loop, store | 2.2 | 2.0 | 2.4 |
+| + read the weights from memory | 12.8 | 13.0 | 13.1 |
+| + unpack and decode them | 14.8 | 14.9 | 14.9 |
+| + read the rows of x into registers | 16.4 | 23.1 | 35.4 |
+| + multiply-adds (the full kernel) | 15.7 | 25.6 | 38.7 |
+
+- **One prompt cannot be helped by a kernel.** Just reading the 3.97 GB of weights
+  takes 10.6 ms of the 15.7 ms: 375 GB/s, close to the chip's limit of 400 GB/s.
+- **Extra rows cost about 3.5 ms each on the 9B model.** Most of that is reading the
+  row's inputs again from the chip's cache for every group of 4 outputs; the
+  multiply-adds add little on top.
+- **Registers.** A GPU thread has 128 registers, and the more a kernel uses, the fewer
+  threads the GPU runs at once. 8 rows per pass is the most that fits. Tried during
+  development without gain: 8 outputs per thread group, 16-bit registers, different
+  addressing, wider loads, fast-math.
+- **From about 19 rows MLX's 32-row kernel is as fast**, so it takes over there.
+
+**Limits of the result.** Measured only on the M1 Max and MLX 0.32.4; MLX picks other
+kernels on M3 and later chips, so run the benchmark before trusting it elsewhere.
+Inference only (no gradient, so layers fall back to MLX's kernels in training mode).
+The first use of each batch size compiles a kernel, which takes a fraction of a second.
+It relies on MLX's custom-kernel feature and its packed weight layout, so re-run
+`uv run pytest tests/test_kernels.py` after an MLX upgrade.
+
+Verdict: **keep**. Switch it on for any work with 2 to 18 prompts at once.
+
+## 10. Guess-and-check decoding for one prompt
+
+Commands: `uv run python -m bench.speed_lookahead [--model ...] [--no-thinking]` and, for a
+draft model, `uv run python -m bench.speed_speculative --rows-kernel ...` (section 3).
+Code: `lab/infer/lookahead.py`.
+
+**The idea.** One prompt is limited by reading all the weights once per token. Section
+9 made extra rows in the same pass cheap. So guess the next few tokens, let the model
+check up to 7 guesses in one pass, and keep the ones it agrees with: each is a token
+that needed no pass of its own. The guesses here are free: when the last 3 tokens
+written also appear earlier in the prompt or the output, the tokens that followed them
+there are the guess ("prompt lookup"). The model's own choice is always what gets
+written, so the text is that of normal greedy decoding.
+
+**Result** (tok/s for one prompt, four prompts per task, up to 400 new tokens each):
+
+| Model | Task | Plain | Lookahead, MLX's kernels | Lookahead, lab kernel | Guesses accepted | Same text as plain |
+|---|---|---|---|---|---|---|
+| Qwen3-4B 4-bit | rewrite a function | 88.6 | 103.3 | 158.6 (1.79x) | 79% | 4 of 4 |
+| | quote from a passage | 85.5 | 118.6 | 212.8 (2.49x) | 92% | 4 of 4 |
+| | solve a maths problem | 87.2 | 76.9 | 89.6 (1.03x) | 32% | 0 of 4 |
+| Qwen3.5-9B 4-bit | rewrite a function | 52.5 | 56.3 | 91.9 (1.75x) | 82% | 3 of 4 |
+| | quote from a passage | 51.7 | 54.5 | 90.6 (1.75x) | 81% | 4 of 4 |
+| | solve a maths problem | 51.8 | 47.9 | 52.0 (1.00x) | 49% | 3 of 4 |
+
+- **When the answer copies earlier text it is 1.75 to 2.5x faster**; on fresh text
+  (maths) it neither helps nor hurts.
+- **Without the lab kernel it is not worth using**: checking 7 guesses then costs
+  almost 8 passes.
+- **The Qwen3.5 family needed extra work.** Part of its memory of the text cannot be
+  rewound after a wrong guess (which is why mlx-lm refuses speculative decoding for
+  it). The decoder saves that part before each check, restores it after a miss and runs
+  the accepted tokens again. A miss costs a whole pass there, so it starts with short
+  guesses and stops guessing for a while after each miss.
+- **"Same text" is not always 4 of 4** on long free-form answers. A pass over several
+  rows rounds differently from a one-row pass (section 9, accuracy), a near-tie flips,
+  and everything after it differs. It happens with MLX's own kernels too (1 of 4 on
+  maths). Both texts are valid greedy outputs of the same model.
+
+Limits: greedy decoding only; one prompt at a time; guesses come only from repeated
+text, so the gain depends on the task.
+
+Verdict: **keep** for editing, extraction and other copy-heavy work, with the lab
+kernel switched on.
+
+## 11. Not tested
 
 - **Raising the GPU memory cap** (`iogpu.wired_limit_mb`). It needs `sudo`. Nothing
   measured here needed it: every model up to 27B at 4-bit loaded and ran under the

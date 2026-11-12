@@ -23,10 +23,13 @@ cd ~/Documents/Dev/ai-lab
    `uv run python -m lab.preflight` before anything heavy.
 2. **Keep models on the internal disk.** Loading from the USB hard drive took 23
    minutes for a 13 GB model; from the internal disk it takes seconds.
-3. **Batch at 32.** On the M1, one decoding step costs the same for 8, 16 or 32 prompts
-   (`SPEED-RESULTS.md` section 1). So 8 at once is no faster than 4, 16 is about half as
-   fast as 32, and 64 is no faster than 32 but needs more memory. If you have fewer than
-   32 prompts, extra samples up to 32 are nearly free. For one interactive chat use 1.
+3. **Switch the lab kernel on, then batch.** With MLX's own GPU code on the M1, one
+   decoding step costs the same for 8, 16 or 32 prompts, and 2-6 prompts each re-read
+   all the weights (`SPEED-RESULTS.md` section 1). The lab's kernel removes that for
+   2-18 prompts with one line, `qmm.install(model)`: 1.4-1.6x faster at 4 prompts,
+   2.1-2.6x at 8 (section 9). 32 at once still gives the most tokens per second; 8 at
+   once now gives over half of that with a quarter of the memory. 64 is no faster than
+   32. One chat at a time is unchanged.
 4. **Small vocabulary for from-scratch training.** 8,192 tokens instead of GPT-2's
    50,257 made training 2.6x faster and cut memory by 40% for the same model body.
 5. **Fine-tune Qwen3.5-type models with gradient checkpointing** (the lab turns it on
@@ -38,6 +41,10 @@ cd ~/Documents/Dev/ai-lab
 7. **Put the shared part of the prompts first.** `generate_batch` reads a common opening
    (system prompt, worked examples, a document) once instead of once per prompt: 5x
    faster end to end on prompts that share 2,700 tokens.
+8. **For one prompt whose answer copies earlier text, decode with lookahead.**
+   `lab.infer.lookahead.generate` guesses the next tokens from the text so far and has
+   the model check them in one pass: 1.75-2.5x faster when rewriting code or quoting a
+   passage, no change on fresh text (section 10). It needs the lab kernel switched on.
 
 ## Commands
 
@@ -49,7 +56,8 @@ cd ~/Documents/Dev/ai-lab
 | Train a small GPT for 5 minutes | `uv run python -m lab.train.train --name try1` | `runs/train/try1/result.json` |
 | Fine-tune a model with LoRA | `uv run python -m lab.finetune.lora --model mlx-community/Qwen3-4B-Instruct-2507-4bit --iters 200` | adapter under `runs/lora/example` |
 | Chat with a model | `uv run mlx_lm.chat --model mlx-community/Qwen3.5-9B-4bit` | nothing |
-| Serve a model to other programs | `uv run mlx_lm.server --model mlx-community/Qwen3.5-4B-4bit --port 8642 --decode-concurrency 32` | nothing |
+| Serve a model to other programs (lab kernel on) | `uv run python -m lab.serve --model mlx-community/Qwen3.5-9B-4bit --port 8642 --decode-concurrency 8` | nothing |
+| Compare the lab kernel with MLX's on a model | `uv run python -m bench.kernel_rows --model LABEL=PATH` | `bench/results/kernel_rows.json` |
 | Run the example eval | see the top of `examples/inspect_local.py` | one log under `runs/inspect-logs/` |
 | Start the experiment loop | `uv run python -m lab.loop --rounds 10 --agent "claude -p --permission-mode acceptEdits"` | a `loop/...` git branch, `results.tsv` |
 | Re-measure the baseline | `uv run python -m bench.inference --model LABEL=PATH`, then `uv run python -m bench.report` | `bench/results/`, `BASELINE.md` |
@@ -70,6 +78,19 @@ model, tokenizer = load("mlx-community/Qwen3.5-4B-4bit")
 prompts = [chat_tokens(tokenizer, q, system="Answer in one sentence.") for q in questions]
 result = generate_batch(model, tokenizer, prompts, max_tokens=256, batch_size=32)
 print(result.texts[0], result.generation_tps)
+```
+
+Switch on the lab's GPU kernel (faster for 2-18 prompts at once) and decode one prompt
+with lookahead:
+
+```python
+from lab.kernels import qmm
+from lab.infer.lookahead import generate
+
+qmm.install(model)                                    # qmm.uninstall(model) switches back
+result = generate_batch(model, tokenizer, prompts, max_tokens=256, batch_size=8)
+one = generate(model, tokenizer, chat_tokens(tokenizer, question), max_tokens=400)
+print(one.text, one.tokens_per_s, f"{one.accepted} of {one.guessed} guesses accepted")
 ```
 
 Look inside a model, steer it, and edit its weights:
@@ -100,7 +121,8 @@ MLX may use about 25 GB of the 32 GB for models, and other apps need their share
 
 - **Running models:** up to about 27B parameters at 4-bit (14 GB of weights). 4B-9B
   models leave plenty of room for batching. The 27B model runs 1-8 prompts at once
-  (21.6 GB at 8); 32 at once ran out of memory.
+  (21.6 GB at 8); 32 at once ran out of memory. With the lab kernel on, 8 at once
+  gives it about twice its best speed without (section 9).
 - **Training from scratch:** 14M-91M parameter GPTs. The 91M size needs 16-bit weights
   or a batch of 16 to stay under 12 GB.
 - **Fine-tuning (LoRA, batch 4, 512 tokens):** Qwen3-4B at 313 tokens/s in 5 GB;
@@ -134,6 +156,9 @@ lab/train/            data.py (text -> tokens), model.py (the GPT), train.py (fi
 lab/finetune/lora.py  LoRA / QLoRA fine-tuning
 lab/edit/             weights.py (read, change, checksum, LoRA conversion), hooks.py (capture, hook, steer)
 lab/infer/batch.py    batched generation with shared-prefix reuse
+lab/infer/lookahead.py  one prompt, several tokens per pass by guessing ahead
+lab/kernels/qmm.py    the lab's GPU kernel for 2-18 prompts at once
+lab/serve.py          mlx-lm's server with that kernel switched on
 lab/loop.py           the automated experiment loop
 bench/                benchmark and experiment scripts; results in bench/results/*.json
 examples/             an Inspect AI eval against the local server
