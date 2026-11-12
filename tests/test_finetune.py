@@ -1,6 +1,6 @@
 """Fine-tuning: the batching helpers (fast), and whole runs on real small models (slow: each loads a model and trains).
 
-The training text of the slow tests is the lab's own README and results write-up, cut into short passages.
+The training text of the slow tests is the lab's own guide and results write-up, cut into short passages.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 @pytest.fixture
 def tiny_dataset(tmp_path: Path) -> Path:
     """A folder in mlx-lm's format (train.jsonl, valid.jsonl) holding 40 short passages of real text."""
-    words = ((ROOT / "README.md").read_text() + (ROOT / "SPEED-RESULTS.md").read_text()).split()
+    words = ((ROOT / "GUIDE.md").read_text() + (ROOT / "SPEED-RESULTS.md").read_text()).split()
     passages = [" ".join(words[i:i + 40]) for i in range(0, 40 * 40, 40)]
     assert len(words) >= 40 * 40 and all(passages)
     for name, rows in (("train", passages[:32]), ("valid", passages[32:])):
