@@ -1,4 +1,4 @@
-"""Speed experiment 10: the lab's multi-row GPU kernel against MLX's own, layer by layer and end to end.
+"""Speed experiment 9: the lab's multi-row GPU kernel against MLX's own, layer by layer and end to end.
 
 What it measures, for each model
   layers   every quantized weight table of the model is run once on `rows` rows of

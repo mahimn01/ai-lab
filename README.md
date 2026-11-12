@@ -23,28 +23,49 @@ cd ~/Documents/Dev/ai-lab
    `uv run python -m lab.preflight` before anything heavy.
 2. **Keep models on the internal disk.** Loading from the USB hard drive took 23
    minutes for a 13 GB model; from the internal disk it takes seconds.
-3. **Switch the lab kernel on, then batch.** With MLX's own GPU code on the M1, one
-   decoding step costs the same for 8, 16 or 32 prompts, and 2-6 prompts each re-read
-   all the weights (`SPEED-RESULTS.md` section 1). The lab's kernel removes that for
-   2-18 prompts with one line, `qmm.install(model)`: 1.4-1.6x faster at 4 prompts,
-   2.1-2.6x at 8 (section 9). 32 at once still gives the most tokens per second; 8 at
-   once now gives over half of that with a quarter of the memory. 64 is no faster than
-   32. One chat at a time is unchanged.
-4. **Small vocabulary for from-scratch training.** 8,192 tokens instead of GPT-2's
-   50,257 made training 2.6x faster and cut memory by 40% for the same model body.
-5. **Fine-tune Qwen3.5-type models with gradient checkpointing** (the lab turns it on
-   by itself). Without it a 0.8B model needed 18 GB; with it, 4 GB at the same speed.
-6. **Pick the number of bits by the job.** At 32 prompts at once, 4-bit, 6-bit and 8-bit
+3. **Switch the lab's GPU paths on with one line, `qmm.install(model)`.** With MLX's own
+   GPU code on the M1, one decoding step costs the same for 8, 16 or 32 prompts, and 2-6
+   prompts each re-read all the weights (`SPEED-RESULTS.md` section 1). The lab's kernel
+   removes that for 2-18 prompts: 1.4-1.6x faster at 4 prompts, 2.1-2.6x at 8 (section
+   9). The same line makes prompts 1.2-1.33x faster to read (section 11). 32 at once
+   still gives the most tokens per second; 8 at once now gives over half of that with a
+   quarter of the memory. 64 is no faster than 32. One chat at a time is unchanged.
+4. **For inference, run the model in float16**: `float16.convert(model, tokenizer)`.
+   MLX's GPU code converts the models' bfloat16 numbers in software; float16 is native.
+   Prompts are read 1.4x faster and 32 prompts at once decode 1.18-1.31x faster; a
+   64-question eval finished 1.29x sooner end to end; one prompt is unchanged. `convert`
+   first checks on sample prompts that no value inside the model comes near float16's
+   limit of 65,504, and refuses otherwise. Not for fine-tuning (section 16).
+5. **Train from scratch with a small vocabulary and the default number format.** 8,192
+   tokens instead of GPT-2's 50,257 made training 2.6x faster. The trainer's default
+   format (`mixed16`: 32-bit weights, 16-bit arithmetic) trains 24% more tokens per
+   second than 32-bit in 41% less memory and scores better in the same time (section 12).
+6. **Fine-tune through `lab.finetune.lora`, not `mlx_lm.lora` directly.** It is mlx-lm's
+   trainer with the lab's GPU paths, a fast training path for Qwen3.5-type models, and
+   batches of similar-length examples. On short examples: Qwen3-4B 289 → 422 tokens/s,
+   Qwen3.5-4B 86 → 338, Qwen3.5-9B 64 → 166. Qwen3.5-4B on full 512-token examples ran
+   out of memory with mlx-lm alone and now runs at 345 tokens/s in 10 GB (section 13).
+   The script decides by itself when to trade speed for memory.
+7. **For several passes or a sweep on the same data, use `lab.finetune.cached`.** It
+   computes the frozen bottom layers once: 1.2x faster per step when the last 16 layers
+   are trained and up to 2.6x for the last 4, after a cache that takes one to two
+   minutes to build (section 14).
+8. **Pick the number of bits by the job.** At 32 prompts at once, 4-bit, 6-bit and 8-bit
    copies of a model run at the same speed, so use 8-bit (no measurable quality loss)
    when memory allows. For one chat, 4-bit is about 60% faster than 8-bit and costs
    about 6% in quality (perplexity).
-7. **Put the shared part of the prompts first.** `generate_batch` reads a common opening
+9. **Put the shared part of the prompts first.** `generate_batch` reads a common opening
    (system prompt, worked examples, a document) once instead of once per prompt: 5x
    faster end to end on prompts that share 2,700 tokens.
-8. **For one prompt whose answer copies earlier text, decode with lookahead.**
-   `lab.infer.lookahead.generate` guesses the next tokens from the text so far and has
-   the model check them in one pass: 1.75-2.5x faster when rewriting code or quoting a
-   passage, no change on fresh text (section 10). It needs the lab kernel switched on.
+10. **For one prompt whose answer copies earlier text, decode with lookahead.**
+    `lab.infer.lookahead.generate` guesses the next tokens from the text so far and has
+    the model check them in one pass: 1.75-2.5x faster when rewriting code or quoting a
+    passage, no change on fresh text (section 10). It needs the lab kernel switched on.
+11. **When looking inside a model, do not run layers you do not need.** `hooks.run_to`
+    stops after a layer, `hooks.run_from` restarts from stored results, and
+    `last_only=True` skips the output layer for all but the last position:
+    collecting an early layer runs 6x faster than a full pass and a sweep from three
+    quarters of the way up 5.3x faster (section 15).
 
 ## Commands
 
@@ -55,9 +76,11 @@ cd ~/Documents/Dev/ai-lab
 | Prepare the training text (once) | `uv run python -m lab.train.data` | writes `data/fineweb_edu/` |
 | Train a small GPT for 5 minutes | `uv run python -m lab.train.train --name try1` | `runs/train/try1/result.json` |
 | Fine-tune a model with LoRA | `uv run python -m lab.finetune.lora --model mlx-community/Qwen3-4B-Instruct-2507-4bit --iters 200` | adapter under `runs/lora/example` |
+| The same, bottom layers computed once (sweeps, many passes) | `uv run python -m lab.finetune.cached --model mlx-community/Qwen3-4B-Instruct-2507-4bit --num-layers 8 --iters 200` | adapter under `runs/lora/cached`, cache under `runs/prefix-cache/` |
 | Chat with a model | `uv run mlx_lm.chat --model mlx-community/Qwen3.5-9B-4bit` | nothing |
-| Serve a model to other programs (lab kernel on) | `uv run python -m lab.serve --model mlx-community/Qwen3.5-9B-4bit --port 8642 --decode-concurrency 8` | nothing |
+| Serve a model to other programs (lab paths on) | `uv run python -m lab.serve --model mlx-community/Qwen3.5-9B-4bit --port 8642 --decode-concurrency 8 --float16` | nothing |
 | Compare the lab kernel with MLX's on a model | `uv run python -m bench.kernel_rows --model LABEL=PATH` | `bench/results/kernel_rows.json` |
+| Check what float16 does for a model | `uv run python -m bench.float16 --model LABEL=PATH` | `bench/results/float16.json` |
 | Run the example eval | see the top of `examples/inspect_local.py` | one log under `runs/inspect-logs/` |
 | Start the experiment loop | `uv run python -m lab.loop --rounds 10 --agent "claude -p --permission-mode acceptEdits"` | a `loop/...` git branch, `results.tsv` |
 | Re-measure the baseline | `uv run python -m bench.inference --model LABEL=PATH`, then `uv run python -m bench.report` | `bench/results/`, `BASELINE.md` |
@@ -80,13 +103,15 @@ result = generate_batch(model, tokenizer, prompts, max_tokens=256, batch_size=32
 print(result.texts[0], result.generation_tps)
 ```
 
-Switch on the lab's GPU kernel (faster for 2-18 prompts at once) and decode one prompt
-with lookahead:
+Switch on the lab's GPU paths (faster for 2-18 prompts at once and for reading prompts),
+run in float16, and decode one prompt with lookahead:
 
 ```python
+from lab.infer import float16
 from lab.kernels import qmm
 from lab.infer.lookahead import generate
 
+report = float16.convert(model, tokenizer)            # checks on sample prompts first; float16.revert(model) undoes it
 qmm.install(model)                                    # qmm.uninstall(model) switches back
 result = generate_batch(model, tokenizer, prompts, max_tokens=256, batch_size=8)
 one = generate(model, tokenizer, chat_tokens(tokenizer, question), max_tokens=400)
@@ -104,6 +129,13 @@ with hooks.steer(model, layer=12, vector=direction, scale=4.0):
     steered = model(tokens)                              # output with a direction added
 with hooks.hook(model, 8, lambda out: mx.zeros_like(out)):
     ablated = model(tokens)                              # output with layer 8 silenced
+
+# Skip the layers whose result is not needed or already known (SPEED-RESULTS.md section 15):
+states = hooks.run_to(model, tokens, 20)                 # layer 20's output; later layers never run
+for direction in directions:                             # try many changes, re-running only layers 21 up
+    with hooks.steer(model, layer=24, vector=direction, scale=4.0):
+        scores = hooks.run_from(model, states, 20, last_only=True)
+hooks.save_activations(model, batches, layer=12, path="runs/acts-layer12.npy")  # a dataset of one layer's output
 
 weights.list_weights(model, contains="layers.15.mlp")    # find a weight by name
 log = weights.EditLog(model="Qwen3.5-0.8B")
@@ -123,11 +155,12 @@ MLX may use about 25 GB of the 32 GB for models, and other apps need their share
   models leave plenty of room for batching. The 27B model runs 1-8 prompts at once
   (21.6 GB at 8); 32 at once ran out of memory. With the lab kernel on, 8 at once
   gives it about twice its best speed without (section 9).
-- **Training from scratch:** 14M-91M parameter GPTs. The 91M size needs 16-bit weights
-  or a batch of 16 to stay under 12 GB.
-- **Fine-tuning (LoRA, batch 4, 512 tokens):** Qwen3-4B at 313 tokens/s in 5 GB;
-  Qwen3.5-4B at 88 tokens/s in 9 GB; Qwen3.5-9B at 56 tokens/s in 12 GB. Qwen3.5-type
-  models fine-tune 3.5-7x slower per token than attention-only models of the same size.
+- **Training from scratch:** 14M-91M parameter GPTs. The 91M size needs 16-bit
+  arithmetic (the default) or a batch of 16 to stay under 12 GB.
+- **Fine-tuning (LoRA, batch 4, short examples, through `lab.finetune.lora`):**
+  Qwen3-4B at 422 tokens/s in 8 GB; Qwen3.5-0.8B at 1,172 in 4 GB; Qwen3.5-4B at 338 in
+  11 GB; Qwen3.5-9B at 166 in 14 GB. Full 512-token examples: Qwen3-4B at 516 tokens/s
+  in 14 GB, Qwen3.5-4B at 345 in 10 GB.
 
 ## Free compute for confirming a result on a real GPU
 
@@ -153,12 +186,15 @@ lab/preflight.py      memory, swap, disk and heat check
 lab/run.py            watchdog job runner
 lab/train/            data.py (text -> tokens), model.py (the GPT), train.py (fixed-time training),
                       program.md (instructions the loop gives the agent)
-lab/finetune/lora.py  LoRA / QLoRA fine-tuning
-lab/edit/             weights.py (read, change, checksum, LoRA conversion), hooks.py (capture, hook, steer)
+lab/finetune/         lora.py (LoRA / QLoRA fine-tuning), cached.py (the same with the frozen bottom layers
+                      computed once), gated_delta.py (the fast training path for Qwen3.5's recurrent layers)
+lab/edit/             weights.py (read, change, checksum, LoRA conversion), hooks.py (capture, hook, steer,
+                      stop after a layer, resume from a layer)
 lab/infer/batch.py    batched generation with shared-prefix reuse
+lab/infer/float16.py  switch a bfloat16 model to float16 after a safety check
 lab/infer/lookahead.py  one prompt, several tokens per pass by guessing ahead
-lab/kernels/qmm.py    the lab's GPU kernel for 2-18 prompts at once
-lab/serve.py          mlx-lm's server with that kernel switched on
+lab/kernels/qmm.py    the lab's GPU paths for quantized layers: a kernel for 2-18 rows, decode-then-dense for 256+
+lab/serve.py          mlx-lm's server with those paths switched on
 lab/loop.py           the automated experiment loop
 bench/                benchmark and experiment scripts; results in bench/results/*.json
 examples/             an Inspect AI eval against the local server

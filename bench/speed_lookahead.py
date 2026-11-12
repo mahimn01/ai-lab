@@ -1,4 +1,4 @@
-"""Speed experiment 11: does guess-and-check decoding make ONE prompt faster once extra rows are cheap?
+"""Speed experiment 10: does guess-and-check decoding make ONE prompt faster once extra rows are cheap?
 
 The idea (lab/infer/lookahead.py)
   When the text being written repeats earlier text, guess the next tokens by copying
