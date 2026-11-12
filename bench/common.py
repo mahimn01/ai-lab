@@ -51,10 +51,13 @@ def mean_sd(values: list[float]) -> dict:
 
 
 def save(name: str, label: str, entry: dict) -> Path:
-    """Merge one labelled entry into bench/results/<name>.json and return the path."""
+    """Merge one labelled entry into bench/results/<name>.json and return the path.
+
+    Paths under the home folder are written with ~, so a result file never carries a user name.
+    """
     RESULTS.mkdir(parents=True, exist_ok=True)
     path = RESULTS / f"{name}.json"
     data = json.loads(path.read_text()) if path.exists() else {}
     data[label] = entry
-    path.write_text(json.dumps(data, indent=2) + "\n")
+    path.write_text((json.dumps(data, indent=2) + "\n").replace(str(Path.home()), "~"))
     return path

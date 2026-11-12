@@ -14,7 +14,7 @@
     "train_loss_last": 1.7352094650268555,
     "val_loss_before": 3.411884069442749,
     "val_loss_after": 1.9617496728897095,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-0.6b-4bit-seq512-batch4",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-0.6b-4bit-seq512-batch4",
     "environment": {
       "when": "2026-11-11T20:12:51",
       "chip": "Apple M1 Max",
@@ -43,7 +43,7 @@
     "train_loss_last": 1.4714848518371582,
     "val_loss_before": 3.104867696762085,
     "val_loss_after": 1.7938390970230103,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq128-batch4",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq128-batch4",
     "environment": {
       "when": "2026-11-11T20:13:11",
       "chip": "Apple M1 Max",
@@ -72,7 +72,7 @@
     "train_loss_last": 1.453774356842041,
     "val_loss_before": 3.104867696762085,
     "val_loss_after": 1.7097612619400024,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4",
     "environment": {
       "when": "2026-11-11T20:13:49",
       "chip": "Apple M1 Max",
@@ -101,7 +101,7 @@
     "train_loss_last": 1.453774356842041,
     "val_loss_before": 3.104867696762085,
     "val_loss_after": 1.7097612619400024,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpoint",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpoint",
     "environment": {
       "when": "2026-11-11T20:14:31",
       "chip": "Apple M1 Max",
@@ -130,7 +130,7 @@
     "train_loss_last": 1.43310489654541,
     "val_loss_before": 2.7471256256103516,
     "val_loss_after": 1.546810269355774,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4",
     "environment": {
       "when": "2026-11-11T20:15:13",
       "chip": "Apple M1 Max",
@@ -161,7 +161,7 @@
     "train_loss_last": 1.2935954093933106,
     "val_loss_before": 2.588824510574341,
     "val_loss_after": 1.5300374031066895,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto",
     "environment": {
       "when": "2026-11-12T02:42:38",
       "chip": "Apple M1 Max",
@@ -191,7 +191,7 @@
     "train_loss_last": 1.2830865859985352,
     "val_loss_before": 2.464592933654785,
     "val_loss_after": 1.4780265092849731,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto",
     "environment": {
       "when": "2026-11-12T02:44:48",
       "chip": "Apple M1 Max",
@@ -221,7 +221,7 @@
     "train_loss_last": 1.43310489654541,
     "val_loss_before": 2.7471256256103516,
     "val_loss_after": 1.546810269355774,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto",
     "environment": {
       "when": "2026-11-12T02:40:43",
       "chip": "Apple M1 Max",
@@ -252,7 +252,7 @@
     "train_loss_last": 1.3894089698791503,
     "val_loss_before": 3.001023054122925,
     "val_loss_after": 1.260400414466858,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
     "environment": {
       "when": "2026-11-12T03:53:59",
       "chip": "Apple M1 Max",
@@ -282,7 +282,7 @@
     "train_loss_last": 1.453774356842041,
     "val_loss_before": 3.104867696762085,
     "val_loss_after": 1.7097612619400024,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto",
     "environment": {
       "when": "2026-11-12T02:41:43",
       "chip": "Apple M1 Max",
@@ -313,7 +313,7 @@
     "train_loss_last": 1.5354910850524903,
     "val_loss_before": 3.2787041664123535,
     "val_loss_after": 1.34450364112854,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
     "environment": {
       "when": "2026-11-12T03:54:23",
       "chip": "Apple M1 Max",
@@ -344,7 +344,7 @@
     "train_loss_last": 1.3161561965942383,
     "val_loss_before": 2.720921516418457,
     "val_loss_after": 1.1751686334609985,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
     "environment": {
       "when": "2026-11-12T03:54:35",
       "chip": "Apple M1 Max",
@@ -375,7 +375,7 @@
     "train_loss_last": 1.2877708435058595,
     "val_loss_before": 2.6447393894195557,
     "val_loss_after": 1.1371173858642578,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto-labkernels",
     "environment": {
       "when": "2026-11-12T03:55:05",
       "chip": "Apple M1 Max",
@@ -406,7 +406,7 @@
     "train_loss_last": 1.3161561965942383,
     "val_loss_before": 2.720921516418457,
     "val_loss_after": 1.1751686334609985,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointon-labkernels",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointon-labkernels",
     "environment": {
       "when": "2026-11-12T03:57:01",
       "chip": "Apple M1 Max",
@@ -421,7 +421,7 @@
   },
   "qwen3.5-4b-4bit | seq 512, batch 4, grad checkpoint on, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -436,7 +436,7 @@
     "train_loss_last": 2.429892349243164,
     "val_loss_before": 2.2657923698425293,
     "val_loss_after": 2.106771230697632,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointon-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointon-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T03:11:16",
       "chip": "Apple M1 Max",
@@ -451,7 +451,7 @@
   },
   "qwen3.5-4b-4bit | seq 512, batch 4, grad checkpoint off, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -466,7 +466,7 @@
     "train_loss_last": 2.429892349243164,
     "val_loss_before": 2.2657923698425293,
     "val_loss_after": 2.106771230697632,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointoff-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointoff-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T03:12:29",
       "chip": "Apple M1 Max",
@@ -481,7 +481,7 @@
   },
   "qwen3-4b-4bit | seq 512, batch 4, grad checkpoint auto, lab kernels, long text": {
     "model": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -496,7 +496,7 @@
     "train_loss_last": 2.5640130996704102,
     "val_loss_before": 2.4335381984710693,
     "val_loss_after": 2.188795328140259,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T03:13:59",
       "chip": "Apple M1 Max",
@@ -511,7 +511,7 @@
   },
   "qwen3-4b-4bit | seq 512, batch 4, grad checkpoint auto, long text": {
     "model": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -526,7 +526,7 @@
     "train_loss_last": 2.5640130996704102,
     "val_loss_before": 2.4335381984710693,
     "val_loss_after": 2.188795328140259,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-longtext",
     "environment": {
       "when": "2026-11-12T03:14:51",
       "chip": "Apple M1 Max",
@@ -571,7 +571,7 @@
     "train_loss_last": 1.43310489654541,
     "val_loss_before": 2.7471256256103516,
     "val_loss_after": 1.546810269355774,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
     "environment": {
       "when": "2026-11-12T03:48:58",
       "chip": "Apple M1 Max",
@@ -602,7 +602,7 @@
     "train_loss_last": 1.453774356842041,
     "val_loss_before": 3.104867696762085,
     "val_loss_after": 1.7097612619400024,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
     "environment": {
       "when": "2026-11-12T03:49:32",
       "chip": "Apple M1 Max",
@@ -633,7 +633,7 @@
     "train_loss_last": 1.2935954093933106,
     "val_loss_before": 2.588824510574341,
     "val_loss_after": 1.5300374031066895,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
     "environment": {
       "when": "2026-11-12T03:50:13",
       "chip": "Apple M1 Max",
@@ -664,7 +664,7 @@
     "train_loss_last": 1.2830865859985352,
     "val_loss_before": 2.464592933654785,
     "val_loss_after": 1.4780265092849731,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto-fileorder",
     "environment": {
       "when": "2026-11-12T03:51:50",
       "chip": "Apple M1 Max",
@@ -695,7 +695,7 @@
     "train_loss_last": 1.431416893005371,
     "val_loss_before": 2.740288257598877,
     "val_loss_after": 1.546983003616333,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder",
     "environment": {
       "when": "2026-11-12T03:56:00",
       "chip": "Apple M1 Max",
@@ -726,7 +726,7 @@
     "train_loss_last": 1.2931764602661133,
     "val_loss_before": 2.588956356048584,
     "val_loss_after": 1.532570481300354,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder",
     "environment": {
       "when": "2026-11-12T03:56:27",
       "chip": "Apple M1 Max",
@@ -757,7 +757,7 @@
     "train_loss_last": 1.2877708435058595,
     "val_loss_before": 2.6447393894195557,
     "val_loss_after": 1.1371173858642578,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointoff-labkernels",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointoff-labkernels",
     "environment": {
       "when": "2026-11-12T03:57:35",
       "chip": "Apple M1 Max",
@@ -772,7 +772,7 @@
   },
   "qwen3.5-4b-4bit | seq 512, batch 4, grad checkpoint auto, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -788,7 +788,7 @@
     "train_loss_last": 2.5475818634033205,
     "val_loss_before": 2.2151689529418945,
     "val_loss_after": 2.2810778617858887,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T03:58:23",
       "chip": "Apple M1 Max",
@@ -803,7 +803,7 @@
   },
   "qwen3.5-4b-4bit | seq 256, batch 4, grad checkpoint on, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -819,7 +819,7 @@
     "train_loss_last": 2.7028121948242188,
     "val_loss_before": 2.4761416912078857,
     "val_loss_after": 2.4111011028289795,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq256-batch4-gradcheckpointon-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq256-batch4-gradcheckpointon-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T03:59:37",
       "chip": "Apple M1 Max",
@@ -834,7 +834,7 @@
   },
   "qwen3.5-4b-4bit | seq 256, batch 4, grad checkpoint off, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -850,7 +850,7 @@
     "train_loss_last": 2.7028121948242188,
     "val_loss_before": 2.4761416912078857,
     "val_loss_after": 2.4111011028289795,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq256-batch4-gradcheckpointoff-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq256-batch4-gradcheckpointoff-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:00:16",
       "chip": "Apple M1 Max",
@@ -865,7 +865,7 @@
   },
   "qwen3.5-4b-4bit | seq 512, batch 1, grad checkpoint auto, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 16,
     "batch_size": 1,
@@ -881,7 +881,7 @@
     "train_loss_last": 2.406494140625,
     "val_loss_before": 1.9514676332473755,
     "val_loss_after": 2.1782219409942627,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch1-gradcheckpointauto-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch1-gradcheckpointauto-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:00:51",
       "chip": "Apple M1 Max",
@@ -896,7 +896,7 @@
   },
   "qwen3.5-4b-4bit | seq 512, batch 1, grad checkpoint auto, file order, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 16,
     "batch_size": 1,
@@ -912,7 +912,7 @@
     "train_loss_last": 2.473088264465332,
     "val_loss_before": 2.5298988819122314,
     "val_loss_after": 2.087275743484497,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch1-gradcheckpointauto-fileorder-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch1-gradcheckpointauto-fileorder-longtext",
     "environment": {
       "when": "2026-11-12T04:01:19",
       "chip": "Apple M1 Max",
@@ -927,7 +927,7 @@
   },
   "qwen3.5-0.8b-4bit | seq 512, batch 4, grad checkpoint off, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-0.8B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -943,7 +943,7 @@
     "train_loss_last": 3.107480049133301,
     "val_loss_before": 2.665412664413452,
     "val_loss_after": 2.703219175338745,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointoff-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointoff-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:03:46",
       "chip": "Apple M1 Max",
@@ -958,7 +958,7 @@
   },
   "qwen3.5-0.8b-4bit | seq 512, batch 4, grad checkpoint on, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-0.8B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -974,7 +974,7 @@
     "train_loss_last": 3.107480049133301,
     "val_loss_before": 2.665412664413452,
     "val_loss_after": 2.703219175338745,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointon-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointon-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:04:06",
       "chip": "Apple M1 Max",
@@ -989,7 +989,7 @@
   },
   "qwen3.5-0.8b-4bit | seq 512, batch 4, grad checkpoint auto, file order, long text": {
     "model": "mlx-community/Qwen3.5-0.8B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -1005,7 +1005,7 @@
     "train_loss_last": 2.9706710815429687,
     "val_loss_before": 2.7164626121520996,
     "val_loss_after": 2.485325574874878,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-fileorder-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-fileorder-longtext",
     "environment": {
       "when": "2026-11-12T04:04:28",
       "chip": "Apple M1 Max",
@@ -1020,7 +1020,7 @@
   },
   "qwen3.5-9b-4bit | seq 512, batch 4, grad checkpoint auto, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-9B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -1036,7 +1036,7 @@
     "train_loss_last": 2.401345634460449,
     "val_loss_before": 2.127408027648926,
     "val_loss_after": 2.175692319869995,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-9b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:06:57",
       "chip": "Apple M1 Max",
@@ -1051,7 +1051,7 @@
   },
   "qwen3.5-4b-4bit | seq 256, batch 4, grad checkpoint auto, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-4B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -1067,7 +1067,7 @@
     "train_loss_last": 2.7028121948242188,
     "val_loss_before": 2.4761416912078857,
     "val_loss_after": 2.4111011028289795,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq256-batch4-gradcheckpointauto-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq256-batch4-gradcheckpointauto-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:52:12",
       "chip": "Apple M1 Max",
@@ -1082,7 +1082,7 @@
   },
   "qwen3.5-0.8b-4bit | seq 512, batch 4, grad checkpoint auto, lab kernels, long text": {
     "model": "mlx-community/Qwen3.5-0.8B-4bit",
-    "data": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/long-text",
+    "data": "~/Documents/Dev/ai-lab/runs/long-text",
     "fine_tune_type": "lora",
     "iters": 10,
     "batch_size": 4,
@@ -1098,7 +1098,7 @@
     "train_loss_last": 3.107480049133301,
     "val_loss_before": 2.665412664413452,
     "val_loss_after": 2.703219175338745,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-labkernels-longtext",
     "environment": {
       "when": "2026-11-12T04:52:51",
       "chip": "Apple M1 Max",
@@ -1129,7 +1129,7 @@
     "train_loss_last": 1.3626431465148925,
     "val_loss_before": 3.030193328857422,
     "val_loss_after": 1.320102572441101,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder-60steps-wholevalidationset",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder-60steps-wholevalidationset",
     "environment": {
       "when": "2026-11-12T05:49:14",
       "chip": "Apple M1 Max",
@@ -1160,7 +1160,7 @@
     "train_loss_last": 1.3603992462158203,
     "val_loss_before": 3.028682231903076,
     "val_loss_after": 1.3191460371017456,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-fileorder-60steps-wholevalidationset",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-0.8b-4bit-seq512-batch4-gradcheckpointauto-fileorder-60steps-wholevalidationset",
     "environment": {
       "when": "2026-11-12T05:49:48",
       "chip": "Apple M1 Max",
@@ -1191,7 +1191,7 @@
     "train_loss_last": 1.1543920516967774,
     "val_loss_before": 2.586942672729492,
     "val_loss_after": 1.14960777759552,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder-60steps-wholevalidationset",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-labkernels-fileorder-60steps-wholevalidationset",
     "environment": {
       "when": "2026-11-12T05:51:36",
       "chip": "Apple M1 Max",
@@ -1222,7 +1222,7 @@
     "train_loss_last": 1.1529856681823731,
     "val_loss_before": 2.586970329284668,
     "val_loss_after": 1.1494061946868896,
-    "adapter_path": "/Users/mahimnpatel/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-fileorder-60steps-wholevalidationset",
+    "adapter_path": "~/Documents/Dev/ai-lab/runs/lora-bench/qwen3.5-4b-4bit-seq512-batch4-gradcheckpointauto-fileorder-60steps-wholevalidationset",
     "environment": {
       "when": "2026-11-12T05:53:30",
       "chip": "Apple M1 Max",

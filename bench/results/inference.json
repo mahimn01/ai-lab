@@ -1,6 +1,6 @@
 {
   "qwen3.5-0.8b-bf16": {
-    "path": "/Users/mahimnpatel/Documents/Dev/neural-harness/models/base",
+    "path": "~/Documents/Dev/neural-harness/models/base",
     "load_s": 1.0475833746604621,
     "weights_gb": 1.4014460444450378,
     "prompt_tokens": 512,
@@ -118,7 +118,7 @@
     }
   },
   "qwen3.5-4b-bf16": {
-    "path": "/Users/mahimnpatel/Documents/Dev/neural-harness/models/qwen3.5-4b",
+    "path": "~/Documents/Dev/neural-harness/models/qwen3.5-4b",
     "load_s": 3.266660625115037,
     "weights_gb": 7.833829402923584,
     "prompt_tokens": 512,
