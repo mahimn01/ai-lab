@@ -20,7 +20,10 @@ What it measures
   MATH-500 set answered with up to 256 new tokens each, 32 at a time, through the lab's
   generate_batch (the workload of SPEED-RESULTS.md section 1), timed end to end.
 
-Run:     uv run python -m bench.float16 --model LABEL=PATH_OR_REPO [--eval]
+  With --small, for a model too big for 32 prompts at once: 2 passages are read, and
+  only 1 and 8 prompts are decoded.
+
+Run:     uv run python -m bench.float16 --model LABEL=PATH_OR_REPO [--eval] [--small]
 Changes: writes bench/results/float16.json. --eval downloads MATH-500 to the Hugging Face
          cache if it is not there. Nothing else.
 """
@@ -87,7 +90,8 @@ def eval_job(model: nn.Module, tokenizer, questions: list[list[int]]) -> dict:
     return {"wall_s": wall, "tokens": result.generation_tokens, "tokens_per_s": result.generation_tokens / wall}
 
 
-def measure(model: nn.Module, tokens: mx.array, tokenizer=None, questions: list[list[int]] | None = None) -> tuple[dict, mx.array]:
+def measure(model: nn.Module, tokens: mx.array, tokenizer=None, questions: list[list[int]] | None = None,
+            decode_32: bool = True) -> tuple[dict, mx.array]:
     """Loss and speeds for the model in its current number format, and the next token it picks at every position."""
     logits = model(tokens).astype(mx.float32)
     loss = -mx.take_along_axis(nn.log_softmax(logits[:, :-1, :], axis=-1), tokens[:, 1:, None], axis=-1).mean()
@@ -95,7 +99,9 @@ def measure(model: nn.Module, tokens: mx.array, tokenizer=None, questions: list[
     mx.eval(loss, picks)
     del logits
     out = {"loss": loss.item(), "read_mlx": read_rate(model, tokens), "decode_1": decode_rate(model, tokens, 1),
-           "decode_8_mlx": decode_rate(model, tokens, 8), "decode_32": decode_rate(model, tokens, 32)}
+           "decode_8_mlx": decode_rate(model, tokens, 8)}
+    if decode_32:
+        out["decode_32"] = decode_rate(model, tokens, 32)
     if questions:
         out["eval_mlx"] = eval_job(model, tokenizer, questions)
     qmm.install(model)
@@ -110,7 +116,9 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--model", action="append", required=True, metavar="LABEL=PATH")
     ap.add_argument("--eval", action="store_true", help="also time a 64-question eval end to end in both formats")
+    ap.add_argument("--small", action="store_true", help="for a model too big for 32 prompts at once: less text, no 32-prompt decoding")
     args = ap.parse_args()
+    passages = 2 if args.small else PASSAGES
     mx.set_cache_limit(CACHE_LIMIT)
     text = held_out_text()
     problems = []
@@ -122,17 +130,17 @@ def main() -> None:
     for spec in args.model:
         label, _, path = spec.partition("=")
         model, tokenizer = load(path)
-        ids = tokenizer.encode(text[:400_000])[:PASSAGES * LENGTH]
-        tokens = mx.array(np.array(ids).reshape(PASSAGES, LENGTH))
+        ids = tokenizer.encode(text[:400_000])[:passages * LENGTH]
+        tokens = mx.array(np.array(ids).reshape(passages, LENGTH))
         questions = [chat_tokens(tokenizer, problem, system=INSTRUCTIONS, enable_thinking=False) for problem in problems]
         if questions:
             generate_batch(model, tokenizer, questions[:8], max_tokens=32, reuse_prefix=False)  # warm-up
-        before, picks_before = measure(model, tokens, tokenizer, questions)
+        before, picks_before = measure(model, tokens, tokenizer, questions, decode_32=not args.small)
         # The check runs on the built-in sample prompts and on the passages used for timing.
-        check = float16.convert(model, prompts=float16.sample_prompts(tokenizer) + np.array(ids).reshape(PASSAGES, LENGTH).tolist())
-        after, picks_after = measure(model, tokens, tokenizer, questions)
+        check = float16.convert(model, prompts=float16.sample_prompts(tokenizer) + np.array(ids).reshape(passages, LENGTH).tolist())
+        after, picks_after = measure(model, tokens, tokenizer, questions, decode_32=not args.small)
         same = (picks_before == picks_after).astype(mx.float32).mean().item()
-        entry = {"environment": environment(), "path": path, "passages": PASSAGES, "tokens_each": LENGTH, "check": check,
+        entry = {"environment": environment(), "path": path, "passages": passages, "tokens_each": LENGTH, "check": check,
                  "bfloat16": before, "float16": after, "same_top_token_on_text": same}
         save("float16", label, entry)
         print(f"{label}: largest value inside the model {check['largest_value']:,.0f} ({check['headroom']:.0f}x below float16's limit); "
@@ -140,7 +148,8 @@ def main() -> None:
         for key, name in (("read_mlx", "read, MLX's kernels"), ("read_lab", "read, lab kernels"), ("decode_1", "decode 1 prompt"),
                           ("decode_8_mlx", "decode 8, MLX's kernels"), ("decode_8_lab", "decode 8, lab kernel"),
                           ("decode_32", "decode 32")):
-            print(f"  {name:24s} {before[key]:7.0f} -> {after[key]:7.0f} tok/s  ({after[key] / before[key]:.2f}x)", flush=True)
+            if key in before:
+                print(f"  {name:24s} {before[key]:7.1f} -> {after[key]:7.1f} tok/s  ({after[key] / before[key]:.2f}x)", flush=True)
         for key, name in (("eval_mlx", "whole eval, MLX's kernels"), ("eval_lab", "whole eval, lab kernels")) if questions else ():
             print(f"  {name:24s} {before[key]['wall_s']:7.1f} -> {after[key]['wall_s']:7.1f} s  "
                   f"({before[key]['wall_s'] / after[key]['wall_s']:.2f}x)", flush=True)

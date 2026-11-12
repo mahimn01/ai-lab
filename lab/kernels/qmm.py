@@ -44,8 +44,9 @@ Use
   from lab.kernels import qmm
   qmm.install(model)      # every supported quantized layer now uses it for 2-18 rows
   qmm.uninstall(model)    # back to MLX's kernels
-Inference only: the kernel has no gradient, so layers fall back to MLX's kernels while
-the model is in training mode. Changes nothing on disk.
+The 2-18 row kernel is for inference only: it has no gradient, so in training mode those
+row counts fall back to MLX's kernels. The many-rows path has gradients and stays on.
+Changes nothing on disk.
 
 Where it was measured
   Only on the M1 Max (GPU "applegpu_g13s"). MLX picks different kernels on M3 and
@@ -67,6 +68,10 @@ BLOCK = LANES * VPT  # inputs covered by one SIMD group per loop step
 RPS = 4  # outputs each SIMD group produces (8 halves the reads of x but needs too many registers)
 MAX_ROWS = 18  # above this MLX's 32-row block kernel is as fast or faster (measured)
 DENSE_MIN_ROWS = 256  # from here decoding the weights and using MLX's dense kernel beats its quantized kernel
+DENSE_MAX_BYTES = 2 * 2**30  # a table whose decoded copy would be bigger than this stays on MLX's kernel
+# In float16 MLX's own kernel is nearly as fast as the many-rows path (3-13% slower on a 9B model), and on a 27B
+# model, which fills most of this Mac's memory, the many-rows path was the slower one (140 against 154 tok/s).
+DENSE_FLOAT16_MEMORY_SHARE = 1 / 3  # float16 models with more weights than this share of memory skip the many-rows path
 MIN_OUTPUTS = 1024  # smaller layers have too few threads to fill the GPU; MLX's kernel is faster there
 MSL_TYPES = {mx.bfloat16: "bfloat16_t", mx.float16: "half"}
 
@@ -210,7 +215,7 @@ def _dense(layer: nn.Module):
 def _fast(layer: nn.Module, x: mx.array) -> mx.array | None:
     """The fast path for a quantized layer, or None when MLX's own kernel should run."""
     rows = x.size // layer._row_k
-    if rows >= DENSE_MIN_ROWS and x.dtype == layer["scales"].dtype:  # many rows: decode once, dense multiply
+    if rows >= DENSE_MIN_ROWS and layer._row_dense is not None and x.dtype == layer["scales"].dtype:  # decode once, dense multiply
         return layer._row_dense(x)
     if rows < 2 or rows > MAX_ROWS or layer.training:  # checked first: one row is the common single-prompt case
         return None
@@ -283,17 +288,25 @@ def takes(layer: nn.Module) -> bool:
                                           K=layer_inputs(layer), N=N, dtype=layer["scales"].dtype)
 
 
-def install(model: nn.Module) -> int:
-    """Switch every supported quantized layer of `model` to the multi-row kernel. Returns how many."""
+def install(model: nn.Module, many_rows: bool | None = None) -> int:
+    """Switch every supported quantized layer of `model` to the lab's paths. Returns how many were switched.
+
+    many_rows says whether layers also decode their weights and use the dense multiply for 256 or more
+    rows. None decides by itself: yes, except for a float16 model whose weights take more than a third
+    of the Mac's memory (see DENSE_FLOAT16_MEMORY_SHARE).
+    """
     chosen = [m for _, m in model.named_modules() if takes(m)]
     for combo in {(m.bits, m.group_size, m["scales"].dtype) for m in chosen}:  # check first, switch after
         self_test(bits=combo[0], group_size=combo[1], dtype=combo[2])
+    big = sum(m["weight"].nbytes for m in chosen) > DENSE_FLOAT16_MEMORY_SHARE * mx.device_info()["memory_size"]
     for module in chosen:
         module.__class__ = _SWAP[type(module)]  # same object and weights; only the call path changes
         # plain attributes (not parameters): the prepared calls per input shape, and K to spot a single row
         object.__setattr__(module, "_row_calls", {})
         object.__setattr__(module, "_row_k", layer_inputs(module))
-        object.__setattr__(module, "_row_dense", _dense(module))
+        dense = many_rows if many_rows is not None else not (big and module["scales"].dtype == mx.float16)
+        fits = module["weight"].shape[0] * layer_inputs(module) * 2 <= DENSE_MAX_BYTES
+        object.__setattr__(module, "_row_dense", _dense(module) if dense and fits else None)
     return len(chosen)
 
 

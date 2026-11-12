@@ -140,6 +140,24 @@ def test_float16_convert_checks_first_and_refuses_values_near_the_limit():
     assert mx.array_equal(model(mx.array(prompts[0])[None]).astype(mx.float32), kept).item()
 
 
+def test_float16_convert_puts_the_model_back_when_the_float16_pass_fails():
+    from lab.infer import float16
+    from lab.train.model import GPT, GPTConfig
+
+    class FailsInFloat16(GPT):
+        def __call__(self, tokens, input_embeddings=None):
+            if self.wte.weight.dtype == mx.float16:
+                raise MemoryError("stands in for running out of memory half way")
+            return super().__call__(tokens, input_embeddings)
+
+    mx.random.seed(0)
+    model = FailsInFloat16(GPTConfig(vocab_size=64, n_layer=1, n_head=2, n_embd=16))
+    model.set_dtype(mx.bfloat16)
+    with pytest.raises(MemoryError):
+        float16.convert(model, prompts=[list(range(1, 20))])
+    assert model.wte.weight.dtype == mx.bfloat16, "any error after the switch undoes it"
+
+
 @pytest.mark.slow
 def test_float16_convert_on_a_real_model_keeps_its_answers_and_the_lab_kernel(loaded):
     from lab.infer import float16

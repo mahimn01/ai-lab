@@ -118,3 +118,21 @@ def test_dense_path_for_many_rows_matches_mlx_and_has_gradients() -> None:
     assert mx.allclose(grad.astype(mx.float32), plain_grad.astype(mx.float32), rtol=0.02, atol=0.02).item()
     assert not layer._row_calls, "the dense path needs no prepared kernel"
     qmm.uninstall(net)
+
+    # It can be switched off, and switches itself off for a float16 model that fills too much of the Mac's memory.
+    qmm.install(net, many_rows=False)
+    assert layer._row_dense is None and mx.array_equal(layer(x), plain).item()
+    qmm.uninstall(net)
+    net.set_dtype(mx.float16)
+    share = qmm.DENSE_FLOAT16_MEMORY_SHARE
+    try:
+        qmm.DENSE_FLOAT16_MEMORY_SHARE = 0.0  # every model now counts as too big
+        qmm.install(net)
+        assert layer._row_dense is None
+        qmm.uninstall(net)
+        qmm.DENSE_FLOAT16_MEMORY_SHARE = share
+        qmm.install(net)
+        assert layer._row_dense is not None, "a small float16 model keeps the many-rows path"
+    finally:
+        qmm.DENSE_FLOAT16_MEMORY_SHARE = share
+        qmm.uninstall(net)

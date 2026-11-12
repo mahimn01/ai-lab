@@ -18,6 +18,9 @@ The catch, and the check
        not a number or the two versions disagree on the most likely next token too often.
   The check covers the prompts it is given. Pass prompts like the ones you will use; a
   very different input could still overflow, and the only sign would be garbled output.
+  Values are recorded at every layer's output and around every weight table of the usual
+  kinds (linear, quantized linear, convolution, mlx-lm's switch layers); anything else
+  is covered only by step 3.
 
 Not for training
   The error signals that training passes backwards are far smaller than the values going
@@ -25,8 +28,10 @@ Not for training
 
 Use:     from lab.infer import float16
          report = float16.convert(model, tokenizer)        # or prompts=[token ids, ...]
-         float16.revert(model)                             # back to bfloat16
-Changes: the model in memory only. Nothing on disk.
+         float16.revert(model)                             # every float16 parameter back to bfloat16
+Changes: the model in memory only. Nothing on disk. While it checks, it holds a second
+         copy of the parameters it converts (small for a quantized model; as much again
+         as the weights for one that is not quantized).
 """
 
 from __future__ import annotations
@@ -61,18 +66,33 @@ def sample_prompts(tokenizer) -> list[list[int]]:
     """Token ids for the built-in sample: four kinds of plain text, a chat prompt, and one long repetitive prompt."""
     prompts = [tokenizer.encode(text) for text in SAMPLE_TEXTS]
     if getattr(tokenizer, "chat_template", None):
-        messages = [{"role": "system", "content": "You are a careful assistant."}, {"role": "user", "content": SAMPLE_QUESTION}]
-        prompts.append(tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=True))
+        user = {"role": "user", "content": SAMPLE_QUESTION}
+        for messages in ([{"role": "system", "content": "You are a careful assistant."}, user], [user]):
+            try:
+                prompts.append(tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=True))
+                break
+            except Exception:  # some templates refuse a system message: try without one, else go on without a chat prompt
+                continue
     prompts.append((prompts[0] + prompts[1]) * 6)
     return prompts
+
+
+def _table_kinds() -> tuple:
+    kinds = (nn.Linear, nn.QuantizedLinear, nn.Conv1d)
+    try:
+        from mlx_lm.models.switch_layers import QuantizedSwitchLinear, SwitchLinear
+    except ImportError:
+        return kinds
+    return kinds + (SwitchLinear, QuantizedSwitchLinear)
 
 
 @contextmanager
 def _recording(model: nn.Module) -> Iterator[list[mx.array]]:
     """While the block runs, every weight table of the model notes the largest value it reads and writes."""
     seen: list[mx.array] = []
-    kinds = (nn.Linear, nn.QuantizedLinear, nn.Conv1d)
-    originals = {cls: cls.__call__ for cls in {type(m) for _, m in model.named_modules() if isinstance(m, kinds)}}
+    kinds = _table_kinds()
+    # None marks a class that inherits __call__: it gets its own for the block and loses it again after
+    originals = {cls: cls.__dict__.get("__call__") for cls in {type(m) for _, m in model.named_modules() if isinstance(m, kinds)}}
 
     def recording(call):
         def run(self, x, *args, **kwargs):
@@ -81,13 +101,16 @@ def _recording(model: nn.Module) -> Iterator[list[mx.array]]:
             return y
         return run
 
-    for cls, call in originals.items():
-        cls.__call__ = recording(call)
+    for cls in originals:
+        cls.__call__ = recording(cls.__call__)
     try:
         yield seen
     finally:
-        for cls, call in originals.items():
-            cls.__call__ = call
+        for cls, own in originals.items():
+            if own is None:
+                del cls.__call__
+            else:
+                cls.__call__ = own
 
 
 def _batch_of_one(prompt) -> mx.array:
@@ -95,9 +118,16 @@ def _batch_of_one(prompt) -> mx.array:
     return mx.array(np.asarray(prompt, dtype=np.int32))[None]
 
 
-def largest_value(model: nn.Module, prompts: list[list[int]]) -> tuple[float, list[mx.array]]:
-    """The largest number the model writes anywhere for these prompts, and its scores [T, vocab] for each prompt."""
-    largest, scores = 0.0, []
+def _answers(model: nn.Module, prompt) -> tuple[mx.array, mx.array, mx.array]:
+    """One prompt through the model: the next token it picks at every position, its scores after the last
+    position, and whether every score is a number. (Not the full scores: those are hundreds of MB per prompt.)"""
+    scores = model(_batch_of_one(prompt))[0]
+    return mx.argmax(scores, axis=-1), scores[-1].astype(mx.float32), mx.isfinite(scores).all()
+
+
+def largest_value(model: nn.Module, prompts: list[list[int]]) -> tuple[float, list[tuple[mx.array, mx.array, mx.array]]]:
+    """The largest number the model writes anywhere for these prompts, and its answers to each (see _answers)."""
+    largest, answers = 0.0, []
     for prompt in prompts:
         with _recording(model) as seen, ExitStack() as layer_hooks:
             def note(out: mx.array) -> mx.array:
@@ -106,12 +136,12 @@ def largest_value(model: nn.Module, prompts: list[list[int]]) -> tuple[float, li
 
             for i in range(len(hooks.layer_list(model))):
                 layer_hooks.enter_context(hooks.hook(model, i, note))
-            logits = model(_batch_of_one(prompt))[0].astype(mx.float32)
+            answer = _answers(model, prompt)
             top = mx.max(mx.nan_to_num(mx.stack(seen), nan=float("inf")))
-            mx.eval(logits, top)  # together, so nothing is kept in memory longer than in a normal pass
+            mx.eval(answer, top)  # together, so nothing is kept in memory longer than in a normal pass
         largest = max(largest, top.item())
-        scores.append(logits)
-    return largest, scores
+        answers.append(answer)
+    return largest, answers
 
 
 @contextmanager
@@ -150,21 +180,29 @@ def convert(model: nn.Module, tokenizer=None, *, prompts: list[list[int]] | None
         if headroom < min_headroom:
             raise ValueError(f"not converted: a value of {largest:,.0f} was seen inside the model, within {headroom:.1f}x of "
                              f"float16's limit of {LIMIT:,.0f} (at least {min_headroom:.0f}x of room is required)")
-        originals = model.parameters()  # the arrays themselves, to put back exactly if the check fails
+        originals = model.parameters()  # the arrays themselves, to put back exactly if anything below fails
         converted = _cast(model, mx.bfloat16, mx.float16)
-        after = [model(_batch_of_one(prompt))[0].astype(mx.float32) for prompt in prompts]
-        finite = all(mx.isfinite(scores).all().item() for scores in after)
-        same = sum((mx.argmax(a, -1) == mx.argmax(b, -1)).sum().item() for a, b in zip(after, before)) / sum(len(p) for p in prompts)
-        gap = sum(mx.abs(a - b).mean().item() for a, b in zip(after, before)) / len(prompts)
-        if not finite or same < MIN_AGREEMENT:
+        try:
+            after = [_answers(model, prompt) for prompt in prompts]
+            mx.eval(after)
+            finite = all(ok.item() for _, _, ok in after)
+            tokens = sum(len(prompt) for prompt in prompts)
+            same = sum((a[0] == b[0]).sum().item() for a, b in zip(after, before)) / tokens
+            gap = sum(mx.abs(a[1] - b[1]).mean().item() for a, b in zip(after, before)) / len(prompts)
+            if not finite or same < MIN_AGREEMENT:
+                raise ValueError("not converted: in float16 the model " + ("produced scores that are not numbers" if not finite else
+                                 f"picked the same next token as before at only {same:.0%} of positions"))
+        except BaseException:  # a failed check, an interrupt, running out of memory: the model goes back as it was
             model.update(originals)
-            raise ValueError("not converted: in float16 the model " + ("produced scores that are not numbers" if not finite else
-                             f"picked the same next token as before at only {same:.0%} of positions"))
+            raise
     return {"converted_parameters": converted, "largest_value": largest, "headroom": headroom, "same_top_token": same,
-            "mean_score_difference": gap, "prompts_checked": len(prompts), "tokens_checked": sum(len(p) for p in prompts)}
+            "last_position_score_difference": gap, "prompts_checked": len(prompts), "tokens_checked": tokens}
 
 
 def revert(model: nn.Module) -> int:
-    """Switch a model converted by `convert` back to bfloat16. Returns how many parameters were converted."""
+    """Switch every float16 parameter of a model back to bfloat16 (so only use it on a model `convert` changed).
+
+    Returns how many parameters were converted.
+    """
     with _kernel_set_aside(model):
         return _cast(model, mx.float16, mx.bfloat16)

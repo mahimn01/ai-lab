@@ -39,8 +39,8 @@ def _load_with_kernel(*args, **kwargs):
             report = float16.convert(model, tokenizer)
             print(f"float16: converted; the largest value seen on the sample prompts was {report['largest_value']:,.0f}, "
                   f"{report['headroom']:.0f}x below the limit", flush=True)
-        except ValueError as problem:
-            print(f"float16: {problem}", flush=True)
+        except Exception as problem:  # convert leaves the model as it was on any error; serve it that way
+            print(f"float16: not converted ({type(problem).__name__}: {problem})", flush=True)
     switched = qmm.install(model)
     print(f"lab kernel: switched {switched} quantized layers of the model just loaded", flush=True)
     return loaded
