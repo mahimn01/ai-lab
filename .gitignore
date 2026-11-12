@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Run outputs: logs, checkpoints, activations. Benchmark JSON under bench/results is kept.
+runs/
+data/
+*.safetensors
+*.npy
+.DS_Store

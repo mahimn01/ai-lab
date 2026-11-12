@@ -1,0 +1,29 @@
+[project]
+name = "ai-lab"
+version = "0.1.0"
+description = "Measured AI research lab for one Apple Silicon Mac: train, fine-tune, edit and run models with MLX."
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "mlx==0.32.4",
+    "mlx-lm==0.32.2",
+    "numpy",
+    "safetensors",
+    "datasets",
+    "tokenizers",
+    "trackio",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+# PyTorch is only needed for the MLX-vs-PyTorch training comparison in bench/.
+torch = ["torch==2.15.0"]
+# Inspect AI is only needed for the eval example in examples/.
+evals = ["inspect-ai", "openai"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["slow: loads a real model or trains for about a minute"]
+
+[tool.uv]
+default-groups = ["dev"]
