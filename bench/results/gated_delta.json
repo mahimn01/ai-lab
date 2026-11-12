@@ -1,0 +1,97 @@
+{
+  "one layer, 4B shape": {
+    "environment": {
+      "when": "2026-11-12T03:09:02",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 14.5
+    },
+    "shape": {
+      "batch": 4,
+      "key_heads": 16,
+      "value_heads": 32,
+      "width": 128
+    },
+    "tokens": {
+      "100": {
+        "chunked": {
+          "forward_ms": 2.9147081077098846,
+          "forward_backward_ms": 6.268166936933994,
+          "peak_gb": 0.35030154325067997,
+          "difference_from_loop": 0.0010245901066809893
+        },
+        "built-in": {
+          "forward_ms": 0.9360830299556255,
+          "forward_backward_ms": 65.79566607251763,
+          "peak_gb": 1.6879958622157574,
+          "difference_from_loop": 0.004098360426723957
+        },
+        "loop": {
+          "forward_ms": 24.632583372294903,
+          "forward_backward_ms": 85.90937498956919,
+          "peak_gb": 2.355873739346862,
+          "difference_from_loop": 0.0
+        }
+      },
+      "256": {
+        "chunked": {
+          "forward_ms": 5.288167390972376,
+          "forward_backward_ms": 12.379624880850315,
+          "peak_gb": 0.7590882945805788,
+          "difference_from_loop": 0.001923076924867928
+        },
+        "built-in": {
+          "forward_ms": 1.7474577762186527,
+          "forward_backward_ms": 152.39354176446795,
+          "peak_gb": 4.231697026640177,
+          "difference_from_loop": 0.007692307699471712
+        },
+        "loop": {
+          "forward_ms": 62.41341633722186,
+          "forward_backward_ms": 244.04591601341963,
+          "peak_gb": 4.827249294146895,
+          "difference_from_loop": 0.0
+        }
+      },
+      "512": {
+        "chunked": {
+          "forward_ms": 9.512125048786402,
+          "forward_backward_ms": 25.077125057578087,
+          "peak_gb": 1.252101857215166,
+          "difference_from_loop": 0.0017482517287135124
+        },
+        "built-in": {
+          "forward_ms": 3.3664172515273094,
+          "forward_backward_ms": 299.4153341278434,
+          "peak_gb": 8.416511487215757,
+          "difference_from_loop": 0.005244755186140537
+        },
+        "loop": {
+          "forward_ms": 121.33725034072995,
+          "forward_backward_ms": 636.5753747522831,
+          "peak_gb": 10.153178725391626,
+          "difference_from_loop": 0.0
+        }
+      },
+      "1024": {
+        "chunked": {
+          "forward_ms": 19.03691701591015,
+          "forward_backward_ms": 50.7833338342607,
+          "peak_gb": 1.9221305437386036,
+          "difference_from_loop": 0.0016666667070239782
+        },
+        "built-in": {
+          "forward_ms": 6.594041828066111,
+          "forward_backward_ms": 611.1963749863207,
+          "peak_gb": 8.50293724052608,
+          "difference_from_loop": 0.006666666828095913
+        }
+      }
+    }
+  }
+}
