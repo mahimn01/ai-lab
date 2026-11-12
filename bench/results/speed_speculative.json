@@ -30,36 +30,71 @@
   },
   "mlx-community/Qwen3-4B-Instruct-2507-4bit + draft mlx-community/Qwen3-0.6B-4bit": {
     "environment": {
-      "when": "2026-11-11T21:48:49",
+      "when": "2026-11-11T23:41:16",
       "chip": "Apple M1 Max",
       "memory_gb": 32,
       "macos": "27.0.1",
       "python": "3.13.17",
       "mlx": "0.32.4",
       "mlx_lm": "0.32.2",
-      "free_memory_pct_at_start": 81,
-      "swap_used_gb_at_start": 10.98
+      "free_memory_pct_at_start": 71,
+      "swap_used_gb_at_start": 9.65
     },
     "arms": {
       "no draft": {
-        "generation_tps_mean": 107.99901289906538,
-        "generation_tps_sd": 0.7252214971080441,
+        "generation_tps_mean": 105.34030291666348,
+        "generation_tps_sd": 1.1437237470924138,
         "share_of_tokens_from_draft": 0.0
       },
       "draft 2 tokens": {
-        "generation_tps_mean": 95.42252522748797,
-        "generation_tps_sd": 5.2737863414104895,
+        "generation_tps_mean": 93.53075039791699,
+        "generation_tps_sd": 5.217636349120058,
         "share_of_tokens_from_draft": 0.6171875
       },
       "draft 3 tokens": {
-        "generation_tps_mean": 92.33160742787771,
-        "generation_tps_sd": 7.942413604139248,
+        "generation_tps_mean": 89.75065299309335,
+        "generation_tps_sd": 7.395515753009916,
         "share_of_tokens_from_draft": 0.693359375
       },
       "draft 4 tokens": {
-        "generation_tps_mean": 87.76426099654444,
-        "generation_tps_sd": 11.654670999283626,
+        "generation_tps_mean": 85.84056760184671,
+        "generation_tps_sd": 10.872145745508742,
         "share_of_tokens_from_draft": 0.73828125
+      }
+    }
+  },
+  "mlx-community/Qwen3-4B-Instruct-2507-4bit + draft mlx-community/Qwen3-0.6B-4bit + lab kernel": {
+    "environment": {
+      "when": "2026-11-11T23:42:10",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 71,
+      "swap_used_gb_at_start": 9.65
+    },
+    "arms": {
+      "no draft": {
+        "generation_tps_mean": 105.15707166092972,
+        "generation_tps_sd": 0.5565409770337626,
+        "share_of_tokens_from_draft": 0.0
+      },
+      "draft 2 tokens": {
+        "generation_tps_mean": 110.56533304483538,
+        "generation_tps_sd": 7.514764896185878,
+        "share_of_tokens_from_draft": 0.611328125
+      },
+      "draft 3 tokens": {
+        "generation_tps_mean": 115.03320847629016,
+        "generation_tps_sd": 9.365706555577532,
+        "share_of_tokens_from_draft": 0.6923828125
+      },
+      "draft 4 tokens": {
+        "generation_tps_mean": 113.22739700080903,
+        "generation_tps_sd": 15.140586828291534,
+        "share_of_tokens_from_draft": 0.7353515625
       }
     }
   }

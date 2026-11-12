@@ -1,0 +1,208 @@
+{
+  "mlx-community/Qwen3-4B-Instruct-2507-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:33:59",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 80,
+      "swap_used_gb_at_start": 13.55
+    },
+    "max_tokens": 400,
+    "tasks": {
+      "edit": {
+        "plain": {
+          "tokens_per_s": 88.59755039280648,
+          "tokens": 241,
+          "passes": 241,
+          "guessed": 0,
+          "accepted": 0,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, MLX kernels": {
+          "tokens_per_s": 103.34656328741849,
+          "tokens": 241,
+          "passes": 91,
+          "guessed": 191,
+          "accepted": 150,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, lab kernel": {
+          "tokens_per_s": 158.56700589581217,
+          "tokens": 241,
+          "passes": 91,
+          "guessed": 191,
+          "accepted": 150,
+          "identical_to_plain": 4,
+          "prompts": 4
+        }
+      },
+      "quote": {
+        "plain": {
+          "tokens_per_s": 85.48649327977628,
+          "tokens": 506,
+          "passes": 506,
+          "guessed": 0,
+          "accepted": 0,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, MLX kernels": {
+          "tokens_per_s": 118.59511545229059,
+          "tokens": 506,
+          "passes": 103,
+          "guessed": 437,
+          "accepted": 403,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, lab kernel": {
+          "tokens_per_s": 212.84532388707729,
+          "tokens": 506,
+          "passes": 103,
+          "guessed": 437,
+          "accepted": 403,
+          "identical_to_plain": 4,
+          "prompts": 4
+        }
+      },
+      "solve": {
+        "plain": {
+          "tokens_per_s": 87.15493661818336,
+          "tokens": 1510,
+          "passes": 1510,
+          "guessed": 0,
+          "accepted": 0,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, MLX kernels": {
+          "tokens_per_s": 76.88032946729507,
+          "tokens": 1531,
+          "passes": 1254,
+          "guessed": 886,
+          "accepted": 277,
+          "identical_to_plain": 1,
+          "prompts": 4
+        },
+        "lookahead, lab kernel": {
+          "tokens_per_s": 89.6009033126681,
+          "tokens": 1503,
+          "passes": 1220,
+          "guessed": 877,
+          "accepted": 283,
+          "identical_to_plain": 0,
+          "prompts": 4
+        }
+      }
+    }
+  },
+  "mlx-community/Qwen3.5-9B-4bit": {
+    "environment": {
+      "when": "2026-11-11T23:51:22",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 13.55
+    },
+    "max_tokens": 400,
+    "tasks": {
+      "edit": {
+        "plain": {
+          "tokens_per_s": 52.52997895860637,
+          "tokens": 257,
+          "passes": 257,
+          "guessed": 0,
+          "accepted": 0,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, MLX kernels": {
+          "tokens_per_s": 56.25480517270678,
+          "tokens": 257,
+          "passes": 105,
+          "guessed": 195,
+          "accepted": 160,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, lab kernel": {
+          "tokens_per_s": 91.87920684114948,
+          "tokens": 257,
+          "passes": 105,
+          "guessed": 195,
+          "accepted": 160,
+          "identical_to_plain": 3,
+          "prompts": 4
+        }
+      },
+      "quote": {
+        "plain": {
+          "tokens_per_s": 51.681263465595805,
+          "tokens": 380,
+          "passes": 380,
+          "guessed": 0,
+          "accepted": 0,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, MLX kernels": {
+          "tokens_per_s": 54.486413372357234,
+          "tokens": 380,
+          "passes": 151,
+          "guessed": 304,
+          "accepted": 245,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, lab kernel": {
+          "tokens_per_s": 90.56746323813732,
+          "tokens": 380,
+          "passes": 151,
+          "guessed": 304,
+          "accepted": 245,
+          "identical_to_plain": 4,
+          "prompts": 4
+        }
+      },
+      "solve": {
+        "plain": {
+          "tokens_per_s": 51.81248491976041,
+          "tokens": 1600,
+          "passes": 1600,
+          "guessed": 0,
+          "accepted": 0,
+          "identical_to_plain": 4,
+          "prompts": 4
+        },
+        "lookahead, MLX kernels": {
+          "tokens_per_s": 47.9165502127697,
+          "tokens": 1600,
+          "passes": 1493,
+          "guessed": 402,
+          "accepted": 198,
+          "identical_to_plain": 3,
+          "prompts": 4
+        },
+        "lookahead, lab kernel": {
+          "tokens_per_s": 51.95284704422781,
+          "tokens": 1600,
+          "passes": 1504,
+          "guessed": 362,
+          "accepted": 179,
+          "identical_to_plain": 3,
+          "prompts": 4
+        }
+      }
+    }
+  }
+}

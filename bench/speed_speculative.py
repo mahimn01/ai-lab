@@ -11,7 +11,11 @@ What it does
   greedy decoding, with no draft and with 2, 3 and 4 drafted tokens per step. Reports
   single-stream tokens/s and the share of tokens that came from the draft.
 
-Run:     uv run python -m bench.speed_speculative \\
+  --rows-kernel installs the lab's multi-row kernel (lab/kernels/qmm.py) on the big model.
+  Checking n guesses is a pass over n+1 rows, which MLX's own kernels on this Mac run as
+  n+1 separate sweeps of the weights; the lab kernel does it in one.
+
+Run:     uv run python -m bench.speed_speculative [--rows-kernel] \\
              [--model mlx-community/Qwen3.5-9B-4bit] [--draft mlx-community/Qwen3.5-0.8B-4bit]
 Changes: writes bench/results/speed_speculative.json. Nothing else.
 """
@@ -26,6 +30,7 @@ from mlx_lm import load, stream_generate
 
 from bench.common import environment, save
 from lab.infer.batch import chat_tokens
+from lab.kernels import qmm
 
 MAX_TOKENS = 256
 
@@ -34,13 +39,16 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--model", default="mlx-community/Qwen3.5-9B-4bit")
     ap.add_argument("--draft", default="mlx-community/Qwen3.5-0.8B-4bit")
+    ap.add_argument("--rows-kernel", action="store_true", help="use the lab's multi-row kernel for the big model")
     args = ap.parse_args()
     model, tokenizer = load(args.model)
     draft, _ = load(args.draft)
+    if args.rows_kernel:
+        qmm.install(model)
     rows = load_dataset("HuggingFaceH4/MATH-500", split="test")
     prompts = [chat_tokens(tokenizer, r["problem"], enable_thinking=False) for r in rows.select(range(4))]
 
-    label = f"{args.model} + draft {args.draft}"
+    label = f"{args.model} + draft {args.draft}" + (" + lab kernel" if args.rows_kernel else "")
     results = {"environment": environment(), "arms": {}}
     for n_draft in (0, 2, 3, 4):
         kwargs = {"draft_model": draft, "num_draft_tokens": n_draft} if n_draft else {}

@@ -1,0 +1,69 @@
+{
+  "mlx-community/Qwen3.5-9B-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:39:40",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 13.33
+    },
+    "layers": 249,
+    "weights_billion": 7.935623168,
+    "weight_gb": 3.967811584,
+    "ms": {
+      "1 rows, real weights": {
+        "threads and loop only": 2.2295829840004444,
+        "+ read weights": 12.815624941140413,
+        "+ unpack 4-bit values": 12.975542340427637,
+        "+ decode with scale and bias": 14.770249836146832,
+        "+ read the rows of x": 16.345208045095205,
+        "+ multiply-adds (full kernel)": 15.686625149101019
+      },
+      "1 rows, cached": {
+        "threads and loop only": 2.2476669400930405,
+        "+ read weights": 2.7875411324203014,
+        "+ unpack 4-bit values": 8.625708054751158,
+        "+ decode with scale and bias": 11.287167202681303,
+        "+ read the rows of x": 13.578000012785196,
+        "+ multiply-adds (full kernel)": 13.627707958221436
+      },
+      "4 rows, real weights": {
+        "threads and loop only": 2.0194579847157,
+        "+ read weights": 12.974499724805355,
+        "+ unpack 4-bit values": 13.174749910831451,
+        "+ decode with scale and bias": 14.84908303245902,
+        "+ read the rows of x": 23.07275030761957,
+        "+ multiply-adds (full kernel)": 25.64208395779133
+      },
+      "4 rows, cached": {
+        "threads and loop only": 2.282292116433382,
+        "+ read weights": 2.858833409845829,
+        "+ unpack 4-bit values": 8.666749577969313,
+        "+ decode with scale and bias": 11.729000136256218,
+        "+ read the rows of x": 18.28129217028618,
+        "+ multiply-adds (full kernel)": 23.832375183701515
+      },
+      "8 rows, real weights": {
+        "threads and loop only": 2.4170000106096268,
+        "+ read weights": 13.075999915599823,
+        "+ unpack 4-bit values": 12.946249917149544,
+        "+ decode with scale and bias": 14.883458148688078,
+        "+ read the rows of x": 35.42866604402661,
+        "+ multiply-adds (full kernel)": 38.64937508478761
+      },
+      "8 rows, cached": {
+        "threads and loop only": 2.3067081347107887,
+        "+ read weights": 2.8758752159774303,
+        "+ unpack 4-bit values": 8.86483397334814,
+        "+ decode with scale and bias": 11.370374821126461,
+        "+ read the rows of x": 30.12758307158947,
+        "+ multiply-adds (full kernel)": 38.3608746342361
+      }
+    },
+    "memory_stream_gb_per_s": 374.8154031567795
+  }
+}

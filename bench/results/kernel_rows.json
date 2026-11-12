@@ -1,0 +1,1185 @@
+{
+  "qwen3.5-9b-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:11:08",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 78,
+      "swap_used_gb_at_start": 11.98
+    },
+    "path": "mlx-community/Qwen3.5-9B-4bit",
+    "layers": {
+      "layers": 201,
+      "weights_billion": 7.929331712,
+      "rows": {
+        "1": {
+          "mlx_ms": 14.331333339214325
+        },
+        "2": {
+          "mlx_ms": 21.841292269527912,
+          "lab_ms": 17.320250160992146
+        },
+        "3": {
+          "mlx_ms": 32.47245820239186,
+          "lab_ms": 20.313415676355362
+        },
+        "4": {
+          "mlx_ms": 41.99079191312194,
+          "lab_ms": 25.28266701847315
+        },
+        "5": {
+          "mlx_ms": 52.444334141910076,
+          "lab_ms": 28.827375266700983
+        },
+        "6": {
+          "mlx_ms": 62.716417014598846,
+          "lab_ms": 32.28233382105827
+        },
+        "7": {
+          "mlx_ms": 98.68970885872841,
+          "lab_ms": 34.914708230644464
+        },
+        "8": {
+          "mlx_ms": 100.38062511011958,
+          "lab_ms": 38.61891711130738
+        },
+        "9": {
+          "mlx_ms": 101.40000004321337,
+          "lab_ms": 52.84620774909854
+        },
+        "10": {
+          "mlx_ms": 105.59662524610758,
+          "lab_ms": 52.15416708961129
+        },
+        "12": {
+          "mlx_ms": 105.56570906192064,
+          "lab_ms": 58.97775012999773
+        },
+        "14": {
+          "mlx_ms": 105.05291679874063,
+          "lab_ms": 66.32158299908042
+        },
+        "16": {
+          "mlx_ms": 105.04449997097254,
+          "lab_ms": 70.9797921590507
+        },
+        "18": {
+          "mlx_ms": 106.02716635912657,
+          "lab_ms": 86.6225422360003
+        },
+        "20": {
+          "mlx_ms": 107.10900044068694
+        },
+        "24": {
+          "mlx_ms": 107.96099994331598
+        },
+        "32": {
+          "mlx_ms": 99.54691678285599
+        }
+      }
+    },
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 19.1716788103804,
+        "lab_ms_per_step": 18.748208337153,
+        "mlx_tokens_per_s": 52.16027296777764,
+        "lab_tokens_per_s": 53.33843010578869,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "2": {
+        "mlx_ms_per_step": 26.519878486093756,
+        "lab_ms_per_step": 22.815138023967545,
+        "mlx_tokens_per_s": 75.41512684715887,
+        "lab_tokens_per_s": 87.66109579959493,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "3": {
+        "mlx_ms_per_step": 37.26765104026223,
+        "lab_ms_per_step": 26.943211812370766,
+        "mlx_tokens_per_s": 80.49876813429803,
+        "lab_tokens_per_s": 111.34529991790264,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "4": {
+        "mlx_ms_per_step": 47.504874994046986,
+        "lab_ms_per_step": 30.819883686490357,
+        "mlx_tokens_per_s": 84.2018845539801,
+        "lab_tokens_per_s": 129.78634315071628,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "5": {
+        "mlx_ms_per_step": 58.26796614564955,
+        "lab_ms_per_step": 35.31291058364635,
+        "mlx_tokens_per_s": 85.81044321165676,
+        "lab_tokens_per_s": 141.59127405135317,
+        "identical_tokens": 0.9416667222976685,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "6": {
+        "mlx_ms_per_step": 69.34148697958638,
+        "lab_ms_per_step": 39.43564495421015,
+        "mlx_tokens_per_s": 86.52828575433284,
+        "lab_tokens_per_s": 152.14661778618736,
+        "identical_tokens": 0.9513888955116272,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "8": {
+        "mlx_ms_per_step": 110.40970397880301,
+        "lab_ms_per_step": 46.378802081259586,
+        "mlx_tokens_per_s": 72.45739922947243,
+        "lab_tokens_per_s": 172.49259663894128,
+        "identical_tokens": 0.9557291865348816,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "10": {
+        "mlx_ms_per_step": 116.86634114206147,
+        "lab_ms_per_step": 61.88481165251384,
+        "mlx_tokens_per_s": 85.56783674645985,
+        "lab_tokens_per_s": 161.59053785524105,
+        "identical_tokens": 0.9104167222976685,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.374868918210268
+      },
+      "12": {
+        "mlx_ms_per_step": 118.27711891965009,
+        "lab_ms_per_step": 69.1075859455547,
+        "mlx_tokens_per_s": 101.45664782511344,
+        "lab_tokens_per_s": 173.64229752510826,
+        "identical_tokens": 0.9079861044883728,
+        "layers_switched": 202,
+        "peak_memory_gb": 6.676917769014835
+      },
+      "16": {
+        "mlx_ms_per_step": 119.67206597910263,
+        "lab_ms_per_step": 83.60777865163982,
+        "mlx_tokens_per_s": 133.69870294370912,
+        "lab_tokens_per_s": 191.3697536046927,
+        "identical_tokens": 0.9088541865348816,
+        "layers_switched": 202,
+        "peak_memory_gb": 7.02121645770967
+      },
+      "18": {
+        "mlx_ms_per_step": 121.08116318510535,
+        "lab_ms_per_step": 99.0896684040005,
+        "mlx_tokens_per_s": 148.66061348024982,
+        "lab_tokens_per_s": 181.65365057648424,
+        "identical_tokens": 0.8935185074806213,
+        "layers_switched": 202,
+        "peak_memory_gb": 7.273016994819045
+      },
+      "24": {
+        "mlx_ms_per_step": 123.61775956621084,
+        "lab_ms_per_step": 124.05968316791889,
+        "mlx_tokens_per_s": 194.14686113240367,
+        "lab_tokens_per_s": 193.4552740032006,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 7.929361391812563
+      },
+      "32": {
+        "mlx_ms_per_step": 118.30033768395272,
+        "lab_ms_per_step": 118.63975087180734,
+        "mlx_tokens_per_s": 270.49795990853505,
+        "lab_tokens_per_s": 269.7240997629593,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 8.83658890798688
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.9856771230697632,
+      "mlx_loss": 2.5738368034362793,
+      "lab_loss": 2.574570417404175,
+      "score_difference_mean": 0.022967098280787468,
+      "score_difference_max": 0.9375,
+      "score_spread": 2.3647634983062744,
+      "mlx_vs_mlx_same_next_token": 0.98046875,
+      "mlx_one_at_a_time_loss": 2.573899269104004,
+      "mlx_vs_mlx_score_difference_mean": 0.02073753997683525,
+      "mlx_vs_mlx_score_difference_max": 0.25
+    }
+  },
+  "qwen3.5-0.8b-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:06:38",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 78,
+      "swap_used_gb_at_start": 12.03
+    },
+    "path": "mlx-community/Qwen3.5-0.8B-4bit",
+    "layers": {
+      "layers": 138,
+      "weights_billion": 0.490733568,
+      "rows": {
+        "1": {
+          "mlx_ms": 2.1349997259676456
+        },
+        "2": {
+          "mlx_ms": 2.235374879091978,
+          "lab_ms": 2.1437909454107285
+        },
+        "3": {
+          "mlx_ms": 3.0069160275161266,
+          "lab_ms": 2.6793750002980232
+        },
+        "4": {
+          "mlx_ms": 3.6869170144200325,
+          "lab_ms": 2.875624690204859
+        },
+        "5": {
+          "mlx_ms": 4.752582870423794,
+          "lab_ms": 3.1610000878572464
+        },
+        "6": {
+          "mlx_ms": 5.435375031083822,
+          "lab_ms": 3.5577090457081795
+        },
+        "7": {
+          "mlx_ms": 6.471000146120787,
+          "lab_ms": 3.687374759465456
+        },
+        "8": {
+          "mlx_ms": 6.876958068460226,
+          "lab_ms": 5.144333001226187
+        },
+        "9": {
+          "mlx_ms": 7.497208658605814,
+          "lab_ms": 5.086417309939861
+        },
+        "10": {
+          "mlx_ms": 7.971084211021662,
+          "lab_ms": 5.176624748855829
+        },
+        "12": {
+          "mlx_ms": 8.986542001366615,
+          "lab_ms": 5.893750116229057
+        },
+        "14": {
+          "mlx_ms": 8.96845804527402,
+          "lab_ms": 6.41291681677103
+        },
+        "16": {
+          "mlx_ms": 8.838832844048738,
+          "lab_ms": 7.0136249996721745
+        },
+        "18": {
+          "mlx_ms": 8.880999870598316,
+          "lab_ms": 8.078250102698803
+        },
+        "20": {
+          "mlx_ms": 9.27579216659069
+        },
+        "24": {
+          "mlx_ms": 9.54420818015933
+        },
+        "32": {
+          "mlx_ms": 8.620500098913908
+        }
+      }
+    },
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 5.548263026867062,
+        "lab_ms_per_step": 5.551760414770494,
+        "mlx_tokens_per_s": 180.2365884886085,
+        "lab_tokens_per_s": 180.12304661769872,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 0.6690088473260403
+      },
+      "2": {
+        "mlx_ms_per_step": 6.827118059542651,
+        "lab_ms_per_step": 7.075342000462115,
+        "mlx_tokens_per_s": 292.94937960015005,
+        "lab_tokens_per_s": 282.6718482116304,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 0.7500506099313498
+      },
+      "3": {
+        "mlx_ms_per_step": 8.214103310213735,
+        "lab_ms_per_step": 7.760598954822247,
+        "mlx_tokens_per_s": 365.2255013970525,
+        "lab_tokens_per_s": 386.5681009242042,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 0.8438355382531881
+      },
+      "4": {
+        "mlx_ms_per_step": 9.645698795793578,
+        "lab_ms_per_step": 8.518516493495554,
+        "mlx_tokens_per_s": 414.69260907715386,
+        "lab_tokens_per_s": 469.56532901641526,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 1.0018066931515932
+      },
+      "5": {
+        "mlx_ms_per_step": 11.095258688631779,
+        "lab_ms_per_step": 9.233006935877105,
+        "mlx_tokens_per_s": 450.6429404050767,
+        "lab_tokens_per_s": 541.5353887119134,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 1.0971608497202396
+      },
+      "6": {
+        "mlx_ms_per_step": 12.320699664996937,
+        "lab_ms_per_step": 10.445718750512848,
+        "mlx_tokens_per_s": 486.9853306339394,
+        "lab_tokens_per_s": 574.3980039387353,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 1.2381925359368324
+      },
+      "8": {
+        "mlx_ms_per_step": 15.18237154232338,
+        "lab_ms_per_step": 11.108631956934309,
+        "mlx_tokens_per_s": 526.9269018808209,
+        "lab_tokens_per_s": 720.1606850433265,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 1.518289066851139
+      },
+      "10": {
+        "mlx_ms_per_step": 17.380671876405057,
+        "lab_ms_per_step": 12.36457031336613,
+        "mlx_tokens_per_s": 575.3517511354318,
+        "lab_tokens_per_s": 808.7624354555998,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 1.7894673142582178
+      },
+      "12": {
+        "mlx_ms_per_step": 17.992456608529512,
+        "lab_ms_per_step": 13.936036460412046,
+        "mlx_tokens_per_s": 666.9461686688895,
+        "lab_tokens_per_s": 861.0769664738089,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 1.9638449605554342
+      },
+      "16": {
+        "mlx_ms_per_step": 19.497826375300065,
+        "lab_ms_per_step": 16.672120643003534,
+        "mlx_tokens_per_s": 820.6042915772845,
+        "lab_tokens_per_s": 959.6859537310515,
+        "identical_tokens": 0.9375,
+        "layers_switched": 139,
+        "peak_memory_gb": 2.227058306336403
+      },
+      "18": {
+        "mlx_ms_per_step": 20.035601560569678,
+        "lab_ms_per_step": 18.075549480272457,
+        "mlx_tokens_per_s": 898.4007765169492,
+        "lab_tokens_per_s": 995.820349453005,
+        "identical_tokens": 0.9490740895271301,
+        "layers_switched": 139,
+        "peak_memory_gb": 2.462259190157056
+      },
+      "24": {
+        "mlx_ms_per_step": 20.99150521098636,
+        "lab_ms_per_step": 21.250579001692433,
+        "mlx_tokens_per_s": 1143.3196313830358,
+        "lab_tokens_per_s": 1129.3809923056024,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 2.8069799803197384
+      },
+      "32": {
+        "mlx_ms_per_step": 22.118888882687315,
+        "lab_ms_per_step": 22.22878037719056,
+        "mlx_tokens_per_s": 1446.7272822662776,
+        "lab_tokens_per_s": 1439.5751569364509,
+        "identical_tokens": 1.0,
+        "layers_switched": 139,
+        "peak_memory_gb": 3.1842706575989723
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.98046875,
+      "mlx_loss": 3.216224431991577,
+      "lab_loss": 3.21602201461792,
+      "score_difference_mean": 0.029227297753095627,
+      "score_difference_max": 0.515625,
+      "score_spread": 2.72990345954895,
+      "mlx_vs_mlx_same_next_token": 0.9817708730697632,
+      "mlx_one_at_a_time_loss": 3.214350461959839,
+      "mlx_vs_mlx_score_difference_mean": 0.028980037197470665,
+      "mlx_vs_mlx_score_difference_max": 0.46875
+    }
+  },
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:07:36",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 78,
+      "swap_used_gb_at_start": 12.02
+    },
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "layers": {
+      "layers": 200,
+      "weights_billion": 3.5651584,
+      "rows": {
+        "1": {
+          "mlx_ms": 6.9390833377838135
+        },
+        "2": {
+          "mlx_ms": 10.976416058838367,
+          "lab_ms": 8.597792126238346
+        },
+        "3": {
+          "mlx_ms": 15.654082875698805,
+          "lab_ms": 10.725541971623898
+        },
+        "4": {
+          "mlx_ms": 21.82037476450205,
+          "lab_ms": 12.386666145175695
+        },
+        "5": {
+          "mlx_ms": 25.18866676837206,
+          "lab_ms": 14.35475004836917
+        },
+        "6": {
+          "mlx_ms": 29.946292284876108,
+          "lab_ms": 16.1081668920815
+        },
+        "7": {
+          "mlx_ms": 47.66754200682044,
+          "lab_ms": 17.627709079533815
+        },
+        "8": {
+          "mlx_ms": 48.082583118230104,
+          "lab_ms": 19.182000309228897
+        },
+        "9": {
+          "mlx_ms": 48.21608308702707,
+          "lab_ms": 25.934875011444092
+        },
+        "10": {
+          "mlx_ms": 49.58441713824868,
+          "lab_ms": 26.155833154916763
+        },
+        "12": {
+          "mlx_ms": 50.88545801118016,
+          "lab_ms": 28.615707997232676
+        },
+        "14": {
+          "mlx_ms": 51.17862485349178,
+          "lab_ms": 32.82904205843806
+        },
+        "16": {
+          "mlx_ms": 50.768000073730946,
+          "lab_ms": 35.77320836484432
+        },
+        "18": {
+          "mlx_ms": 51.27441603690386,
+          "lab_ms": 42.428791988641024
+        },
+        "20": {
+          "mlx_ms": 52.01795930042863
+        },
+        "24": {
+          "mlx_ms": 52.5713749229908
+        },
+        "32": {
+          "mlx_ms": 49.15049998089671
+        }
+      }
+    },
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 12.800513892822588,
+        "lab_ms_per_step": 12.963928835233673,
+        "mlx_tokens_per_s": 78.12186357304864,
+        "lab_tokens_per_s": 77.13710964550934,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.1842706575989723
+      },
+      "2": {
+        "mlx_ms_per_step": 17.59475260041654,
+        "lab_ms_per_step": 16.562020832983155,
+        "mlx_tokens_per_s": 113.67025416161019,
+        "lab_tokens_per_s": 120.75821061745154,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.1842706575989723
+      },
+      "3": {
+        "mlx_ms_per_step": 23.917131940834224,
+        "lab_ms_per_step": 19.504171000638355,
+        "mlx_tokens_per_s": 125.43309989765272,
+        "lab_tokens_per_s": 153.81325358057066,
+        "identical_tokens": 0.7430555820465088,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.1842706575989723
+      },
+      "4": {
+        "mlx_ms_per_step": 29.87647395154151,
+        "lab_ms_per_step": 22.335028644495953,
+        "mlx_tokens_per_s": 133.8846078853832,
+        "lab_tokens_per_s": 179.09088292061466,
+        "identical_tokens": 0.8072916865348816,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.1842706575989723
+      },
+      "5": {
+        "mlx_ms_per_step": 35.67594010382891,
+        "lab_ms_per_step": 23.804470469864707,
+        "mlx_tokens_per_s": 140.15047635600715,
+        "lab_tokens_per_s": 210.04457991744678,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.34472225420177
+      },
+      "6": {
+        "mlx_ms_per_step": 41.58046093652956,
+        "lab_ms_per_step": 25.864659730965894,
+        "mlx_tokens_per_s": 144.29854467363148,
+        "lab_tokens_per_s": 231.97676143470127,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.4612667709589005
+      },
+      "8": {
+        "mlx_ms_per_step": 63.792743933542326,
+        "lab_ms_per_step": 30.878954858053476,
+        "mlx_tokens_per_s": 125.40611214865125,
+        "lab_tokens_per_s": 259.0761260144638,
+        "identical_tokens": 0.9192708730697632,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.719202322885394
+      },
+      "10": {
+        "mlx_ms_per_step": 68.69744356178369,
+        "lab_ms_per_step": 39.09078473225236,
+        "mlx_tokens_per_s": 145.56582430911578,
+        "lab_tokens_per_s": 255.81476730369573,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.9500943534076214
+      },
+      "12": {
+        "mlx_ms_per_step": 70.13095921138301,
+        "lab_ms_per_step": 44.45084201870486,
+        "mlx_tokens_per_s": 171.10845388312143,
+        "lab_tokens_per_s": 269.96114033003954,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.252982260659337
+      },
+      "16": {
+        "mlx_ms_per_step": 71.454709211442,
+        "lab_ms_per_step": 52.76712239719927,
+        "mlx_tokens_per_s": 223.91806189644294,
+        "lab_tokens_per_s": 303.219112074401,
+        "identical_tokens": 0.9791666865348816,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.685905076563358
+      },
+      "18": {
+        "mlx_ms_per_step": 73.57663369233099,
+        "lab_ms_per_step": 61.198805565557755,
+        "mlx_tokens_per_s": 244.6428858823446,
+        "lab_tokens_per_s": 294.12338743634353,
+        "identical_tokens": 0.9814814925193787,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.95102796703577
+      },
+      "24": {
+        "mlx_ms_per_step": 76.25786892216031,
+        "lab_ms_per_step": 76.44293574655119,
+        "mlx_tokens_per_s": 314.7216194108156,
+        "lab_tokens_per_s": 313.95968464074576,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 5.560904568061233
+      },
+      "32": {
+        "mlx_ms_per_step": 74.53528385182533,
+        "lab_ms_per_step": 72.87997831978525,
+        "mlx_tokens_per_s": 429.32686838109277,
+        "lab_tokens_per_s": 439.0780669498735,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 6.374868918210268
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.9830729365348816,
+      "mlx_loss": 2.7094368934631348,
+      "lab_loss": 2.7076563835144043,
+      "score_difference_mean": 0.02666858397424221,
+      "score_difference_max": 1.9375,
+      "score_spread": 2.3757729530334473,
+      "mlx_vs_mlx_same_next_token": 0.9895833730697632,
+      "mlx_one_at_a_time_loss": 2.7096943855285645,
+      "mlx_vs_mlx_score_difference_mean": 0.024207958951592445,
+      "mlx_vs_mlx_score_difference_max": 0.80078125
+    }
+  },
+  "qwen3-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:16:59",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 11.88
+    },
+    "path": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "layers": {
+      "layers": 252,
+      "weights_billion": 3.63331584,
+      "rows": {
+        "1": {
+          "mlx_ms": 7.031000219285488
+        },
+        "2": {
+          "mlx_ms": 10.679916944354773,
+          "lab_ms": 9.226707741618156
+        },
+        "3": {
+          "mlx_ms": 15.78250015154481,
+          "lab_ms": 11.02987490594387
+        },
+        "4": {
+          "mlx_ms": 20.756582729518414,
+          "lab_ms": 12.460917234420776
+        },
+        "5": {
+          "mlx_ms": 25.228542275726795,
+          "lab_ms": 14.761500060558319
+        },
+        "6": {
+          "mlx_ms": 29.80620786547661,
+          "lab_ms": 15.728292055428028
+        },
+        "7": {
+          "mlx_ms": 45.30125018209219,
+          "lab_ms": 18.11983296647668
+        },
+        "8": {
+          "mlx_ms": 46.74904188141227,
+          "lab_ms": 20.116916857659817
+        },
+        "9": {
+          "mlx_ms": 47.73308290168643,
+          "lab_ms": 27.098792139440775
+        },
+        "10": {
+          "mlx_ms": 52.2724580951035,
+          "lab_ms": 26.692416984587908
+        },
+        "12": {
+          "mlx_ms": 51.63354193791747,
+          "lab_ms": 29.51779216527939
+        },
+        "14": {
+          "mlx_ms": 52.6330410502851,
+          "lab_ms": 32.806250266730785
+        },
+        "16": {
+          "mlx_ms": 52.13683284819126,
+          "lab_ms": 36.31695872172713
+        },
+        "18": {
+          "mlx_ms": 51.75441689789295,
+          "lab_ms": 42.49008325859904
+        },
+        "20": {
+          "mlx_ms": 51.94437503814697
+        },
+        "24": {
+          "mlx_ms": 55.49637507647276
+        },
+        "32": {
+          "mlx_ms": 49.34275010600686
+        }
+      }
+    },
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 11.220460088225082,
+        "lab_ms_per_step": 11.225299482854703,
+        "mlx_tokens_per_s": 89.12290513375784,
+        "lab_tokens_per_s": 89.08448291534492,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "2": {
+        "mlx_ms_per_step": 15.488060763649022,
+        "lab_ms_per_step": 14.03868404061844,
+        "mlx_tokens_per_s": 129.13172478597608,
+        "lab_tokens_per_s": 142.4634954539439,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "3": {
+        "mlx_ms_per_step": 20.93622829609861,
+        "lab_ms_per_step": 17.345640624019627,
+        "mlx_tokens_per_s": 143.29228539025053,
+        "lab_tokens_per_s": 172.95411942558678,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "4": {
+        "mlx_ms_per_step": 26.699260420476396,
+        "lab_ms_per_step": 19.26122308941558,
+        "mlx_tokens_per_s": 149.81688395129814,
+        "lab_tokens_per_s": 207.67113186068013,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "5": {
+        "mlx_ms_per_step": 31.905586792466543,
+        "lab_ms_per_step": 21.31462499770957,
+        "mlx_tokens_per_s": 156.71236616091906,
+        "lab_tokens_per_s": 234.58071631742484,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "6": {
+        "mlx_ms_per_step": 37.45513627654873,
+        "lab_ms_per_step": 23.18708333768882,
+        "mlx_tokens_per_s": 160.19164783433715,
+        "lab_tokens_per_s": 258.7647576289797,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "8": {
+        "mlx_ms_per_step": 57.7640607759046,
+        "lab_ms_per_step": 27.680991333909333,
+        "mlx_tokens_per_s": 138.49441837262728,
+        "lab_tokens_per_s": 289.00699051915694,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "10": {
+        "mlx_ms_per_step": 63.689374122380585,
+        "lab_ms_per_step": 34.56887153636975,
+        "mlx_tokens_per_s": 157.0120626524728,
+        "lab_tokens_per_s": 289.27759442419307,
+        "identical_tokens": 0.8770833611488342,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "12": {
+        "mlx_ms_per_step": 64.628232648829,
+        "lab_ms_per_step": 38.56783334049396,
+        "mlx_tokens_per_s": 185.67736588441937,
+        "lab_tokens_per_s": 311.14011238481226,
+        "identical_tokens": 0.897569477558136,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "16": {
+        "mlx_ms_per_step": 65.61976474282953,
+        "lab_ms_per_step": 46.66383766258756,
+        "mlx_tokens_per_s": 243.82897535072874,
+        "lab_tokens_per_s": 342.8779286369732,
+        "identical_tokens": 0.9231771230697632,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "18": {
+        "mlx_ms_per_step": 66.4364635401095,
+        "lab_ms_per_step": 54.44082119114076,
+        "mlx_tokens_per_s": 270.93555317153374,
+        "lab_tokens_per_s": 330.634248458566,
+        "identical_tokens": 0.9317129850387573,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "24": {
+        "mlx_ms_per_step": 67.53881595795974,
+        "lab_ms_per_step": 67.60760416121532,
+        "mlx_tokens_per_s": 355.35121040527355,
+        "lab_tokens_per_s": 354.98965386748847,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      },
+      "32": {
+        "mlx_ms_per_step": 64.89782639740345,
+        "lab_ms_per_step": 65.00711978878826,
+        "mlx_tokens_per_s": 493.0827698919715,
+        "lab_tokens_per_s": 492.253773186226,
+        "identical_tokens": 1.0,
+        "layers_switched": 253,
+        "peak_memory_gb": 8.83658890798688
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.9817708730697632,
+      "mlx_loss": 2.9393458366394043,
+      "lab_loss": 2.9413001537323,
+      "score_difference_mean": 0.04008311778306961,
+      "score_difference_max": 0.5,
+      "score_spread": 3.4950292110443115,
+      "mlx_vs_mlx_same_next_token": 0.9830729365348816,
+      "mlx_one_at_a_time_loss": 2.942535400390625,
+      "mlx_vs_mlx_score_difference_mean": 0.038983382284641266,
+      "mlx_vs_mlx_score_difference_max": 0.375
+    }
+  },
+  "qwen3.8-27b-4bit": {
+    "environment": {
+      "when": "2026-11-12T00:24:50",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 33,
+      "swap_used_gb_at_start": 13.96
+    },
+    "path": "mlx-community/Qwen3.8-27B-4bit",
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 55.07050956172558,
+        "lab_ms_per_step": 55.221108496577166,
+        "mlx_tokens_per_s": 18.158539079416975,
+        "lab_tokens_per_s": 18.109017135394595,
+        "identical_tokens": 1.0,
+        "layers_switched": 402,
+        "peak_memory_gb": 14.474594263359904
+      },
+      "2": {
+        "mlx_ms_per_step": 78.81503212653722,
+        "lab_ms_per_step": 64.57795051392168,
+        "mlx_tokens_per_s": 25.375869882143906,
+        "lab_tokens_per_s": 30.97032321533402,
+        "identical_tokens": 1.0,
+        "layers_switched": 402,
+        "peak_memory_gb": 14.818527888506651
+      },
+      "3": {
+        "mlx_ms_per_step": 111.69855295641658,
+        "lab_ms_per_step": 79.0354765582985,
+        "mlx_tokens_per_s": 26.85800236974031,
+        "lab_tokens_per_s": 37.957637894257864,
+        "identical_tokens": 1.0,
+        "layers_switched": 402,
+        "peak_memory_gb": 15.166878771036863
+      },
+      "4": {
+        "mlx_ms_per_step": 144.15804947687624,
+        "lab_ms_per_step": 90.0783185788896,
+        "mlx_tokens_per_s": 27.747323264398233,
+        "lab_tokens_per_s": 44.40580222972128,
+        "identical_tokens": 0.5,
+        "layers_switched": 402,
+        "peak_memory_gb": 15.45597212947905
+      },
+      "5": {
+        "mlx_ms_per_step": 179.1746796904287,
+        "lab_ms_per_step": 103.03990019019693,
+        "mlx_tokens_per_s": 27.90572869246265,
+        "lab_tokens_per_s": 48.52489172418369,
+        "identical_tokens": 0.7708333730697632,
+        "layers_switched": 402,
+        "peak_memory_gb": 15.70800194889307
+      },
+      "6": {
+        "mlx_ms_per_step": 211.4566987923657,
+        "lab_ms_per_step": 114.5375477305303,
+        "mlx_tokens_per_s": 28.37460356785169,
+        "lab_tokens_per_s": 52.38456836980703,
+        "identical_tokens": 0.7465277910232544,
+        "layers_switched": 402,
+        "peak_memory_gb": 16.034631945192814
+      },
+      "8": {
+        "mlx_ms_per_step": 371.8805321259424,
+        "lab_ms_per_step": 140.68671181060685,
+        "mlx_tokens_per_s": 21.512285018702435,
+        "lab_tokens_per_s": 56.86393474580343,
+        "identical_tokens": 0.703125,
+        "layers_switched": 402,
+        "peak_memory_gb": 16.53723707050085
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.9830729365348816,
+      "mlx_loss": 2.4987270832061768,
+      "lab_loss": 2.500035285949707,
+      "score_difference_mean": 0.022249290719628334,
+      "score_difference_max": 0.526611328125,
+      "score_spread": 2.3512938022613525,
+      "mlx_vs_mlx_same_next_token": 0.9856771230697632,
+      "mlx_one_at_a_time_loss": 2.5015981197357178,
+      "mlx_vs_mlx_score_difference_mean": 0.02210054360330105,
+      "mlx_vs_mlx_score_difference_max": 0.97265625
+    }
+  },
+  "qwen3.5-9b-8bit": {
+    "environment": {
+      "when": "2026-11-12T00:20:13",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 57,
+      "swap_used_gb_at_start": 11.82
+    },
+    "path": "mlx-community/Qwen3.5-9B-8bit",
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 30.180918392337237,
+        "lab_ms_per_step": 30.42237414047122,
+        "mlx_tokens_per_s": 33.13351790692672,
+        "lab_tokens_per_s": 32.870544402045496,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 9.109836427494884
+      },
+      "2": {
+        "mlx_ms_per_step": 33.69915625080466,
+        "lab_ms_per_step": 32.192285580094904,
+        "mlx_tokens_per_s": 59.34866692551818,
+        "lab_tokens_per_s": 62.1266854453055,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 9.272739676758647
+      },
+      "3": {
+        "mlx_ms_per_step": 46.95646962500177,
+        "lab_ms_per_step": 33.21715799393132,
+        "mlx_tokens_per_s": 63.888959795279476,
+        "lab_tokens_per_s": 90.3147704733828,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 9.461125103756785
+      },
+      "4": {
+        "mlx_ms_per_step": 58.37265364243649,
+        "lab_ms_per_step": 34.179126746797316,
+        "mlx_tokens_per_s": 68.52523828198944,
+        "lab_tokens_per_s": 117.03049143509237,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 9.582432808354497
+      },
+      "5": {
+        "mlx_ms_per_step": 72.08187154416616,
+        "lab_ms_per_step": 38.900373270735145,
+        "mlx_tokens_per_s": 69.36556852490143,
+        "lab_tokens_per_s": 128.5334710081436,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 9.73856102861464
+      },
+      "6": {
+        "mlx_ms_per_step": 84.63143229406948,
+        "lab_ms_per_step": 42.50328040022092,
+        "mlx_tokens_per_s": 70.89564523913236,
+        "lab_tokens_per_s": 141.16557459806828,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 9.849080838263035
+      },
+      "8": {
+        "mlx_ms_per_step": 113.58848958237407,
+        "lab_ms_per_step": 49.98976735320563,
+        "mlx_tokens_per_s": 70.42967143425585,
+        "lab_tokens_per_s": 160.03275117236558,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 10.178473688662052
+      },
+      "10": {
+        "mlx_ms_per_step": 117.68217880550462,
+        "lab_ms_per_step": 66.23439062968828,
+        "mlx_tokens_per_s": 84.97463338546079,
+        "lab_tokens_per_s": 150.9789688548549,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 10.461707450449467
+      },
+      "12": {
+        "mlx_ms_per_step": 118.62867014133371,
+        "lab_ms_per_step": 73.09378733043559,
+        "mlx_tokens_per_s": 101.15598519062254,
+        "lab_tokens_per_s": 164.17263953982186,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 10.613681143149734
+      },
+      "16": {
+        "mlx_ms_per_step": 120.79365018871613,
+        "lab_ms_per_step": 87.58213802745256,
+        "mlx_tokens_per_s": 132.45729369882582,
+        "lab_tokens_per_s": 182.68565212446413,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 11.16672438941896
+      },
+      "18": {
+        "mlx_ms_per_step": 122.11194097956952,
+        "lab_ms_per_step": 104.24509547495593,
+        "mlx_tokens_per_s": 147.40573162301604,
+        "lab_tokens_per_s": 172.66999390224893,
+        "identical_tokens": 1.0,
+        "layers_switched": 202,
+        "peak_memory_gb": 11.359595473855734
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.9895833730697632,
+      "mlx_loss": 2.5260987281799316,
+      "lab_loss": 2.5250582695007324,
+      "score_difference_mean": 0.02852024883031845,
+      "score_difference_max": 2.53125,
+      "score_spread": 2.368286371231079,
+      "mlx_vs_mlx_same_next_token": 0.9817708730697632,
+      "mlx_one_at_a_time_loss": 2.5253350734710693,
+      "mlx_vs_mlx_score_difference_mean": 0.023715035989880562,
+      "mlx_vs_mlx_score_difference_max": 2.0234375
+    }
+  },
+  "qwen3.5-4b-6bit": {
+    "environment": {
+      "when": "2026-11-12T00:32:08",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 13.68
+    },
+    "path": "runs/quant/qwen3.5-4b-6bit",
+    "decode": {
+      "1": {
+        "mlx_ms_per_step": 16.672956582624465,
+        "lab_ms_per_step": 16.66935069564109,
+        "mlx_tokens_per_s": 59.977364844945306,
+        "lab_tokens_per_s": 59.990339051508016,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.4995669778436422
+      },
+      "2": {
+        "mlx_ms_per_step": 22.609487855030846,
+        "lab_ms_per_step": 18.598306419638295,
+        "mlx_tokens_per_s": 88.45843890068386,
+        "lab_tokens_per_s": 107.5366732256956,
+        "identical_tokens": 0.5,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.700128935277462
+      },
+      "3": {
+        "mlx_ms_per_step": 31.95325348254604,
+        "lab_ms_per_step": 22.101690983011697,
+        "mlx_tokens_per_s": 93.8871530449537,
+        "lab_tokens_per_s": 135.7362204686478,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 3.8888652212917805
+      },
+      "4": {
+        "mlx_ms_per_step": 39.55868056315618,
+        "lab_ms_per_step": 22.850620667062078,
+        "mlx_tokens_per_s": 101.11560706919748,
+        "lab_tokens_per_s": 175.04994977076407,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.05071129091084
+      },
+      "5": {
+        "mlx_ms_per_step": 48.98192274655836,
+        "lab_ms_per_step": 25.63774479009832,
+        "mlx_tokens_per_s": 102.0784754790239,
+        "lab_tokens_per_s": 195.0249540642543,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.232504561543465
+      },
+      "6": {
+        "mlx_ms_per_step": 56.764353289812185,
+        "lab_ms_per_step": 27.786042521862935,
+        "mlx_tokens_per_s": 105.70013841903231,
+        "lab_tokens_per_s": 215.9357524656133,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.448050754144788
+      },
+      "8": {
+        "mlx_ms_per_step": 67.82099391178538,
+        "lab_ms_per_step": 33.27687414518247,
+        "mlx_tokens_per_s": 117.9575753549938,
+        "lab_tokens_per_s": 240.40719585310478,
+        "identical_tokens": 1.0,
+        "layers_switched": 201,
+        "peak_memory_gb": 4.639423040673137
+      }
+    },
+    "agreement": {
+      "batch": 8,
+      "steps": 96,
+      "same_next_token": 0.9869791865348816,
+      "mlx_loss": 2.6456093788146973,
+      "lab_loss": 2.649604320526123,
+      "score_difference_mean": 0.02381715178489685,
+      "score_difference_max": 0.3125,
+      "score_spread": 2.3848118782043457,
+      "mlx_vs_mlx_same_next_token": 0.9817708730697632,
+      "mlx_one_at_a_time_loss": 2.648186206817627,
+      "mlx_vs_mlx_score_difference_mean": 0.022640498355031013,
+      "mlx_vs_mlx_score_difference_max": 0.3125
+    }
+  }
+}
