@@ -1,0 +1,170 @@
+{
+  "qwen3-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:12:57",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 12.89
+    },
+    "path": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+    "iters": 30,
+    "batch_size": 4,
+    "layers": {
+      "16": {
+        "normal_tokens_per_s": 417.78621255755263,
+        "cached_tokens_per_s": 533.525093599554,
+        "speedup": 1.277028962572712,
+        "cache_seconds": 75.67466712463647,
+        "cache_gb": 0.5615234375,
+        "pays_back_after_steps": 402.0427022686426,
+        "normal_peak_gb": 8.07504248432815,
+        "cached_peak_gb": 6.573567459359765,
+        "normal_val_loss": [
+          2.8210134506225586,
+          1.2398524284362793
+        ],
+        "cached_val_loss": [
+          2.821013578373875,
+          1.1786568154653352
+        ],
+        "loss_check": [
+          3.6607961654663086,
+          3.6607961654663086
+        ]
+      },
+      "8": {
+        "normal_tokens_per_s": 494.81502747568004,
+        "cached_tokens_per_s": 911.0077947669563,
+        "speedup": 1.8411077759996526,
+        "cache_seconds": 105.00412720767781,
+        "cache_gb": 0.5615234375,
+        "pays_back_after_steps": 313.73921343016394,
+        "normal_peak_gb": 5.761084912344813,
+        "cached_peak_gb": 5.46732690371573,
+        "normal_val_loss": [
+          2.8210134506225586,
+          1.3940340280532837
+        ],
+        "cached_val_loss": [
+          2.821013578373875,
+          1.3459086914372844
+        ],
+        "loss_check": [
+          3.6607961654663086,
+          3.6607961654663086
+        ]
+      },
+      "4": {
+        "normal_tokens_per_s": 543.884038691951,
+        "cached_tokens_per_s": 1432.6016955777282,
+        "speedup": 2.6340204780106364,
+        "cache_seconds": 120.07245379220694,
+        "cache_gb": 0.5615234375,
+        "pays_back_after_steps": 290.4044994577532,
+        "normal_peak_gb": 4.6765692215412855,
+        "cached_peak_gb": 4.896151008084416,
+        "normal_val_loss": [
+          2.8210134506225586,
+          1.5139663219451904
+        ],
+        "cached_val_loss": [
+          2.821013578373875,
+          1.4789111575560725
+        ],
+        "loss_check": [
+          3.6607961654663086,
+          3.6607961654663086
+        ]
+      }
+    }
+  },
+  "qwen3.5-4b-4bit": {
+    "environment": {
+      "when": "2026-11-12T04:21:54",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 81,
+      "swap_used_gb_at_start": 12.42
+    },
+    "path": "mlx-community/Qwen3.5-4B-4bit",
+    "iters": 30,
+    "batch_size": 4,
+    "layers": {
+      "16": {
+        "normal_tokens_per_s": 333.1915220202234,
+        "cached_tokens_per_s": 386.4843894024696,
+        "speedup": 1.1599466488796542,
+        "cache_seconds": 71.16706729168072,
+        "cache_gb": 0.565185546875,
+        "pays_back_after_steps": 470.4450400926521,
+        "normal_peak_gb": 10.876610305160284,
+        "cached_peak_gb": 10.57408881932497,
+        "normal_val_loss": [
+          2.5872836112976074,
+          1.2368053197860718
+        ],
+        "cached_val_loss": [
+          2.587283498556163,
+          1.1586504016955392
+        ],
+        "loss_check": [
+          3.149573564529419,
+          3.149573564529419
+        ]
+      },
+      "8": {
+        "normal_tokens_per_s": 398.5485334746653,
+        "cached_tokens_per_s": 636.1367951317853,
+        "speedup": 1.5961338248713512,
+        "cache_seconds": 105.67497616633773,
+        "cache_gb": 0.565185546875,
+        "pays_back_after_steps": 308.49769517816844,
+        "normal_peak_gb": 7.556554611772299,
+        "cached_peak_gb": 8.131142657250166,
+        "normal_val_loss": [
+          2.5872836112976074,
+          1.3678326606750488
+        ],
+        "cached_val_loss": [
+          2.587283498556163,
+          1.3119099853576812
+        ],
+        "loss_check": [
+          3.149573564529419,
+          3.149573564529419
+        ]
+      },
+      "4": {
+        "normal_tokens_per_s": 438.7029682459089,
+        "cached_tokens_per_s": 909.3556525576298,
+        "speedup": 2.072827672430753,
+        "cache_seconds": 123.21044408390298,
+        "cache_gb": 0.565185546875,
+        "pays_back_after_steps": 285.70927532506306,
+        "normal_peak_gb": 5.892352502793074,
+        "cached_peak_gb": 6.861431185156107,
+        "normal_val_loss": [
+          2.5872836112976074,
+          1.4591785669326782
+        ],
+        "cached_val_loss": [
+          2.587283498556163,
+          1.402032900210729
+        ],
+        "loss_check": [
+          3.149573564529419,
+          3.149573564529419
+        ]
+      }
+    }
+  }
+}
