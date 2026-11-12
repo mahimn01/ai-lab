@@ -175,7 +175,7 @@ def last_token_scores(model: nn.Module, tokens: mx.array) -> mx.array:
     """The model's scores [batch, vocab] for what follows the last token of tokens [batch, T].
 
     Same numbers as model(tokens)[:, -1, :], but the output layer runs on one position per prompt.
-    That layer is a tenth of all the weights of a 4B Qwen model (151,936 words x 2,560 wide).
+    That layer is a tenth to a sixth of all the weights of a 4B Qwen model (151,936 or 248,320 words x 2,560 wide).
     """
     with hook(model, -1, _last_position):
         return model(tokens)[:, 0, :]

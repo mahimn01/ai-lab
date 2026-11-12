@@ -49,7 +49,7 @@ Words used here:
 | 13 | Fine-tuning through the lab: its GPU paths, Qwen3.5's recurrent layers done 64 tokens at a time, sorted batches | Qwen3-4B 1.3-1.5x; Qwen3.5 2.6-5.5x on short examples and 6-10x on full-length ones; Qwen3.5-4B at full length no longer runs out of memory | keep, the default |
 | 14 | Fine-tuning with the frozen bottom layers computed once | 1.2-2.6x per step after a one-off cache (most when few layers are trained); pays back after about 290-470 steps | keep, for sweeps and repeated passes |
 | 15 | Stop after a layer, resume from a layer, score only the last token | collecting an early layer 6x faster than a full pass; sweeps from three quarters up 5.3x faster | keep |
-| 16 | float16 instead of bfloat16 for inference | prompts read 1.4x faster with MLX's kernels and 1.5x with the lab's on top; 32 prompts at once 1.18-1.31x; a 64-question eval 1.29x faster end to end; one prompt unchanged; the model's values must stay under 65,504 | keep, one line, checks first |
+| 16 | float16 instead of bfloat16 for inference | prompts read 1.4x faster with MLX's kernels and 1.4-1.6x with the lab's on top; 32 prompts at once 1.16-1.31x; a 64-question eval 1.29x faster end to end; one prompt unchanged; the model's values must stay under 65,504 | keep, one line, checks first |
 | 17 | Eight smaller ideas (other kernel layouts, resident decoded weights, compiled steps, two trainings at once, ...) | 0-10% each | reject |
 | 18 | Raising the GPU memory cap | not tested | not settled |
 
@@ -68,7 +68,7 @@ Words used here:
   close each kind of GPU work runs to the chip's arithmetic limit. MLX's kernel for
   quantized weights decodes them again for every 32 rows, and MLX converts bfloat16
   numbers in software. Decoding once and running in float16 give 1.2 to 1.5x on prompt
-  reading, 1.18 to 1.31x at 32 prompts at once, and 24% in from-scratch training.
+  reading, 1.16 to 1.31x at 32 prompts at once, and 24% in from-scratch training.
 
 What none of this changes: one prompt writing fresh text. That is limited by how fast
 the Mac reads memory (about 375 GB/s, measured) and by the cost of issuing a thousand
@@ -517,10 +517,12 @@ matters.
 
 **The path.** From 256 rows up, a quantized layer decodes its weights and calls the dense
 multiply. Below 256 rows MLX's quantized kernel is as fast or faster, so nothing changes
-there. The decoded table is temporary and is freed as soon as the layer has run. It has a
+there. The decoded table is temporary and is freed as soon as the layer has run (a table
+whose decoded copy would be bigger than 2 GB is left to MLX's kernel). It has a
 gradient, so fine-tuning uses it too (section 13).
 
-**Result** (tokens read per second, MLX's kernels → lab):
+**Result** (tokens per second for reading the prompts and scoring every position, which
+is what scoring a text needs; MLX's kernels → lab):
 
 | Prompts x tokens each | Qwen3.5-0.8B 4-bit | Qwen3.5-4B 4-bit | Qwen3-4B 4-bit | Qwen3.5-9B 4-bit |
 |---|---|---|---|---|
@@ -529,7 +531,9 @@ gradient, so fine-tuning uses it too (section 13).
 | 8 x 512 | 3,238 → 4,196 (1.30x) | 622 → 827 (1.33x) | 671 → 895 (1.33x) | 337 → 433 (1.28x) |
 | 32 x 256 | 3,157 → 4,057 (1.29x) | 623 → 826 (1.33x) | 675 → 899 (1.33x) | 335 → 428 (1.28x) |
 
-- **1.2 to 1.33x faster** from 4B up; the 0.8B model gains a little less.
+- **1.2 to 1.33x faster** from 4B up; the 0.8B model gains a little less. Reading a
+  prompt before generating skips the output layer; section 16 times that case and the
+  gain is the same (1.28 to 1.33x for 8 x 512 tokens).
 - **Same answers.** In 12 of the 16 cases the scores for the last token are bit-for-bit
   identical to MLX's. In the other four (the 1 x 512 row) they differ by at most 0.19 on
   scores that spread over 1.1 to 1.8, and the top token is the same. MLX's block kernel
@@ -563,19 +567,24 @@ everything else moves half as many bytes.
 
 | Setup | val_bpb | Training tok/s | Steps in 150 s | Peak memory |
 |---|---|---|---|---|
-| 32-bit throughout, seed 0 | 1.6799 | 49,010 | 449 | 7.7 GB |
+| 32-bit throughout, seed 0 | 1.6799 | 49,009 | 449 | 7.7 GB |
 | 32-bit throughout, seed 1 | 1.6946 | 48,719 | 447 | 7.7 GB |
-| **Mixed: 32-bit weights, float16 arithmetic**, seed 0 | 1.6527 | 59,911 | 549 | 4.5 GB |
-| **Mixed**, seed 1 | 1.6436 | 60,815 | 557 | 4.5 GB |
+| **Mixed: 32-bit weights, float16 arithmetic**, seed 0 | 1.6349 | 60,503 | 554 | 4.5 GB |
+| **Mixed**, seed 1 | 1.6353 | 60,992 | 559 | 4.5 GB |
 | bfloat16 throughout (section 5's option) | 1.6760 | 54,010 | 495 | 4.5 GB |
-| Mixed with bfloat16 arithmetic | 1.6594 | 53,745 | 493 | 4.5 GB |
+| Mixed with bfloat16 arithmetic | 1.6543 | 54,298 | 498 | 4.6 GB |
 
 - **24% more training per second and 41% less memory** than 32-bit.
-- **A better model in the same time**: 1.648 on average against 1.687, a gap of 0.039,
-  more than five times the noise of section 5 (0.007). Both mixed runs beat both 32-bit
-  runs.
+- **A better model in the same time**: 1.635 on average against 1.687, a gap of 0.052,
+  8 times the noise of section 5 (0.007). Both mixed runs beat both 32-bit runs.
 - It also beats bfloat16 throughout, on speed (float16 multiplies are faster) and on
-  score (0.028, one run).
+  score (0.041, one run).
+- **Nothing overflowed.** A gradient value too large for 16 bits is left out of that
+  step, and the trainer now counts the steps where that happens: 0, 0, 0 in these three
+  mixed runs. It also checks the loss at every step, and scores the mixed formats in
+  32-bit as the 32-bit runs are scored.
+  Beyond the batch size measured here the scale stops growing with the batch, because a
+  weight's gradient is a sum over the batch.
 
 Limits: one model size (14 million parameters), 150 seconds, two seeds.
 
@@ -660,6 +669,20 @@ Full-length examples (passages cut at 512 tokens; 10 steps, 16 for the one-examp
 - Sorting changes nothing here (every example is cut at 512 tokens), so these gains are
   the GPU paths alone.
 
+**Is it the same training?** With `--file-order --val-batches -1` both trainers see the
+same batches in the same order from the same starting point, and both score the whole
+validation set, so the losses can be compared number for number:
+
+| Model | Trainer | Validation loss before | After 60 steps | Training loss, first and last 10 steps | tok/s |
+|---|---|---|---|---|---|
+| Qwen3.5-0.8B | mlx-lm as it comes | 3.029 | 1.319 | 1.998, 1.360 | 243 |
+| Qwen3.5-0.8B | lab GPU paths | 3.030 | 1.320 | 1.998, 1.363 | 1,061 |
+| Qwen3.5-4B | mlx-lm as it comes | 2.587 | 1.149 | 1.815, 1.153 | 94 |
+| Qwen3.5-4B | lab GPU paths | 2.587 | 1.150 | 1.815, 1.154 | 305 |
+
+The two end within 0.001 of each other. The recurrent update and the many-rows path
+change how the arithmetic is done, not what is computed.
+
 **Memory, and when to trade speed for it.** Gradient checkpointing (section 8) recomputes
 intermediate results instead of keeping them. With the loop gone it is no longer always
 needed, and on short examples it costs speed. On long ones it is both lighter and faster,
@@ -721,8 +744,8 @@ its number is one step behind, and the loss is still falling fast at step 30.
 | Qwen3.5-4B 4-bit | last 4 | 439 | 909 | 2.07x | 123 s | 286 steps | 5.9 → 6.9 GB | 2.587 → 1.459 | 2.587 → 1.402 |
 
 - **The fewer layers are trained, the bigger the gain.** The output layer over the
-  151,936-word vocabulary is a fixed cost of every step, which is why training a quarter
-  of the layers is not four times faster.
+  vocabulary (151,936 words for Qwen3, 248,320 for Qwen3.5) is a fixed cost of every
+  step, which is why training a quarter of the layers is not four times faster.
 - **It pays when examples are seen more than once.** Building the cache takes 71 to 123
   seconds here, as much as 290 to 470 training steps. After that every pass is faster,
   and a second run on the same data and split point (another learning rate, rank or
@@ -754,8 +777,8 @@ times.
 - `run_from(model, states, layer)` starts after the layer from stored results, so each
   variant in a sweep pays only for the layers above.
 - `last_token_scores` and `run_from(..., last_only=True)` score only the position after
-  the last token. The output layer is a tenth of a 4B Qwen model's weights and is
-  otherwise run for every position.
+  the last token. The output layer is a tenth (Qwen3-4B) to a sixth (Qwen3.5-4B) of the
+  model's weights and is otherwise run for every position.
 
 **Qwen3-4B 4-bit** (36 layers; tok/s, MLX's kernels → lab's)
 
@@ -823,44 +846,51 @@ layer's output, every weight table's input and output). It refuses if that comes
 conversion if any score is not a number or the two versions pick a different next token
 too often.
 
-**Result** (8 passages x 512 tokens of the lab's held-out text; tok/s, bfloat16 → float16):
+**Result** (8 passages x 512 tokens of the lab's held-out text, 2 passages for the 27B
+model; tok/s, bfloat16 → float16):
 
-| | Qwen3.5-0.8B 4-bit | Qwen3.5-4B 4-bit | Qwen3.5-9B 4-bit | Qwen3-4B 4-bit |
-|---|---|---|---|---|
-| Largest value inside the model | 81 | 200 | 404 | 7,008 |
-| Room below float16's limit | 809x | 328x | 162x | 9x |
-| Loss on the text, bfloat16 → float16 | 3.1286 → 3.1282 | 2.5344 → 2.5339 | 2.3886 → 2.3875 | 2.7336 → 2.7327 |
-| Same top next token | 97.5% | 98.5% | 97.9% | 98.5% |
-| Read prompts, MLX's kernels, tok/s | 4,598 → 6,475 (1.41x) | 724 → 1,023 (1.41x) | 384 → 543 (1.41x) | 739 → 1,036 (1.40x) |
-| Read prompts, lab's, tok/s | 5,925 → 7,167 (1.21x) | 960 → 1,116 (1.16x) | 490 → 557 (1.14x) | 985 → 1,114 (1.13x) |
-| Decode 1 prompt, tok/s | 205 → 212 (1.04x) | 82 → 83 (1.01x) | 55 → 56 (1.02x) | 91 → 93 (1.02x) |
-| Decode 8, MLX's kernels, tok/s | 565 → 655 (1.16x) | 131 → 165 (1.26x) | 75 → 97 (1.28x) | 142 → 180 (1.27x) |
-| Decode 8, lab kernel, tok/s | 803 → 849 (1.06x) | 271 → 289 (1.07x) | 170 → 183 (1.08x) | 297 → 320 (1.08x) |
-| Decode 32, tok/s | 1,573 → 1,855 (1.18x) | 451 → 561 (1.25x) | 279 → 364 (1.31x) | 505 → 661 (1.31x) |
+| | Qwen3.5-0.8B | Qwen3.5-4B | Qwen3.5-9B | Qwen3-4B | Qwen3.8-27B |
+|---|---|---|---|---|---|
+| Largest value inside the model | 81 | 200 | 404 | 7,008 | 1,056 |
+| Room below float16's limit | 809x | 328x | 162x | 9x | 62x |
+| Loss on the text, bfloat16 → float16 | 3.1286 → 3.1282 | 2.5344 → 2.5339 | 2.3886 → 2.3875 | 2.7336 → 2.7327 | 2.5393 → 2.5411 |
+| Same top next token | 97.5% | 98.5% | 97.9% | 98.5% | 98.4% |
+| Read prompts, MLX's kernels, tok/s | 4,594 → 6,467 (1.41x) | 724 → 1,022 (1.41x) | 384 → 543 (1.41x) | 739 → 1,037 (1.40x) | 109 → 154 (1.42x) |
+| Read prompts, lab's, tok/s | 5,919 → 7,161 (1.21x) | 959 → 1,117 (1.16x) | 491 → 556 (1.13x) | 984 → 1,115 (1.13x) | 127 → 154 (1.21x) |
+| Decode 1 prompt, tok/s | 203 → 215 (1.06x) | 81.4 → 84.3 (1.04x) | 54.7 → 55.0 (1.01x) | 91.9 → 92.9 (1.01x) | 18.7 → 18.9 (1.01x) |
+| Decode 8, MLX's kernels, tok/s | 567 → 644 (1.14x) | 131 → 167 (1.28x) | 75.1 → 96.4 (1.28x) | 142 → 180 (1.27x) | 22.2 → 29.6 (1.33x) |
+| Decode 8, lab kernel, tok/s | 783 → 843 (1.08x) | 271 → 289 (1.07x) | 177 → 184 (1.04x) | 296 → 318 (1.07x) | 58.2 → 59.4 (1.02x) |
+| Decode 32, tok/s | 1,576 → 1,825 (1.16x) | 450 → 560 (1.25x) | 278 → 364 (1.31x) | 505 → 662 (1.31x) | does not fit |
 
-- **Prompts are read 1.40 to 1.41x faster with MLX's own kernels**, and 1.13 to 1.21x
-  faster with the lab's (section 11). Both together are 1.45 to 1.56x over MLX in
-  bfloat16.
-- **32 prompts at once: 1.18 to 1.31x.** This is the setting that gives the most tokens
+- **Prompts are read 1.40 to 1.42x faster with MLX's own kernels.** With the lab's paths
+  switched on as well, reading is 1.42 to 1.56x faster than MLX in bfloat16.
+- **32 prompts at once: 1.16 to 1.31x.** This is the setting that gives the most tokens
   per second, and nothing else in this document had moved it.
-- **8 at once: 1.16 to 1.28x with MLX's kernels, 1.06 to 1.08x with the lab kernel**
-  (which was already fast there). **One prompt: 1.01 to 1.04x**, as expected: that case
+- **8 at once: 1.14 to 1.33x with MLX's kernels, 1.02 to 1.08x with the lab kernel**
+  (which was already fast there). **One prompt: 1.01 to 1.06x**, as expected: that case
   waits on memory, not arithmetic.
 - **A whole eval, end to end** (`--eval`: 64 MATH-500 questions, up to 256 new tokens
-  each, 32 at a time, Qwen3.5-4B): 51.7 s as shipped, 40.1 s in float16 with the lab's
+  each, 32 at a time, Qwen3.5-4B): 51.8 s as shipped, 40.1 s in float16 with the lab's
   paths on, 1.29x faster. float16 alone gives 1.27x; the lab's paths alone 1.05x.
 - **A small eval through the server showed nothing.** 20 questions sent 32 at a time took
   46 to 50 seconds through mlx-lm's server, the lab's, and the lab's with `--float16`
   alike (a quick check, not saved). With so few questions the batch empties early and
   most of the time goes to the last few long answers, decoded one or two at a time.
-- **The model is the same, to rounding.** The loss on the text moves by at most 0.0011,
-  and is a little lower in float16 for all four models, since float16 keeps more
-  digits. Both versions pick the same next token at 97.5% to 98.5% of positions, the
-  level at which MLX's own kernels differ from each other (section 9).
-- **How much room there is depends on the model.** The three Qwen3.5 models stay 160 to
-  800 times below the limit. Qwen3-4B writes one very large value (about 7,000) at most
-  of its layers and has only 9 times of room. The check's bar is 4 times; raise
-  `min_headroom` to be stricter, and run it on prompts like your own.
+- **The model is the same, to rounding.** The loss on the text moves by at most 0.0018
+  (lower in float16 for 4 of the 5 models). Both versions pick the same next token at
+  97.5% to 98.5% of positions, the level at which MLX's own kernels differ from each
+  other (section 9).
+- **How much room there is depends on the model.** The three Qwen3.5 models stay 162 to
+  809 times below the limit and the 27B model 62 times. Qwen3-4B writes one very
+  large value (about 7,000) at most of its layers and has only 9 times of room. The
+  check's bar is 4 times; raise `min_headroom` to be stricter, and run it on prompts
+  like your own.
+- **In float16 the lab's many-rows path (section 11) matters less**, because MLX's own
+  kernel is then nearly as fast: 3 to 13% slower on the 9B model. On the 27B model,
+  which fills most of this Mac's memory, the many-rows path was the slower of the two
+  in a first run (140 against 154 tok/s; the cause was not established). `qmm.install`
+  therefore leaves that path off for a float16 model whose weights take more than a
+  third of the Mac's memory, and the 27B column above was measured that way.
 
 Limits:
 
@@ -872,6 +902,8 @@ Limits:
   than the values going forwards and would round to zero in float16. Fine-tune in
   bfloat16 (the lab's from-scratch trainer handles this differently, section 12).
 - Measured on 4-bit models. The conversion is in memory only and takes a few seconds.
+  While it checks, it holds a second copy of the parameters it converts (small for a
+  quantized model; as much again as the weights for one that is not quantized).
 
 Verdict: **keep**, switched on by one line or by `--float16` on the lab's server.
 

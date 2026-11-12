@@ -102,8 +102,8 @@ def main() -> None:
             qmm.uninstall(model)
             entry["layers"][str(layer)] = result
             print(f"  layer {layer + 1:2d} of {depth}: collect {result['collect_mlx']:6.0f} -> {result['collect_lab']:6.0f} tok/s "
-                  f"({result['collect_lab'] / full['mlx']:.1f}x the full pass)   sweep {result['sweep_mlx']:6.0f} -> "
-                  f"{result['sweep_lab']:6.0f} tok/s ({result['sweep_lab'] / last['mlx']:.1f}x the last-token full pass)   "
+                  f"({result['collect_lab'] / full['mlx']:.1f}x the full pass with MLX's kernels)   sweep {result['sweep_mlx']:6.0f} -> "
+                  f"{result['sweep_lab']:6.0f} tok/s ({result['sweep_lab'] / last['mlx']:.1f}x the last-token full pass with MLX's kernels)   "
                   f"largest score difference {result['largest_score_difference']:.3f}", flush=True)
             save("interp", label, entry)
         del model

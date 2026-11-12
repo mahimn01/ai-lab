@@ -32,7 +32,7 @@ cd ~/Documents/Dev/ai-lab
    quarter of the memory. 64 is no faster than 32. One chat at a time is unchanged.
 4. **For inference, run the model in float16**: `float16.convert(model, tokenizer)`.
    MLX's GPU code converts the models' bfloat16 numbers in software; float16 is native.
-   Prompts are read 1.4x faster and 32 prompts at once decode 1.18-1.31x faster; a
+   Prompts are read 1.4x faster and 32 prompts at once decode 1.16-1.31x faster; a
    64-question eval finished 1.29x sooner end to end; one prompt is unchanged. `convert`
    first checks on sample prompts that no value inside the model comes near float16's
    limit of 65,504, and refuses otherwise. Not for fine-tuning (section 16).
@@ -84,7 +84,7 @@ cd ~/Documents/Dev/ai-lab
 | Run the example eval | see the top of `examples/inspect_local.py` | one log under `runs/inspect-logs/` |
 | Start the experiment loop | `uv run python -m lab.loop --rounds 10 --agent "claude -p --permission-mode acceptEdits"` | a `loop/...` git branch, `results.tsv` |
 | Re-measure the baseline | `uv run python -m bench.inference --model LABEL=PATH`, then `uv run python -m bench.report` | `bench/results/`, `BASELINE.md` |
-| Run the tests | `uv run pytest` (add `-m "not slow"` for the 3-second set) | nothing |
+| Run the tests | `uv run pytest` (about 90 seconds; add `-m "not slow"` for the 5-second set) | nothing |
 
 Every script starts with a plain-words header saying what it does, how to run it and
 what it changes.
@@ -154,7 +154,8 @@ MLX may use about 25 GB of the 32 GB for models, and other apps need their share
 - **Running models:** up to about 27B parameters at 4-bit (14 GB of weights). 4B-9B
   models leave plenty of room for batching. The 27B model runs 1-8 prompts at once
   (21.6 GB at 8); 32 at once ran out of memory. With the lab kernel on, 8 at once
-  gives it about twice its best speed without (section 9).
+  gives it about twice its best speed without (section 9), and in float16 it reads
+  prompts 1.4x faster (154 against 109 tokens/s, section 16).
 - **Training from scratch:** 14M-91M parameter GPTs. The 91M size needs 16-bit
   arithmetic (the default) or a batch of 16 to stay under 12 GB.
 - **Fine-tuning (LoRA, batch 4, short examples, through `lab.finetune.lora`):**
