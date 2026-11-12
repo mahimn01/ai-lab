@@ -36,11 +36,18 @@ import mlx.nn as nn
 import mlx.optimizers as optim
 import numpy as np
 
+from mlx.utils import tree_map
+
 from lab.train.model import GPT, SIZES, n_params
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = ROOT / "data" / "fineweb_edu"
 DTYPES = {"float32": mx.float32, "bfloat16": mx.bfloat16, "float16": mx.float16}
+# "mixed16": 32-bit weights and optimizer, 16-bit arithmetic in the model. The loss is multiplied by
+# GRAD_SCALE per token before the backward pass so that the 16-bit gradients stay inside the range
+# 16-bit floats can hold (their smallest normal value is 6e-5), and divided out again afterwards.
+MIXED = {"mixed16": mx.float16, "mixedbf16": mx.bfloat16}
+GRAD_SCALE = 8.0
 WARMUP_FRACTION = 0.03  # of the time budget
 VAL_BATCHES = 20
 
@@ -58,7 +65,10 @@ def get_args() -> argparse.Namespace:
     # 0.04 beat 0.02 by 0.05 val_bpb (noise 0.007) and 0.08 was worse: SPEED-RESULTS.md section 5.
     ap.add_argument("--muon-lr", type=float, default=0.04)
     ap.add_argument("--weight-decay", type=float, default=0.0)
-    ap.add_argument("--dtype", choices=DTYPES, default="float32", help="number format of the weights")
+    # mixed16 trained 24% more tokens in the same time than float32 and scored 0.04 val_bpb better
+    # (two seeds each, noise 0.007): SPEED-RESULTS.md section 12.
+    ap.add_argument("--dtype", choices=[*DTYPES, *MIXED], default="mixed16",
+                    help="number format; mixed16 (default) = 32-bit weights with 16-bit arithmetic")
     ap.add_argument("--no-compile", action="store_true", help="run the step without mx.compile (for comparison)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--save", action="store_true", help="also save the trained weights")
@@ -95,22 +105,28 @@ def main() -> None:
     mx.random.seed(args.seed)
 
     model = GPT(dataclasses.replace(SIZES[args.size], vocab_size=meta["vocab_size"]))
-    model.set_dtype(DTYPES[args.dtype])
+    model.set_dtype(DTYPES.get(args.dtype, mx.float32))
+    model.compute_dtype = MIXED.get(args.dtype)
     mx.eval(model.parameters())
     optimizer, schedule = make_optimizers(args)
+    grad_scale = GRAD_SCALE * B * T if args.dtype in MIXED else 1.0
 
-    def loss_fn(model: nn.Module, x: mx.array, y: mx.array) -> mx.array:
-        return mx.fast.cross_entropy(model(x), y).mean()
+    def loss_fn(model: nn.Module, x: mx.array, y: mx.array) -> tuple[mx.array, mx.array]:
+        # The loss itself is always computed in 32-bit: adding up 16,384 losses overflows a 16-bit float.
+        loss = mx.fast.cross_entropy(model(x).astype(mx.float32), y).mean()
+        return loss * grad_scale, loss
 
     loss_and_grad = nn.value_and_grad(model, loss_fn)
 
     def step(x: mx.array, y: mx.array) -> mx.array:
-        loss, grads = loss_and_grad(model, x, y)
+        (_, loss), grads = loss_and_grad(model, x, y)
+        if grad_scale != 1.0:  # undo the scaling; a gradient that overflowed 16 bits counts as zero
+            grads = tree_map(lambda g: mx.nan_to_num(g * (1.0 / grad_scale), nan=0.0, posinf=0.0, neginf=0.0), grads)
         optimizer.update(model, grads)
         return loss
 
     def eval_loss(x: mx.array, y: mx.array) -> mx.array:
-        return loss_fn(model, x, y)
+        return loss_fn(model, x, y)[1]
 
     if not args.no_compile:
         # Compiling turns the whole step (forward, backward, weight update) into one GPU

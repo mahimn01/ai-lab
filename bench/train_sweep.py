@@ -9,8 +9,9 @@ What it does
     number format 32-bit weights against 16-bit (bfloat16, float16)
     compilation   the compiled training step against the uncompiled one
     confirm       the two changes that won on their own, combined, on two seeds
+    precision     32-bit weights with 16-bit arithmetic ("mixed16") against the other number formats
 
-Run:     uv run python -m bench.train_sweep [--budget-s 180] [--only noise,optimizer,dtype,compile,confirm]
+Run:     uv run python -m bench.train_sweep [--budget-s 180] [--only noise,optimizer,dtype,compile,confirm,precision]
 Changes: writes bench/results/train_sweep.json and runs/train/sweep-*/result.json.
          Takes about (number of runs) x (budget + 20 s).
 """
@@ -28,31 +29,40 @@ from bench.common import environment, save
 ROOT = Path(__file__).resolve().parent.parent
 GROUPS: dict[str, dict[str, list[str]]] = {
     "noise": {
-        # The Muon rate is spelled out so these rows keep their meaning when the trainer's default moves.
-        "muon seed 0 (default)": ["--muon-lr", "0.02", "--seed", "0"],
-        "muon seed 1": ["--muon-lr", "0.02", "--seed", "1"],
-        "muon seed 2": ["--muon-lr", "0.02", "--seed", "2"],
+        # The Muon rate and number format are spelled out so these rows keep their meaning when the trainer's defaults move.
+        "muon seed 0 (default)": ["--muon-lr", "0.02", "--dtype", "float32", "--seed", "0"],
+        "muon seed 1": ["--muon-lr", "0.02", "--dtype", "float32", "--seed", "1"],
+        "muon seed 2": ["--muon-lr", "0.02", "--dtype", "float32", "--seed", "2"],
     },
     "optimizer": {
-        "adamw lr 1e-3": ["--optimizer", "adamw", "--lr", "1e-3"],
-        "adamw lr 3e-3": ["--optimizer", "adamw", "--lr", "3e-3"],
-        "adamw lr 6e-3": ["--optimizer", "adamw", "--lr", "6e-3"],
-        "muon lr 0.01": ["--muon-lr", "0.01"],
-        "muon lr 0.04": ["--muon-lr", "0.04"],
+        "adamw lr 1e-3": ["--optimizer", "adamw", "--lr", "1e-3", "--dtype", "float32"],
+        "adamw lr 3e-3": ["--optimizer", "adamw", "--lr", "3e-3", "--dtype", "float32"],
+        "adamw lr 6e-3": ["--optimizer", "adamw", "--lr", "6e-3", "--dtype", "float32"],
+        "muon lr 0.01": ["--muon-lr", "0.01", "--dtype", "float32"],
+        "muon lr 0.04": ["--muon-lr", "0.04", "--dtype", "float32"],
     },
     "dtype": {
         "muon bfloat16": ["--muon-lr", "0.02", "--dtype", "bfloat16"],
         "muon float16": ["--muon-lr", "0.02", "--dtype", "float16"],
     },
     "compile": {
-        "muon not compiled": ["--muon-lr", "0.02", "--no-compile"],
+        "muon not compiled": ["--muon-lr", "0.02", "--dtype", "float32", "--no-compile"],
     },
     # Follow-up: the two single-change wins (higher Muon rate, bfloat16) together, on two
     # seeds, plus one step further on the rate to see where it stops helping.
+    # 32-bit weights with 16-bit arithmetic (mixed16) against plain 32-bit and against 16-bit weights.
+    "precision": {
+        "float32 seed 0": ["--dtype", "float32", "--seed", "0"],
+        "float32 seed 1": ["--dtype", "float32", "--seed", "1"],
+        "mixed16 seed 0": ["--dtype", "mixed16", "--seed", "0"],
+        "mixed16 seed 1": ["--dtype", "mixed16", "--seed", "1"],
+        "bfloat16 weights seed 0": ["--dtype", "bfloat16", "--seed", "0"],
+        "mixedbf16 seed 0": ["--dtype", "mixedbf16", "--seed", "0"],
+    },
     "confirm": {
         "muon lr 0.04 bfloat16 seed 0": ["--muon-lr", "0.04", "--dtype", "bfloat16", "--seed", "0"],
         "muon lr 0.04 bfloat16 seed 1": ["--muon-lr", "0.04", "--dtype", "bfloat16", "--seed", "1"],
-        "muon lr 0.08": ["--muon-lr", "0.08"],
+        "muon lr 0.08": ["--muon-lr", "0.08", "--dtype", "float32"],
     },
 }
 
