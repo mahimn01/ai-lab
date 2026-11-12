@@ -335,8 +335,9 @@ How to read it:
   accuracy 0.65 both times.
 
 The same thing layer by layer (total ms to run all of a model's weight tables once,
-MLX → lab). Each layer runs on its own here, which lets the GPU overlap one layer with
-the next, so these are best-case figures; the decoding loop above is what counts.
+MLX → lab). A decoding step also does other work that the kernel does not touch (about
+5 ms per step for the 9B model), so the gain in the decoding loop above is smaller than
+the gain here. The decoding loop is the number that counts.
 
 | Rows | Qwen3.5-0.8B 4-bit | Qwen3.5-4B 4-bit | Qwen3-4B 4-bit | Qwen3.5-9B 4-bit |
 |---|---|---|---|---|

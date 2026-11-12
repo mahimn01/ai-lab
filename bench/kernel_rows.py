@@ -2,9 +2,9 @@
 
 What it measures, for each model
   layers   every quantized weight table of the model is run once on `rows` rows of
-           random input: first with MLX's kernel, then with lab/kernels/qmm.py. Each
-           layer runs on its own here, so the GPU can overlap one layer with the next;
-           inside a model it cannot. Treat this as the kernel's best case.
+           random input: first with MLX's kernel, then with lab/kernels/qmm.py. A
+           decoding step also does other work the kernel does not touch, so the gain
+           seen here is larger than the gain in a real step.
   decode   a real greedy decoding loop for `batch` prompts at once: ms per step and
            tokens per second, with MLX's kernels and with the lab kernel installed.
            This is the number that counts.
