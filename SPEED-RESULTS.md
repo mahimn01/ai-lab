@@ -588,7 +588,10 @@ everything else moves half as many bytes.
   Beyond the batch size measured here the scale stops growing with the batch, because a
   weight's gradient is a sum over the batch.
 
-Limits: one model size (14 million parameters), 150 seconds, two seeds.
+Limits: one model size (14 million parameters), 150 seconds, two seeds. A 45-second check
+of the 91M size with the default format ran at 10,300 tok/s in 10.9 GB with no overflowed
+step (a quick check, not saved; in 32-bit that size needs 20 GB and collapses to 125
+tok/s, `BASELINE.md` section 3).
 
 Verdict: **keep**; `mixed16` is now the trainer's default. `--dtype float32` gives the old
 behaviour.
