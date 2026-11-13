@@ -323,9 +323,24 @@ def test_the_batch_narrows_when_rows_run_out_without_changing_what_is_written():
     wide.narrow_when_idle = False
     expected = {r["meta"]["i"]: r["tokens"] for r in wide.run(rows)}
     engine = make_engine(model, slots=16)
-    got = {r["meta"]["i"]: r["tokens"] for r in engine.run(rows)}
+    records = engine.run(rows)
     assert engine.stats["narrowed"] >= 1 and engine.slots == 4 and wide.slots == 16
-    assert got == expected
+    assert {r["meta"]["i"]: r["tokens"] for r in records} == expected
+    assert all(r["widths"] == ([16] if r["meta"]["i"] < 14 else [16, 4]) for r in records), "a row's record says which widths it ran at"
+
+
+def test_a_branch_continues_its_trunk_at_once_or_after_a_wait_that_ends_while_the_trunk_runs():
+    model = tiny_model(12)
+    trunk = greedy(prompt(270, 7), 60, branch_at=(20,), meta={"n": "trunk"})
+    other = greedy(prompt(15, 8), 30, meta={"n": "other"})                 # leaves its slot at step 30, with the trunk half way
+    brancher = lambda row, written: greedy(row.prompt + written, 25, seen=tuple(written), meta={"n": "branch"})
+    for slots, places, waited, read in ((3, 3, 0, 0), (2, 2, 1, 0), (2, 0, 0, 1)):
+        engine = make_engine(model, slots=slots)
+        engine.max_waiting = places
+        by = {r["meta"]["n"]: r for r in engine.run([trunk, other], brancher=brancher)}
+        assert (engine.stats["branches_waited"], engine.stats["branches_read"]) == (waited, read)
+        assert by["branch"]["tokens"] == by["trunk"]["tokens"][20:45], "with no randomness a branch writes what its trunk goes on to write"
+        assert by["branch"]["read_in"] == bool(read) and by["trunk"]["read_in"] is False and by["branch"]["widths"] == [slots]
 
 
 def test_slots_kept_free_let_branches_start_at_once_and_the_others_wait():

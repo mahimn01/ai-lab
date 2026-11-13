@@ -13,6 +13,7 @@ What the engine does (design and measurements: docs/design-row-engine.md)
     history in lab/gen/kv.py
   - picks every row's next token on the GPU with the row's own settings and its own
     random stream (lab/gen/sampler.py), so a row's text does not depend on its neighbours
+    (it does depend on the width of the batch: see the last point)
   - can branch a row: the branch shares the trunk's history pages and costs nothing to start.
     If no slot is free at that moment the branch waits, holding a copy of the trunk's small
     per-row state, and still shares the pages when a slot comes free
@@ -21,7 +22,9 @@ What the engine does (design and measurements: docs/design-row-engine.md)
   - if the pool runs short, sets the youngest row aside and replays it later from its
     saved tokens (reading is far faster than writing)
   - narrows the batch once nothing is waiting and half the slots are empty: a step costs
-    less with fewer slots, and the last long rows of a run would otherwise pay for all of them
+    less with fewer slots, and the last long rows of a run would otherwise pay for all of them.
+    A narrower batch is computed in another order, so the rows still running continue with
+    other rounding than at full width. narrow_when_idle = False keeps the width
 
 Supported models: the Qwen3.5 text family as loaded by mlx-lm (recurrent layers plus
 attention layers). The model's weights are not changed.
@@ -82,12 +85,16 @@ class Row:
     meta: dict = field(default_factory=dict)
 
     def key(self, model_tag: str) -> str:
-        """The row's name in a ledger: a hash of everything that decides what it writes (not meta, not branch_at)."""
+        """The row's name in a ledger: a hash of everything about the row that decides what it writes (not meta, not branch_at).
+
+        The run decides the rest, down to rounding: the width of the batch at each step, and whether the row was read back in
+        on the way. A row's record carries both (`widths`, `set_aside`, `read_in`).
+        """
         spec = {k: v for k, v in asdict(self).items() if k not in ("meta", "branch_at")}
         return row_key({"model": model_tag, **spec})
 
 
-@dataclass
+@dataclass(eq=False)
 class _Live:
     """A row that is running or waiting, with what it has written so far."""
 
@@ -101,9 +108,11 @@ class _Live:
     started: float | None = None
     set_aside: int = 0
     steps: int = 0
+    read_in: bool = False                                    # a branch that started from saved tokens, not from its trunk's history
+    widths: list[int] = field(default_factory=list)          # the batch widths it ran at, in order
 
 
-@dataclass
+@dataclass(eq=False)
 class _Waiting:
     """A branch with no slot yet, holding what it needs to start exactly where its trunk stood."""
 
@@ -158,7 +167,7 @@ class Engine:
     decode      tokens -> text, needed only to watch for loops
     """
 
-    def __init__(self, model: nn.Module, *, slots: int = 48, pool_gb: float = 12.0, max_tokens: int = 32768,
+    def __init__(self, model: nn.Module, *, slots: int = 48, pool_gb: float = 10.0, max_tokens: int = 32768,
                  max_prompt: int = 1024, edits: dict[str, dict[str, tuple[mx.array, mx.array]]] | None = None,
                  model_tag: str = "", decode: Callable[[list[int]], str] | None = None, use_kernel: bool = True) -> None:
         mx.set_cache_limit(BUFFER_CACHE_GB * GB)
@@ -254,6 +263,8 @@ class Engine:
         self.streams[slot, : row.max_tokens + 1] = row_stream(row.seed, row.max_tokens + 1)
         self.live[slot] = live
         live.started = live.started or time.perf_counter()
+        if live.widths[-1:] != [self.slots]:
+            live.widths.append(self.slots)
         if live.watch is None and self.decode is not None:
             live.watch = LoopWatch()
 
@@ -267,6 +278,7 @@ class Engine:
     def _admit(self, live: _Live) -> None:
         """Give a waiting row a slot by reading its prompt (and whatever it had already written)."""
         slot = self.free_slots.pop()
+        live.read_in = live.read_in or (live.parent is not None and not live.written)
         text = live.row.prompt + live.written
         cache = self._read(text[:-1], live.row) if len(text) > 1 else None
         history = []
@@ -334,6 +346,8 @@ class Engine:
         self.pool.shrink(width)
         self.slots = width
         self.free_slots = [slot for slot in range(width - 1, -1, -1) if slot not in self.live]
+        for live in self.live.values():
+            live.widths.append(width)
         self.stats["narrowed"] += 1
         mx.eval(self.mask, self.streams, [c.cache for c in self.rec.values()], self.pool.buf_keys, self.pool.buf_values)
 
@@ -461,6 +475,8 @@ class Engine:
         in later from the trunk's saved tokens, which costs a pass over that text.
         """
         self._check(rows)
+        if keep_free >= self.slots:
+            raise ValueError(f"keep_free ({keep_free}) must be smaller than the number of slots ({self.slots})")
         done = ledger.done() if ledger else set()
         keyed = [(row, row.key(self.model_tag)) for row in rows]
         queue = deque(_Live(row, key) for row, key in keyed if key not in done)
@@ -475,6 +491,7 @@ class Engine:
             record = {"key": live.key, "meta": row.meta, "finish": reason, "written": len(live.written), "sampled": live.sampled,
                       "prompt_tokens": len(row.prompt), "max_tokens": row.max_tokens, "seed": row.seed, "edit": row.edit,
                       "edit_scale": row.edit_scale, "parent": live.parent, "steps": live.steps, "set_aside": live.set_aside,
+                      "read_in": live.read_in, "widths": live.widths,
                       "seconds": round(time.perf_counter() - live.started, 2),
                       "finished_at_s": round(time.perf_counter() - t0, 2), **(live.watch.summary() if live.watch else {})}
             if ledger:

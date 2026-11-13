@@ -36,6 +36,8 @@ Run:     uv run python -m bench.phase1 --harness ~/Documents/Dev/neural-harness 
          (add --report to recompute the summary from a finished ledger without running anything)
 Changes: writes runs/phase1/<tag>/ (ledger) and one entry in bench/results/phase1.json.
          Reads the study's folder, never writes to it. Downloads MATH-500 if it is not cached.
+         An entry's `environment` (time, free memory, swap) is taken as the run starts. The nine
+         entries saved up to 2026-11-13 took it as the run ended, whatever their field names say.
 """
 
 from __future__ import annotations
@@ -231,14 +233,18 @@ def main() -> None:
     ap.add_argument("--keep-free", type=int, default=0, help="slots held back so that branches start at once (see lab/gen/engine.py)")
     ap.add_argument("--stop-after-loop", type=int, help="stop a row after this many looping tokens (off by default; see lab/gen/loops.py)")
     ap.add_argument("--audit", type=float, default=0.0, help="share of rows exempt from --stop-after-loop, chosen by row key")
+    ap.add_argument("--keep-width", action="store_true", help="do not narrow the batch as rows run out: the end of a run is a little slower, "
+                    "and every row is computed at one batch width, so it comes out the same in any run of that width unless it is set aside "
+                    "or read back in on the way")
     ap.add_argument("--slots", type=int, default=48)
-    ap.add_argument("--pool-gb", type=float, default=12.0)
+    ap.add_argument("--pool-gb", type=float, default=10.0)
     ap.add_argument("--plain-attention", action="store_true", help="use MLX's attention row by row instead of the paged kernel")
     ap.add_argument("--reference", type=Path, action="append", default=[],
                     help="a saved <tag>.jsonl of the study's own runner for the same condition (may be given more than once)")
     ap.add_argument("--decide", default="", help="two condition names, e.g. base,adapter@1: stop starting rows once their accuracy difference is decided")
     ap.add_argument("--longest-first", type=Path, help="a saved <tag>.jsonl of an earlier run of these problems: start the rows that were longest "
-                                                         "there first (a run ends sooner; no row's text changes, since each row has its own random stream)")
+                                                         "there first (a run ends sooner. Each row keeps its own random stream, but another order changes "
+                                                         "which rows meet a narrowing of the batch or are set aside, and those can come out differently)")
     ap.add_argument("--plan", type=Path, help="the plan written before the run; its sha256 goes into the ledger")
     ap.add_argument("--report", action="store_true", help="only recompute the summary from the ledger")
     args = ap.parse_args()
@@ -251,6 +257,8 @@ def main() -> None:
     model, tok = s.load_arm(args.arm)
     model_tag = f"{args.arm}|{model.language_model.model.embed_tokens.weight.dtype}"
     force_ids = tuple(tok.encode(s.force_exit, add_special_tokens=False))
+    if exits and args.max_tokens - exits[-1] - len(force_ids) < 1:
+        raise SystemExit(f"an exit at {exits[-1]:,} leaves no room for an answer under --max-tokens {args.max_tokens:,}")
     sampling = {"temperature": s.sampling["temperature"], "top_k": s.sampling["top_k"], "top_p": s.sampling["top_p"],
                 "presence_penalty": s.sampling["presence_penalty"]}
     settings = {"tag": args.tag, "arm": args.arm, "n": args.n, "samples": args.samples, "max_tokens": args.max_tokens,
@@ -299,8 +307,10 @@ def main() -> None:
     text = lambda tokens: plain_text(tok, tokens)
 
     def new_engine() -> Engine:
-        return Engine(model, slots=args.slots, pool_gb=args.pool_gb, max_tokens=args.max_tokens, edits=edits, model_tag=model_tag,
-                      decode=lambda ids: tok.decode(ids, skip_special_tokens=False), use_kernel=not args.plain_attention)
+        engine = Engine(model, slots=args.slots, pool_gb=args.pool_gb, max_tokens=args.max_tokens, edits=edits, model_tag=model_tag,
+                        decode=lambda ids: tok.decode(ids, skip_special_tokens=False), use_kernel=not args.plain_attention)
+        engine.narrow_when_idle = not args.keep_width
+        return engine
 
     def branches_still_owed() -> list[Row]:
         """Forced-exit branches of finished rows that are not in the ledger (after a restart, or when --exits was added later)."""
@@ -346,6 +356,7 @@ def main() -> None:
     entry = json.loads(results_file.read_text()).get(label, {}) if results_file.exists() else {}
     if not args.report:
         ledger.write_meta(settings)
+        started = environment()
         engine = new_engine()
         say = lambda line: print(line, flush=True)
         say(f"{label}: {len(rows)} rows, {args.slots} at once, pool {engine.pool.pages} pages "
@@ -356,7 +367,7 @@ def main() -> None:
         stats = dict(engine.stats)
         owed = branches_still_owed()
         if owed:
-            # A fresh engine: the first one has narrowed its batch by now.
+            # A fresh engine: the first one may have narrowed its batch by now.
             engine.close()
             del engine
             mx.clear_cache()
@@ -366,8 +377,8 @@ def main() -> None:
             stats = {name: stats[name] + engine.stats[name] for name in stats}
         wall = time.perf_counter() - t0
         engine.close()
-        entry = {"environment": environment(), "harness": str(args.harness), **{k: v for k, v in settings.items() if k != "tag"},
-                 "slots": args.slots, "pool_gb": args.pool_gb, "keep_free": args.keep_free,
+        entry = {"environment": started, "harness": str(args.harness), **{k: v for k, v in settings.items() if k != "tag"},
+                 "slots": args.slots, "pool_gb": args.pool_gb, "keep_free": args.keep_free, "kept_width": args.keep_width,
                  "longest_first_from": str(args.longest_first) if args.longest_first else None,
                  "paged_kernel": not args.plain_attention, "continued_an_earlier_run": resumed, "wall_s": wall,
                  "tokens_written": stats["written"], "tokens_per_s": stats["written"] / wall, "steps": stats["steps"],
