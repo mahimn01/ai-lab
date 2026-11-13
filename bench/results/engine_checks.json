@@ -92,17 +92,31 @@
   },
   "qwen3.5-0.8b, long check to 32,768": {
     "environment": {
-      "when": "2026-11-12T20:29:11",
+      "when": "2026-11-13T07:58:50",
       "chip": "Apple M1 Max",
       "memory_gb": 32,
       "macos": "27.0.1",
       "python": "3.13.17",
       "mlx": "0.32.4",
       "mlx_lm": "0.32.2",
-      "free_memory_pct_at_start": 80,
-      "swap_used_gb_at_start": 13.65
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 11.38
     },
     "rows": 4,
+    "pool": {
+      "step_ms_with_1_gb": 22.229144099013258,
+      "step_ms_with_8_gb": 22.22689743153751,
+      "every_timing_with_1_gb": [
+        22.266685556775577,
+        22.229144099013258,
+        22.229259721158694
+      ],
+      "every_timing_with_8_gb": [
+        22.22689743153751,
+        22.27395166642964,
+        22.22778805453951
+      ]
+    },
     "scores": {
       "positions": 2400,
       "largest_difference": 0.6640625,
@@ -148,7 +162,7 @@
       "largest_difference": 0.25,
       "same_top_token": 14,
       "of": 14,
-      "minutes": 12.112182559717136
+      "minutes": 11.782483425705383
     },
     "greedy": {
       "tokens_each": 400,
@@ -173,20 +187,54 @@
     },
     "neighbours": {
       "tokens": 400,
-      "identical_until": 400
+      "identical_until": 400,
+      "identical_until_in_the_last_slot": 400
+    },
+    "width": {
+      "slots": [
+        48,
+        24
+      ],
+      "narrows_after_step": 200,
+      "steps": 600,
+      "largest_difference_before": 0.0,
+      "largest_difference_after": 0.4375,
+      "same_top_token_share_after": 0.9899999499320984,
+      "row_not_moved": {
+        "largest_difference_before": 0.0,
+        "largest_difference_after": 0.4375,
+        "same_top_token_share_after": 0.9899999499320984
+      }
+    },
+    "branches": {
+      "branch_at": 300,
+      "tokens": 400,
+      "waited_identical_until": 400,
+      "read_in_identical_until": 23,
+      "tokens_of_the_trunk_continued": 200,
+      "continues_its_trunk_at_once": 200,
+      "continues_its_trunk_after_a_wait": 200
     },
     "kernel": {
       "tokens_each": 400,
-      "identical_until": [
-        259,
-        400,
-        43,
-        281
+      "rows": [
+        {
+          "tokens_identical": 259,
+          "score_gap_at_first_difference": 0.125
+        },
+        {
+          "tokens_identical": 400,
+          "score_gap_at_first_difference": null
+        },
+        {
+          "tokens_identical": 43,
+          "score_gap_at_first_difference": 0.125
+        },
+        {
+          "tokens_identical": 281,
+          "score_gap_at_first_difference": 0.125
+        }
       ]
-    },
-    "pool": {
-      "step_ms_with_1_gb": 23.068696388509125,
-      "step_ms_with_8_gb": 23.20945083318899
     },
     "edit": {
       "positions": 600,

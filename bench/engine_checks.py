@@ -24,13 +24,26 @@ What it measures (dense Qwen3.5-0.8B from the neural-harness study; its saved tr
               its own cache. This covers many pages of history, which the short check does not.
   greedy      With no randomness, how many tokens the engine and mlx-lm's own generator write
               identically before the first difference, and how close the two candidates were there.
-  neighbours  The same sampled row alone in an 8-slot batch and with 7 other rows in it.
+  neighbours  The same sampled row alone in an 8-slot batch, with 7 other rows in it, and with those
+              7 while it sits in the last slot instead of the first.
+  width       One text forced through a batch of 48 that keeps its width, and through one that narrows
+              to 24 when 24 short neighbours end (the first narrowing of a 48-slot run; the row is
+              moved to another slot by it). Before the narrowing the two must give the same scores
+              exactly. After it they may differ as far as rounding goes (the yardstick), if a batch
+              of another width is computed in another order. A larger difference would mean the
+              narrowing itself loses something. Then the same with the text in the first slot, which
+              the narrowing does not move: a difference there comes from the width and not the move.
   branches    The same sampled branch of one row, taken three ways in the same 8 slots: started at
               once (a slot was free), after waiting for a slot with its trunk's state held, and read
               in later from the trunk's saved tokens. The first two start from the same numbers and
               must write the same tokens. The third starts from mlx-lm's reading of the text, which
-              rounds differently, so it may part ways after a while.
-  kernel      The same rows through the paged kernel and through MLX's attention row by row.
+              rounds differently, so it may part ways after a while. Both of the first two go through
+              the same code, so a second check does not: with no randomness a branch must write the
+              tokens its trunk goes on to write, started at once and after a wait that ends while the
+              trunk is still running.
+  kernel      The same rows, with no randomness, through the paged kernel and through MLX's attention row
+              by row: how many tokens are identical, and how close the two candidates were at the first
+              difference.
   edit        A row carrying the study's edit unmerged, against the study's own adapter model.
   sampler     On real score vectors with the study's presence penalty: the tokens the engine keeps and
               their probabilities, against those of the study's own sampler code.
@@ -39,8 +52,11 @@ What it measures (dense Qwen3.5-0.8B from the neural-harness study; its saved tr
               every token written so far, a full sort, the row's own random number), and compared with
               what the engine wrote. This checks the penalty bookkeeping and the random stream in a
               real run, not only the sampling rule.
-  pool        Step time with a 1 GB and an 8 GB history pool. They must match: a step that copied the
-              pool instead of writing into it would take seconds.
+  pool        Step time with a 1 GB and an 8 GB history pool, each timed three times in turn with the
+              fastest kept. They must match: a step that copied the pool instead of writing into it
+              would take seconds. It is timed before the other checks, in a process that holds nothing
+              else: at the end of this script, next to 5 GB of kept scores, the 8 GB pool timed 2.4 ms
+              a step slower than the 1 GB one.
 
 Run:     uv run python -m bench.engine_checks --harness ~/Documents/Dev/neural-harness [--long-tokens 32768]
 Changes: writes bench/results/engine_checks.json. Reads the study's folder, never writes to it.
@@ -53,6 +69,7 @@ import gzip
 import json
 import sys
 import time
+from dataclasses import replace
 from pathlib import Path
 
 import mlx.core as mx
@@ -64,7 +81,8 @@ from lab.gen.engine import Engine, Row, seed_for
 from lab.gen.sampler import kept_probabilities, row_stream
 
 ROWS, FORCED, GREEDY, SAMPLED = 4, 600, 400, 400
-BRANCH_AT = 300         # the branch check's trunk branches here: its history is then one full page and part of a buffer
+BRANCH_AT = 300         # the branch check's trunk branches here: its history is then full pages and part of a buffer
+NARROW_AT = 200         # the width check's 24 short rows end here, and the batch narrows from 48 slots to 24
 LATE = (1024, 4096, 8192, 12288, 16383, 24576, 32767)     # written-token counts at which the long check compares scores
 
 
@@ -87,9 +105,25 @@ def main() -> None:
     def head(hidden: mx.array) -> mx.array:
         return text.embed_tokens.as_linear(hidden).astype(mx.float32)
 
+    def same_until(a: list[int], b: list[int]) -> int:
+        """How many tokens two rows share before their first difference."""
+        return next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
+
     def reference_scores(tokens: list[int]) -> mx.array:
         """mlx-lm's scores after every position of one text, read in one pass."""
         return model(mx.array(tokens)[None])[0].astype(mx.float32)
+
+    def parting(prompt: list[int], a: list[int], b: list[int]) -> dict:
+        """Where two rows written with no randomness part, and how close the two candidates were there in mlx-lm's own scores."""
+        same, gap = same_until(a, b), None
+        if same < min(len(a), len(b)):
+            last = reference_scores(prompt + a[:same])[-1]
+            gap = abs(last[a[same]].item() - last[b[same]].item())
+        return {"tokens_identical": same, "score_gap_at_first_difference": gap}
+
+    def partings(rows: list[dict]) -> str:
+        return ", ".join(f"{a['tokens_identical']}" + (f" (gap {a['score_gap_at_first_difference']:.3f})" if a["score_gap_at_first_difference"] is not None else "")
+                         for a in rows)
 
     def run(rows: list[Row], slots: int, probe=None, pool_gb: float = 1.0, **kwargs) -> tuple[list[dict], Engine]:
         engine = Engine(model, slots=slots, pool_gb=pool_gb, max_tokens=max(r.max_tokens for r in rows), **kwargs)
@@ -109,6 +143,23 @@ def main() -> None:
 
         run([Row(prompt=r["prompt"], max_tokens=FORCED, seed=0, forced=tuple(r["tokens"][:FORCED]), **kwargs.pop("row", {}))], 1, probe, **kwargs)
         return mx.stack(seen)
+
+    def greedy_row(r: dict, n: int) -> Row:
+        return Row(prompt=r["prompt"], max_tokens=n, seed=0, temperature=0.0, top_k=1, top_p=1.0, presence_penalty=0.0, meta={"id": r["unique_id"]})
+
+    # pool: a step must cost the same whatever the size of the pool (it is written in place, never copied).
+    # Timed first: once this script holds the score arrays of the checks below, the larger pool times up to 2.4 ms slower.
+    step_ms: dict[float, list[float]] = {1.0: [], 8.0: []}
+    for pool_gb in (1.0, 8.0) * 3:
+        engine = Engine(model, slots=8, pool_gb=pool_gb, max_tokens=300)
+        t0 = time.perf_counter()
+        engine.run([greedy_row(r, 300) for r in saved + extra], log=lambda line: None)
+        step_ms[pool_gb].append((time.perf_counter() - t0) / engine.stats["steps"] * 1e3)
+        engine = None
+        mx.clear_cache()
+    out["pool"] = {"step_ms_with_1_gb": min(step_ms[1.0]), "step_ms_with_8_gb": min(step_ms[8.0]),
+                   "every_timing_with_1_gb": step_ms[1.0], "every_timing_with_8_gb": step_ms[8.0]}
+    print(f"pool: {min(step_ms[1.0]):.1f} ms a step with a 1 GB pool, {min(step_ms[8.0]):.1f} ms with 8 GB (the fastest of 3 each)", flush=True)
 
     # scores: one row at a time, so step i of the run is position i of the text
     worst, same_top, compared, mine_by_row = 0.0, 0, 0, []
@@ -283,23 +334,14 @@ def main() -> None:
           f"largest difference {worst:.3f}, same top token in {agree} of {len(late) * len(long_rows)}", flush=True)
 
     # greedy: the engine against mlx-lm's own generator
-    def greedy_row(r: dict, n: int) -> Row:
-        return Row(prompt=r["prompt"], max_tokens=n, seed=0, temperature=0.0, top_k=1, top_p=1.0, presence_penalty=0.0, meta={"id": r["unique_id"]})
-
     records, _ = run([greedy_row(r, GREEDY) for r in saved], ROWS)
     mine = {rec["meta"]["id"]: rec["tokens"] for rec in records}
     agreed = []
     for r in saved:
         theirs = [int(token) for token, _ in generate_step(mx.array(r["prompt"]), model, max_tokens=GREEDY, sampler=lambda x: mx.argmax(x, axis=-1))]
-        same = next((i for i, (a, b) in enumerate(zip(mine[r["unique_id"]], theirs)) if a != b), GREEDY)
-        gap = None
-        if same < GREEDY:      # how close were the two candidates in mlx-lm's own scores?
-            last = reference_scores(r["prompt"] + theirs[:same])[-1]
-            gap = abs(last[mine[r["unique_id"]][same]].item() - last[theirs[same]].item())
-        agreed.append({"tokens_identical": same, "score_gap_at_first_difference": gap})
+        agreed.append(parting(r["prompt"], mine[r["unique_id"]], theirs))
     out["greedy"] = {"tokens_each": GREEDY, "rows": agreed}
-    print("greedy: identical for " + ", ".join(f"{a['tokens_identical']}" + (f" (gap {a['score_gap_at_first_difference']:.3f})" if a["score_gap_at_first_difference"] is not None else "")
-                                                for a in agreed) + f" of {GREEDY} tokens", flush=True)
+    print(f"greedy: identical for {partings(agreed)} of {GREEDY} tokens", flush=True)
 
     # neighbours: the same sampled row alone in 8 slots and with 7 others
     def sampled_row(r: dict) -> Row:
@@ -310,11 +352,50 @@ def main() -> None:
         engine.narrow_when_idle = False
         return engine.run(rows, log=lambda line: None)
 
-    alone = keep_width([sampled_row(saved[0])])[0]["tokens"]
-    together = next(rec["tokens"] for rec in keep_width([sampled_row(r) for r in [saved[0]] + extra]) if rec["meta"]["id"] == saved[0]["unique_id"])
-    same = next((i for i, (a, b) in enumerate(zip(alone, together)) if a != b), min(len(together), len(alone)))
-    out["neighbours"] = {"tokens": len(alone), "identical_until": same}
-    print(f"neighbours: alone and among 7 others in the same 8 slots, identical for {same} of {len(alone)} tokens", flush=True)
+    def tokens_of_first(rows: list[Row]) -> list[int]:
+        return next(rec["tokens"] for rec in keep_width(rows) if rec["meta"]["id"] == saved[0]["unique_id"])
+
+    alone = tokens_of_first([sampled_row(saved[0])])
+    same = same_until(alone, tokens_of_first([sampled_row(r) for r in [saved[0]] + extra]))
+    same_last = same_until(alone, tokens_of_first([sampled_row(r) for r in extra + [saved[0]]]))    # rows take slots in order: it gets the last one
+    out["neighbours"] = {"tokens": len(alone), "identical_until": same, "identical_until_in_the_last_slot": same_last}
+    print(f"neighbours: alone and among 7 others in the same 8 slots, identical for {same} of {len(alone)} tokens; "
+          f"in the last slot instead of the first, for {same_last}", flush=True)
+
+    # width: one forced text in a batch that keeps its 48 slots and in one that narrows to 24 when half its rows end
+    def scores_by_step(narrow: bool, forced_first: bool = False) -> tuple[mx.array, int]:
+        seen: list[mx.array] = []
+
+        def probe(engine: Engine, scores: mx.array) -> None:
+            slot = next(slot for slot, live in engine.live.items() if live.row.forced)
+            seen.append(scores[slot].astype(mx.float32))
+            mx.eval(seen[-1])
+
+        filler = lambda i, n: Row(prompt=extra[i % len(extra)]["prompt"], max_tokens=n, seed=seed_for("checks", "filler", i))
+        forced = Row(prompt=saved[0]["prompt"], max_tokens=FORCED, seed=0, forced=tuple(saved[0]["tokens"][:FORCED]))
+        engine = Engine(model, slots=48, pool_gb=1.0, max_tokens=FORCED)
+        engine.narrow_when_idle = narrow
+        engine.probe = lambda scores: probe(engine, scores)
+        # Rows take slots in order: the 24 short rows fill slots below 24, so the narrowing moves every long row behind them. The
+        # forced row is last (moved from slot 47 to 23) or first (it stays in slot 0).
+        others = [filler(i, NARROW_AT) for i in range(24)] + [filler(i, FORCED) for i in range(24, 47)]
+        engine.run([forced] + others if forced_first else others + [forced], log=lambda line: None)
+        return mx.stack(seen), engine.slots
+
+    def width_gap(forced_first: bool) -> dict:
+        kept_wide, slots_wide = scores_by_step(False, forced_first)
+        narrowed, slots_narrow = scores_by_step(True, forced_first)
+        assert (slots_wide, slots_narrow) == (48, 24)
+        gap = mx.abs(kept_wide - narrowed).max(axis=-1)
+        after = (mx.argmax(kept_wide, axis=-1) == mx.argmax(narrowed, axis=-1))[NARROW_AT:]
+        return {"largest_difference_before": gap[:NARROW_AT].max().item(), "largest_difference_after": gap[NARROW_AT:].max().item(),
+                "same_top_token_share_after": after.astype(mx.float32).mean().item()}
+
+    out["width"] = {"slots": [48, 24], "narrows_after_step": NARROW_AT, "steps": FORCED, **width_gap(False), "row_not_moved": width_gap(True)}
+    for name, w in (("the row moved to another slot", out["width"]), ("the row left in its slot", out["width"]["row_not_moved"])):
+        print(f"width: 48 slots throughout against 48 narrowing to 24 after step {NARROW_AT}, {name}: largest difference before "
+              f"{w['largest_difference_before']:.3f}, after {w['largest_difference_after']:.3f}, same top token after at "
+              f"{w['same_top_token_share_after']:.2%}", flush=True)
 
     # branches: one branch started at once, after waiting for a slot, and read in from saved tokens
     def branch_tokens(others: int, max_waiting: int) -> tuple[list[int], dict]:
@@ -333,29 +414,36 @@ def main() -> None:
     assert stats["branches_shared"] == 1 and stats["branches_waited"] == 1
     read_in, stats = branch_tokens(7, 0)
     assert stats["branches_read"] == 1
-    until = lambda other: next((i for i, (a, b) in enumerate(zip(at_once, other)) if a != b), min(len(at_once), len(other)))
-    out["branches"] = {"branch_at": BRANCH_AT, "tokens": len(at_once), "waited_identical_until": until(waited), "read_in_identical_until": until(read_in)}
-    print(f"branches: a branch at token {BRANCH_AT} that waited for a slot writes the same {until(waited)} of {len(at_once)} tokens as one "
-          f"started at once; read in from saved tokens, the same {until(read_in)}", flush=True)
+    out["branches"] = {"branch_at": BRANCH_AT, "tokens": len(at_once), "waited_identical_until": same_until(at_once, waited),
+                       "read_in_identical_until": same_until(at_once, read_in)}
+    print(f"branches: a branch at token {BRANCH_AT} that waited for a slot writes the same {same_until(at_once, waited)} of {len(at_once)} tokens "
+          f"as one started at once; read in from saved tokens, the same {same_until(at_once, read_in)}", flush=True)
+
+    def continues(others: list[Row]) -> tuple[int, dict]:
+        """A trunk and its branch at BRANCH_AT, both written with no randomness: how many of the branch's tokens are the trunk's own next ones."""
+        engine = Engine(model, slots=8, pool_gb=1.0, max_tokens=BRANCH_AT + GREEDY)
+        engine.narrow_when_idle = False
+        trunk = replace(greedy_row(saved[0], BRANCH_AT + GREEDY), branch_at=(BRANCH_AT,))
+        records = engine.run([trunk] + others, log=lambda line: None,
+                             brancher=lambda row, written: replace(row, prompt=row.prompt + written, max_tokens=GREEDY // 2, branch_at=(), meta={"branch": True}))
+        branch = next(rec["tokens"] for rec in records if rec["meta"].get("branch"))
+        own = next(rec["tokens"] for rec in records if rec["meta"].get("id") == saved[0]["unique_id"])
+        return same_until(branch, own[BRANCH_AT:]), engine.stats
+
+    same_at_once, stats = continues([greedy_row(r, BRANCH_AT + GREEDY) for r in extra[:6]])
+    assert stats["branches_shared"] == 1 and stats["branches_waited"] == 0
+    same_waited, stats = continues([greedy_row(r, BRANCH_AT + 60) for r in extra])       # they end 60 steps after the branch point, the trunk runs on
+    assert stats["branches_shared"] == 1 and stats["branches_waited"] == 1
+    out["branches"] |= {"tokens_of_the_trunk_continued": GREEDY // 2, "continues_its_trunk_at_once": same_at_once, "continues_its_trunk_after_a_wait": same_waited}
+    print(f"branches: with no randomness a branch writes its trunk's own next {GREEDY // 2} tokens for {same_at_once} of them when started at once, "
+          f"and for {same_waited} after a wait that ended while the trunk was running", flush=True)
 
     # kernel: paged kernel against MLX attention row by row
     plain, _ = run([greedy_row(r, GREEDY) for r in saved], ROWS, use_kernel=False)
     plain = {rec["meta"]["id"]: rec["tokens"] for rec in plain}
-    kernel_same = [next((i for i, (a, b) in enumerate(zip(mine[k], plain[k])) if a != b), GREEDY) for k in mine]
-    out["kernel"] = {"tokens_each": GREEDY, "identical_until": kernel_same}
-    print(f"kernel: paged kernel and MLX's attention write the same tokens for {kernel_same} of {GREEDY}", flush=True)
-
-    # pool: a step must cost the same whatever the size of the pool (it is written in place, never copied)
-    step_ms = {}
-    for pool_gb in (1.0, 8.0):
-        engine = Engine(model, slots=8, pool_gb=pool_gb, max_tokens=300)
-        t0 = time.perf_counter()
-        engine.run([greedy_row(r, 300) for r in saved + extra], log=lambda line: None)
-        step_ms[pool_gb] = (time.perf_counter() - t0) / engine.stats["steps"] * 1e3
-        engine = None
-        mx.clear_cache()
-    out["pool"] = {"step_ms_with_1_gb": step_ms[1.0], "step_ms_with_8_gb": step_ms[8.0]}
-    print(f"pool: {step_ms[1.0]:.1f} ms a step with a 1 GB pool, {step_ms[8.0]:.1f} ms with 8 GB", flush=True)
+    kernel_same = [parting(r["prompt"], mine[r["unique_id"]], plain[r["unique_id"]]) for r in saved]
+    out["kernel"] = {"tokens_each": GREEDY, "rows": kernel_same}
+    print(f"kernel: paged kernel and MLX's attention write the same tokens for {partings(kernel_same)} of {GREEDY}", flush=True)
 
     # edit: a row with the study's edit unmerged, against the study's own adapter model
     r = saved[0]
