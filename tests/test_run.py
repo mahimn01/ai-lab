@@ -31,3 +31,11 @@ def test_watchdog_lets_a_healthy_job_finish(monkeypatch):
     monkeypatch.setattr(run, "disk_free_gb", lambda: 500.0)
     assert run.watch(proc, min_free_pct=12, min_disk_gb=8, every_s=0.05) is None
     assert proc.returncode == 0
+
+
+def test_watchdog_stops_a_job_that_runs_past_its_time_limit(monkeypatch):
+    proc = subprocess.Popen(["sleep", "300"], start_new_session=True)
+    monkeypatch.setattr(run, "free_memory_pct", lambda: 80)
+    monkeypatch.setattr(run, "disk_free_gb", lambda: 500.0)
+    reason = run.watch(proc, min_free_pct=12, min_disk_gb=8, every_s=0.05, max_hours=0.1 / 3600)
+    assert reason is not None and "limit" in reason and proc.poll() is not None

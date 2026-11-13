@@ -5,6 +5,7 @@ What it does
   its output to runs/logs/<time>-<name>.log, and checks free memory and free disk once
   a minute. It stops the job if free disk falls under the floor, or if free memory
   stays under the floor for two checks in a row (a runaway job must not thrash the Mac).
+  With --max-hours it also stops a job that runs longer than that.
 
 Why
   Same watchdog as neural-harness/sd1/queue.sh, made reusable for any job.
@@ -30,9 +31,11 @@ ROOT = Path(__file__).resolve().parent.parent
 LOG_DIR = ROOT / "runs" / "logs"
 
 
-def watch(proc: subprocess.Popen, min_free_pct: int, min_disk_gb: float, every_s: float = 60.0) -> str | None:
+def watch(proc: subprocess.Popen, min_free_pct: int, min_disk_gb: float, every_s: float = 60.0,
+          max_hours: float | None = None) -> str | None:
     """Wait for the job. Return None if it ended by itself, else the reason it was stopped."""
     low = 0
+    started = time.time()
     while True:
         try:
             proc.wait(timeout=every_s)
@@ -43,6 +46,8 @@ def watch(proc: subprocess.Popen, min_free_pct: int, min_disk_gb: float, every_s
         print(f"  watchdog {datetime.now():%H:%M} memory free {mem}%, disk free {disk:.0f} GB", flush=True)
         if disk < min_disk_gb:
             reason = f"free disk {disk:.0f} GB fell under {min_disk_gb:.0f} GB"
+        elif max_hours is not None and time.time() - started > max_hours * 3600:
+            reason = f"it ran past its limit of {max_hours:g} hours"
         else:
             low = low + 1 if mem < min_free_pct else 0
             reason = f"free memory stayed under {min_free_pct}% for two checks ({mem}%)" if low >= 2 else None
@@ -62,6 +67,7 @@ def main() -> None:
     ap.add_argument("--name", default="job", help="short label used in the log file name")
     ap.add_argument("--min-free-pct", type=int, default=12, help="stop the job under this free memory (default 12)")
     ap.add_argument("--min-disk-gb", type=float, default=8, help="stop the job under this free disk (default 8)")
+    ap.add_argument("--max-hours", type=float, help="stop the job once it has run this long (default: no limit)")
     ap.add_argument("command", nargs=argparse.REMAINDER, help="the command to run, after --")
     args = ap.parse_args()
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
@@ -76,7 +82,7 @@ def main() -> None:
         # -i keeps the Mac from idle-sleeping, -m keeps the disk awake, for as long as the job lives.
         proc = subprocess.Popen(["caffeinate", "-im", *command], stdout=log, stderr=subprocess.STDOUT, cwd=ROOT,
                                 start_new_session=True)  # own process group, so the watchdog can stop all of it
-        stopped = watch(proc, args.min_free_pct, args.min_disk_gb)
+        stopped = watch(proc, args.min_free_pct, args.min_disk_gb, max_hours=args.max_hours)
     minutes = (time.time() - started) / 60
     if stopped:
         print(f"STOPPED after {minutes:.1f} min: {stopped}")
