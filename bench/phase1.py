@@ -71,7 +71,8 @@ from lab.stats.sequential import PairedTest, mcnemar_exact
 ROOT = Path(__file__).resolve().parent.parent
 STOP_TEXT = ("<|im_end|>", "<|endoftext|>")
 ANSWER_BUDGETS = (500, 1000, 2000)      # smaller answer budgets a forced-exit branch is also graded at, by cutting it
-FIXED = ("arm", "max_tokens", "trunk_tokens", "thinking", "run_seed", "subset_seed", "sampling", "stop_after_loop", "audit", "answer_tokens")
+FIXED = ("arm", "max_tokens", "trunk_tokens", "thinking", "run_seed", "subset_seed", "sampling", "stop_after_loop", "audit", "answer_tokens",
+         "plan_sha256")
 
 
 def plain_text(tok, tokens: list[int]) -> str:
@@ -258,7 +259,8 @@ def main() -> None:
     ap.add_argument("--longest-first", type=Path, help="a saved <tag>.jsonl of an earlier run of these problems: start the rows that were longest "
                                                          "there first (a run ends sooner. Each row keeps its own random stream, but another order changes "
                                                          "which rows meet a narrowing of the batch or are set aside, and those can come out differently)")
-    ap.add_argument("--plan", type=Path, help="the plan written before the run; its sha256 goes into the ledger")
+    ap.add_argument("--plan", type=Path, help="the plan written before the run; its sha256 goes into the ledger, and a ledger "
+                    "started under one plan is not continued or reported under another")
     ap.add_argument("--grader", choices=("study", "math-verify"), default="study",
                     help="study: the last box anywhere, compared as strings. math-verify: the blog's protocol (bench/grading.py)")
     ap.add_argument("--report", action="store_true", help="only recompute the summary from the ledger")
@@ -415,6 +417,7 @@ def main() -> None:
             entry["decision"] = {"conditions": args.decide, "problems_analysed": test.pairs, "problems_won_by_first": test.only_a,
                                  "problems_won_by_second": test.only_b, "decided": test.decided, "p_valid_at_every_look": test.p_value}
     entry["grader"] = args.grader
+    entry["problems_in_order"] = [p["unique_id"] for p in problems]
     entry["conditions"] = summarize(ledger, s, tok, trunk_cap, exits, rows, model_tag, forced_exit, args.stop_after_loop,
                                     args.answer_tokens)
     if args.reference and entry["conditions"]:

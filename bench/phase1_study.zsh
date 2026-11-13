@@ -11,6 +11,9 @@
 #   the batch at one width, so a row can be repeated from its seed. If an arm fails, nothing after it starts.
 #   The short arm goes first, the base arm last: its rows nearly all run to their cap and finish in the order
 #   they started, so a run that is cut short still leaves whole problems from the front of the order.
+#   Last, bench.phase1_analysis makes the comparisons between the arms that are listed at the end of this file.
+#   The Hugging Face libraries are told to stay offline: the problems and the model are already on this disk,
+#   and a run of many hours must not depend on the network or pick up a changed dataset half-way.
 #
 # Why a script
 #   The plan written before the run names these commands. Running them from one file keeps the run and the
@@ -20,8 +23,9 @@
 #              zsh bench/phase1_study.zsh <name> <plan file> <problems> <samples per problem> <run seed>
 #          (lab.run keeps the Mac awake, logs to runs/logs/ and stops the run if memory runs out or the limit passes)
 #          Started again with the same arguments, it continues: finished rows are in the ledgers.
-# Changes: runs/phase1/<name>-nothink, <name>-edited and <name>-base (ledgers), and three entries of those names
-#          in bench/results/phase1.json. Reads the study's folder, never writes to it.
+# Changes: runs/phase1/<name>-nothink, <name>-edited and <name>-base (ledgers), three entries of those names
+#          in bench/results/phase1.json and one in bench/results/phase1_analysis.json. Reads the study's folder,
+#          never writes to it.
 
 cd "${0:A:h}/.." || exit 1
 if (( $# != 5 )); then
@@ -30,6 +34,7 @@ if (( $# != 5 )); then
 fi
 name=$1 plan=$2 problems=$3 samples=$4 seed=$5
 exits=4096,8192,16384,24576
+export HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1
 
 # One arm: one process. Its other arguments are the ones that differ between arms.
 arm() {
@@ -50,3 +55,15 @@ arm nothink --arm base --no-thinking --max-tokens 8192
 arm edited --arm edited --exits $exits --answer-tokens 2000
 arm base --arm base --trunk-tokens 24577 --exits $exits --answer-tokens 2000 --keep-free 16
 echo "== all three arms finished $(date '+%Y-%m-%d %H:%M:%S')"
+
+# The comparisons. The first is the primary one: the edited model at its full cap against the base model's
+# forced exit of about the same token cost. Then the edited model against thinking off and against the next
+# cheaper forced exit, and the two models under the same forced exit at each of the four points.
+uv run python -m bench.phase1_analysis --name $name \
+    --compare edited@32768,base+exit@24576 \
+    --compare edited@32768,nothink@8192 \
+    --compare edited@32768,base+exit@16384 \
+    --compare edited+exit@4096,base+exit@4096 \
+    --compare edited+exit@8192,base+exit@8192 \
+    --compare edited+exit@16384,base+exit@16384 \
+    --compare edited+exit@24576,base+exit@24576
