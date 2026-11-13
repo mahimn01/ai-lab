@@ -16,6 +16,7 @@ import mlx.core as mx
 import numpy as np
 import pytest
 
+from bench import plan_sim
 from lab.gen import engine as engine_module
 from lab.gen.engine import GB, Engine, Row, seed_for
 from lab.gen.kv import PAGE, PagePool
@@ -395,6 +396,67 @@ def test_a_row_set_aside_comes_back_even_after_the_run_closed_or_with_slots_kept
     held_back = make_engine(model, slots=16, pool_gb=3.5 * PAGE_BYTES / GB)
     mixed = [greedy(prompt(10, 80 + i), 600 if i < 2 else 10, meta={"i": i}) for i in range(8)]
     assert len(held_back.run(mixed, brancher=lambda row, written: None, keep_free=8)) == 8
+
+
+# -- the planner (bench/plan_sim.py) against the engine --------------------------------------------
+
+SCHEDULES = (    # by seed // 1000: a mix; long rows in a small pool (rows are set aside); short and long rows in wide batches (they narrow)
+    {"slots": (4, 4, 6, 8), "keep": (0, 0, 1, 2), "growth": (0, 1, 2), "pages": (6, 8, 10, 14, 20, 40), "places": (None, None, 1, 0),
+     "rows": (3, 9), "written": ((5, 60), (100, 500), (300, 900)), "points": (0, 0, 1, 2, 3), "branch": (50, 400)},
+    {"slots": (2, 3, 4, 6), "keep": (0, 0, 1), "growth": (0, 0, 1), "pages": (4, 5, 6, 8, 10, 12), "places": (None, None, 1),
+     "rows": (3, 7), "written": ((300, 1200),), "points": (0, 1, 1, 2), "branch": (100, 400)},
+    {"slots": (8, 8, 16), "keep": (0, 2, 4), "growth": (0, 1, 2), "pages": (10, 16, 24, 60), "places": (None, None, 2),
+     "rows": (5, 12), "written": ((5, 60), (5, 60), (200, 700)), "points": (0, 1, 2, 3), "branch": (50, 500)},
+)
+
+
+def engine_and_planner(model, monkeypatch, seed: int) -> tuple[dict, dict] | None:
+    """One random small run through the engine and through the planner: what each counts. None if the pool is too small for both."""
+    rng, kind = random.Random(seed), SCHEDULES[seed // 1000]
+    slots, keep_free, growth, pages, places = (rng.choice(kind[name]) for name in ("slots", "keep", "growth", "pages", "places"))
+    places = slots if places is None else places
+    rows = []                                                              # per trunk: prompt tokens, written tokens, {branch point: branch length}
+    for _ in range(rng.randint(*kind["rows"])):
+        prompt_tokens, written = rng.randint(2, 300), rng.choice([rng.randint(*span) for span in kind["written"]])
+        points = sorted(rng.sample(range(1, written), k=min(rng.choice(kind["points"]), written - 1)))
+        rows.append((prompt_tokens, written, {at: rng.choice([rng.randint(1, 30), rng.randint(*kind["branch"])]) for at in points}))
+    monkeypatch.setattr(engine_module, "GROWTH_PAGES", growth)
+    monkeypatch.setattr(plan_sim, "GROWTH_PAGES", growth)
+    engine = make_engine(model, slots=slots, pool_gb=(pages + 0.5) * PAGE_BYTES / GB, max_tokens=1400, max_prompt=1400)
+    engine.max_waiting = places
+    trunks = [sampled(prompt(n, seed + i), written, seed=i, branch_at=tuple(branches), meta={"i": i}) for i, (n, written, branches) in enumerate(rows)]
+    brancher = lambda row, written: sampled(row.prompt + written, rows[row.meta["i"]][2][len(written)], seed=7, seen=tuple(written))
+    replay = lambda: plan_sim.simulate(rows, slots=slots, pool_pages=engine.pool.pages, keep_free=keep_free, waiting_places=places)
+    try:
+        engine.run(trunks, brancher=brancher, keep_free=keep_free, log=lambda line: None)
+    except MemoryError:
+        with pytest.raises(SystemExit):
+            replay()
+        return None
+    stats = engine.stats
+    counted = {"steps": stats["steps"], "set_aside": stats["set_aside"], "branches_sharing": stats["branches_shared"], "narrowed": stats["narrowed"],
+               "branches_that_waited": stats["branches_waited"], "branches_read_in": stats["branches_read"], "tokens_read": stats["read"]}
+    planned = replay()
+    return counted, {name: planned[name] for name in counted}
+
+
+def test_the_planner_counts_what_the_engine_does(monkeypatch):
+    model = tiny_model(3)
+    happened = {"set_aside": 0, "branches_that_waited": 0, "branches_read_in": 0, "narrowed": 0}
+    for seed in (1003, 2000, 2005):
+        counted, planned = engine_and_planner(model, monkeypatch, seed)
+        assert planned == counted, f"schedule {seed}"
+        for name in happened:
+            happened[name] += counted[name]
+    assert all(happened.values()), "these schedules set rows aside, make branches wait, read branches in and narrow the batch"
+
+
+@pytest.mark.slow
+def test_the_planner_counts_what_the_engine_does_on_many_schedules(monkeypatch):
+    model = tiny_model(3)
+    for seed in (*range(0, 8), *range(1000, 1010), *range(2010, 2018)):
+        both = engine_and_planner(model, monkeypatch, seed)
+        assert both is None or both[1] == both[0], f"schedule {seed}"
 
 
 def test_branch_points_are_not_part_of_a_rows_name():

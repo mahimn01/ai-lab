@@ -14,7 +14,7 @@
         53.7
       ]
     ],
-    "history_ns_per_token": 51.0,
+    "history_ns_per_token": 45.2,
     "seconds_to_read_a_row_back": [
       [
         4096,
@@ -35,243 +35,479 @@
     ],
     "runs": {
       "edited trunks, 48 slots, 12 GB": {
-        "minutes": 58.01961051080001,
+        "minutes": 55.131264330159986,
         "steps": 65536,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 0,
         "branches_that_waited": 0,
         "branches_read_in": 0,
-        "measured_minutes": 59.23945909099032,
-        "measured_steps": 65536
+        "tokens_read": 8317,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 59.23945909099032,
+          "steps": 65536,
+          "set_aside": 0,
+          "branches_sharing": 0,
+          "branches_that_waited": 0,
+          "branches_read_in": 0,
+          "tokens_read": 8317
+        },
+        "same_steps_and_counts": true
       },
       "edited exits read in afterwards, 48 slots, 10 GB": {
-        "minutes": 30.818169698808855,
+        "minutes": 29.808738161938837,
         "steps": 18974,
         "minutes_reading_back_in": 11.979136271158849,
         "set_aside": 0,
         "branches_sharing": 0,
         "branches_that_waited": 0,
-        "branches_read_in": 0,
-        "measured_minutes": 31.312661682651378,
-        "measured_steps": 18974
+        "branches_read_in": 270,
+        "tokens_read": 2903085,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 31.312661682651378,
+          "steps": 18974,
+          "set_aside": 0,
+          "branches_sharing": 0,
+          "branches_that_waited": 0,
+          "branches_read_in": 270,
+          "tokens_read": 2903085
+        },
+        "same_steps_and_counts": true
       },
       "base trunks and exits, 32 slots, 10 GB": {
-        "minutes": 135.48524545035445,
-        "steps": 127630,
-        "minutes_reading_back_in": 21.858877380371105,
+        "minutes": 129.30798234339375,
+        "steps": 127446,
+        "minutes_reading_back_in": 21.86892270914715,
         "set_aside": 13,
         "branches_sharing": 1,
         "branches_that_waited": 0,
         "branches_read_in": 363,
-        "measured_minutes": 132.90277571804666,
-        "measured_steps": 127446
+        "tokens_read": 5089471,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 132.90277571804666,
+          "steps": 127446,
+          "set_aside": 13,
+          "branches_sharing": 1,
+          "branches_that_waited": 0,
+          "branches_read_in": 363,
+          "tokens_read": 5089471
+        },
+        "same_steps_and_counts": true
       },
       "edited-8k-seed1, 48 slots, 6 GB": {
-        "minutes": 12.321574316199994,
+        "minutes": 12.021125580240005,
         "steps": 18382,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 0,
         "branches_that_waited": 0,
         "branches_read_in": 0,
-        "measured_minutes": 12.068555038181755,
-        "measured_steps": 18382
+        "tokens_read": 8317,
+        "narrowed": 1,
+        "measured": {
+          "minutes": 12.068555038181755,
+          "steps": 18382,
+          "set_aside": 0,
+          "branches_sharing": 0,
+          "branches_that_waited": 0,
+          "branches_read_in": 0,
+          "tokens_read": 8317
+        },
+        "same_steps_and_counts": true
       },
       "edited-8k-seed2, 48 slots, 6 GB": {
-        "minutes": 12.320808965533338,
+        "minutes": 12.024366486773339,
         "steps": 18485,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 0,
         "branches_that_waited": 0,
         "branches_read_in": 0,
-        "measured_minutes": 12.064061237499118,
-        "measured_steps": 18485
+        "tokens_read": 8317,
+        "narrowed": 1,
+        "measured": {
+          "minutes": 12.064061237499118,
+          "steps": 18485,
+          "set_aside": 0,
+          "branches_sharing": 0,
+          "branches_that_waited": 0,
+          "branches_read_in": 0,
+          "tokens_read": 8317
+        },
+        "same_steps_and_counts": true
+      },
+      "base-32k-pack, 48 slots, 10 GB, keep 16": {
+        "minutes": 116.3839382314277,
+        "steps": 131072,
+        "minutes_reading_back_in": 1.791859110514323,
+        "set_aside": 19,
+        "branches_sharing": 375,
+        "branches_that_waited": 137,
+        "branches_read_in": 0,
+        "tokens_read": 397596,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 117.19172957430128,
+          "steps": 131072,
+          "set_aside": 19,
+          "branches_sharing": 375,
+          "branches_that_waited": 137,
+          "branches_read_in": 0,
+          "tokens_read": 397596
+        },
+        "same_steps_and_counts": true
       },
       "base-nothink-8k, 48 slots, 6 GB, keep 0": {
-        "minutes": 5.686396703733333,
+        "minutes": 5.601180104746666,
         "steps": 10177,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 0,
         "branches_that_waited": 0,
         "branches_read_in": 0,
-        "measured_minutes": 5.778622799296864,
-        "measured_steps": 10177
+        "tokens_read": 8517,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 5.778622799296864,
+          "steps": 10177,
+          "set_aside": 0,
+          "branches_sharing": 0,
+          "branches_that_waited": 0,
+          "branches_read_in": 0,
+          "tokens_read": 8517
+        },
+        "same_steps_and_counts": true
+      },
+      "edited-32k-pack, 48 slots, 10 GB, keep 0": {
+        "minutes": 68.08941993829971,
+        "steps": 69039,
+        "minutes_reading_back_in": 1.630135335286458,
+        "set_aside": 0,
+        "branches_sharing": 224,
+        "branches_that_waited": 221,
+        "branches_read_in": 46,
+        "tokens_read": 437782,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 68.37324636112122,
+          "steps": 69039,
+          "set_aside": 0,
+          "branches_sharing": 224,
+          "branches_that_waited": 221,
+          "branches_read_in": 46,
+          "tokens_read": 437782
+        },
+        "same_steps_and_counts": true
       },
       "edited-32k-seed1, 48 slots, 12 GB, keep 0": {
-        "minutes": 57.92566866825,
+        "minutes": 55.03225139323332,
         "steps": 65536,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 0,
         "branches_that_waited": 0,
         "branches_read_in": 0,
-        "measured_minutes": 55.82627611526598,
-        "measured_steps": 65536
+        "tokens_read": 8317,
+        "narrowed": 3,
+        "measured": {
+          "minutes": 55.82627611526598,
+          "steps": 65536,
+          "set_aside": 0,
+          "branches_sharing": 0,
+          "branches_that_waited": 0,
+          "branches_read_in": 0,
+          "tokens_read": 8317
+        },
+        "same_steps_and_counts": true
       },
       "edited, 48 slots, 0 kept free, 10 GB": {
-        "minutes": 72.99117791956968,
+        "minutes": 69.09340020205981,
         "steps": 69561,
         "minutes_reading_back_in": 1.768622314453125,
         "set_aside": 0,
         "branches_sharing": 222,
         "branches_that_waited": 219,
-        "branches_read_in": 48
+        "branches_read_in": 48,
+        "tokens_read": 470692,
+        "narrowed": 2
       },
       "edited, 48 slots, 8 kept free, 10 GB": {
-        "minutes": 79.68060948125596,
+        "minutes": 75.78283176374596,
         "steps": 87424,
         "minutes_reading_back_in": 0.21285845947265622,
         "set_aside": 0,
         "branches_sharing": 263,
         "branches_that_waited": 184,
-        "branches_read_in": 7
+        "branches_read_in": 7,
+        "tokens_read": 66257,
+        "narrowed": 3
       },
       "edited, 48 slots, 16 kept free, 10 GB": {
-        "minutes": 85.95961977178345,
+        "minutes": 82.06184205427338,
         "steps": 99182,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 270,
         "branches_that_waited": 68,
-        "branches_read_in": 0
+        "branches_read_in": 0,
+        "tokens_read": 8317,
+        "narrowed": 3
       },
       "edited, 56 slots, 8 kept free, 11 GB": {
-        "minutes": 73.55824202927035,
+        "minutes": 69.66046431176031,
         "steps": 67550,
         "minutes_reading_back_in": 0.42526184082031254,
         "set_aside": 0,
         "branches_sharing": 256,
         "branches_that_waited": 191,
-        "branches_read_in": 14
+        "branches_read_in": 14,
+        "tokens_read": 124101,
+        "narrowed": 3
       },
       "edited, 64 slots, 0 kept free, 11 GB": {
-        "minutes": 77.49428737025339,
-        "steps": 69068,
-        "minutes_reading_back_in": 3.3535800984700517,
-        "set_aside": 6,
-        "branches_sharing": 196,
-        "branches_that_waited": 163,
-        "branches_read_in": 74
+        "minutes": 73.40929985375244,
+        "steps": 68886,
+        "minutes_reading_back_in": 3.2098486328124998,
+        "set_aside": 8,
+        "branches_sharing": 200,
+        "branches_that_waited": 168,
+        "branches_read_in": 70,
+        "tokens_read": 829609,
+        "narrowed": 4
       },
       "base, 32 slots, 0 kept free, 10 GB": {
-        "minutes": 131.39204922965118,
-        "steps": 135754,
-        "minutes_reading_back_in": 15.131146993001298,
-        "set_aside": 10,
+        "minutes": 125.24101062789917,
+        "steps": 135710,
+        "minutes_reading_back_in": 15.108570576985672,
+        "set_aside": 9,
         "branches_sharing": 158,
         "branches_that_waited": 165,
-        "branches_read_in": 206
+        "branches_read_in": 206,
+        "tokens_read": 3470298,
+        "narrowed": 3
       },
       "base, 40 slots, 8 kept free, 10 GB": {
-        "minutes": 118.9533055512659,
-        "steps": 131783,
-        "minutes_reading_back_in": 2.167157897949219,
+        "minutes": 112.93858067021671,
+        "steps": 131752,
+        "minutes_reading_back_in": 2.2792285359700526,
         "set_aside": 13,
-        "branches_sharing": 359,
-        "branches_that_waited": 297,
-        "branches_read_in": 5
+        "branches_sharing": 358,
+        "branches_that_waited": 298,
+        "branches_read_in": 6,
+        "tokens_read": 487391,
+        "narrowed": 3
       },
       "base, 48 slots, 0 kept free, 10 GB": {
-        "minutes": 116.56991931428685,
-        "steps": 102329,
-        "minutes_reading_back_in": 9.449139994303383,
-        "set_aside": 38,
-        "branches_sharing": 235,
-        "branches_that_waited": 240,
-        "branches_read_in": 129
+        "minutes": 111.81573682907077,
+        "steps": 106354,
+        "minutes_reading_back_in": 9.732583028157546,
+        "set_aside": 42,
+        "branches_sharing": 229,
+        "branches_that_waited": 241,
+        "branches_read_in": 135,
+        "tokens_read": 2308348,
+        "narrowed": 3
       },
       "base, 48 slots, 12 kept free, 10 GB": {
-        "minutes": 112.1867822456017,
+        "minutes": 106.25978830774925,
         "steps": 102329,
-        "minutes_reading_back_in": 2.5234987589518227,
-        "set_aside": 22,
+        "minutes_reading_back_in": 2.7006299235026043,
+        "set_aside": 23,
         "branches_sharing": 359,
         "branches_that_waited": 187,
-        "branches_read_in": 5
+        "branches_read_in": 5,
+        "tokens_read": 596627,
+        "narrowed": 1
       },
       "base, 48 slots, 16 kept free, 10 GB": {
-        "minutes": 114.52553762971637,
-        "steps": 114176,
-        "minutes_reading_back_in": 1.059694559733073,
-        "set_aside": 11,
+        "minutes": 108.45734987350457,
+        "steps": 113338,
+        "minutes_reading_back_in": 1.460005655924479,
+        "set_aside": 15,
         "branches_sharing": 363,
-        "branches_that_waited": 142,
-        "branches_read_in": 1
+        "branches_that_waited": 143,
+        "branches_read_in": 1,
+        "tokens_read": 325473,
+        "narrowed": 3
       },
       "base, 56 slots, 24 kept free, 10 GB": {
-        "minutes": 119.17535705191695,
-        "steps": 111022,
-        "minutes_reading_back_in": 1.0714981486002604,
-        "set_aside": 14,
+        "minutes": 112.9223290393573,
+        "steps": 111106,
+        "minutes_reading_back_in": 0.9822235717773438,
+        "set_aside": 13,
         "branches_sharing": 364,
-        "branches_that_waited": 31,
-        "branches_read_in": 0
+        "branches_that_waited": 32,
+        "branches_read_in": 0,
+        "tokens_read": 228556,
+        "narrowed": 3
       },
-      "edited x10, 48 slots, 0 kept free, 10 GB: 69.5 per 100": {
-        "minutes": 695.4405868242774,
+      "base (the 48-slot run's own rows), 48 slots, 12 kept free, 10 GB": {
+        "minutes": 107.45530169578313,
+        "steps": 102329,
+        "minutes_reading_back_in": 2.3879725748697918,
+        "set_aside": 20,
+        "branches_sharing": 368,
+        "branches_that_waited": 209,
+        "branches_read_in": 7,
+        "tokens_read": 526466,
+        "narrowed": 0
+      },
+      "edited x10, 48 slots, 0 kept free, 10 GB: 65.6 per 100": {
+        "minutes": 656.4628096491766,
         "steps": 644504,
         "minutes_reading_back_in": 1.9456361897786458,
         "set_aside": 0,
         "branches_sharing": 2649,
         "branches_that_waited": 2633,
-        "branches_read_in": 51
+        "branches_read_in": 51,
+        "tokens_read": 586803,
+        "narrowed": 3
       },
-      "edited x10, 64 slots, 0 kept free, 11 GB: 66.7 per 100": {
-        "minutes": 666.9413084079354,
-        "steps": 485075,
-        "minutes_reading_back_in": 4.730832356770835,
-        "set_aside": 6,
-        "branches_sharing": 2582,
-        "branches_that_waited": 2540,
-        "branches_read_in": 118
+      "edited x10, 64 slots, 0 kept free, 11 GB: 62.9 per 100": {
+        "minutes": 628.7846398290288,
+        "steps": 489877,
+        "minutes_reading_back_in": 4.526247619628906,
+        "set_aside": 8,
+        "branches_sharing": 2588,
+        "branches_that_waited": 2546,
+        "branches_read_in": 112,
+        "tokens_read": 1260367,
+        "narrowed": 4
       },
-      "base x10, 48 slots, 12 kept free, 10 GB: 106.2 per 100": {
-        "minutes": 1061.948836634893,
-        "steps": 953052,
-        "minutes_reading_back_in": 4.264895935058593,
-        "set_aside": 56,
-        "branches_sharing": 3622,
-        "branches_that_waited": 1690,
-        "branches_read_in": 18
+      "base x10, 48 slots, 12 kept free, 10 GB: 100.0 per 100": {
+        "minutes": 1000.0072347758994,
+        "steps": 949990,
+        "minutes_reading_back_in": 3.055238016764324,
+        "set_aside": 30,
+        "branches_sharing": 3630,
+        "branches_that_waited": 1576,
+        "branches_read_in": 10,
+        "tokens_read": 764598,
+        "narrowed": 3
       },
-      "base x10, 48 slots, 16 kept free, 10 GB: 108.6 per 100": {
-        "minutes": 1086.294117759566,
-        "steps": 996846,
-        "minutes_reading_back_in": 1.059694559733073,
-        "set_aside": 11,
+      "base x10, 48 slots, 16 kept free, 10 GB: 102.5 per 100": {
+        "minutes": 1025.0603053317272,
+        "steps": 995385,
+        "minutes_reading_back_in": 1.460005655924479,
+        "set_aside": 15,
         "branches_sharing": 3639,
-        "branches_that_waited": 1020,
-        "branches_read_in": 1
+        "branches_that_waited": 1039,
+        "branches_read_in": 1,
+        "tokens_read": 400326,
+        "narrowed": 3
       },
-      "edited, answers of 2,000 tokens x10, 48 slots, 0 kept free, 10 GB: 60.7 per 100": {
-        "minutes": 607.1084564599631,
-        "steps": 562172,
-        "minutes_reading_back_in": 1.7678856404622396,
+      "edited rows alone, 48 slots, 12 GB, full width": {
+        "minutes": 58.55398058015998,
+        "steps": 65536,
+        "minutes_reading_back_in": 0.0,
+        "set_aside": 0,
+        "branches_sharing": 0,
+        "branches_that_waited": 0,
+        "branches_read_in": 0,
+        "tokens_read": 8317,
+        "narrowed": 0
+      },
+      "edited, 48 slots, 0 kept free, 10 GB, full width": {
+        "minutes": 70.40295728539314,
+        "steps": 69561,
+        "minutes_reading_back_in": 1.768622314453125,
+        "set_aside": 0,
+        "branches_sharing": 222,
+        "branches_that_waited": 219,
+        "branches_read_in": 48,
+        "tokens_read": 470692,
+        "narrowed": 0
+      },
+      "base, 48 slots, 16 kept free, 10 GB, full width": {
+        "minutes": 111.41909404017115,
+        "steps": 113338,
+        "minutes_reading_back_in": 1.460005655924479,
+        "set_aside": 15,
+        "branches_sharing": 363,
+        "branches_that_waited": 143,
+        "branches_read_in": 1,
+        "tokens_read": 325473,
+        "narrowed": 0
+      },
+      "edited, full width x10, 48 slots, 0 kept free, 10 GB: 66.0 per 100": {
+        "minutes": 660.1806858991762,
+        "steps": 644504,
+        "minutes_reading_back_in": 1.9456361897786458,
+        "set_aside": 0,
+        "branches_sharing": 2649,
+        "branches_that_waited": 2633,
+        "branches_read_in": 51,
+        "tokens_read": 586803,
+        "narrowed": 0
+      },
+      "base, full width x10, 48 slots, 16 kept free, 10 GB: 102.5 per 100": {
+        "minutes": 1025.1536394983943,
+        "steps": 995385,
+        "minutes_reading_back_in": 1.460005655924479,
+        "set_aside": 15,
+        "branches_sharing": 3639,
+        "branches_that_waited": 1039,
+        "branches_read_in": 1,
+        "tokens_read": 400326,
+        "narrowed": 0
+      },
+      "edited, 48 slots, 0 kept free, 10 GB, 96 waiting": {
+        "minutes": 66.33466497094,
+        "steps": 66436,
+        "minutes_reading_back_in": 0.0,
+        "set_aside": 0,
+        "branches_sharing": 270,
+        "branches_that_waited": 270,
+        "branches_read_in": 0,
+        "tokens_read": 8317,
+        "narrowed": 3
+      },
+      "edited, 96 waiting x10, 48 slots, 0 kept free, 10 GB: 65.7 per 100": {
+        "minutes": 657.0125172093977,
+        "steps": 651634,
+        "minutes_reading_back_in": 0.0,
+        "set_aside": 0,
+        "branches_sharing": 2700,
+        "branches_that_waited": 2676,
+        "branches_read_in": 0,
+        "tokens_read": 83170,
+        "narrowed": 3
+      },
+      "edited, answers of 2,000 tokens x10, 48 slots, 0 kept free, 10 GB: 57.3 per 100": {
+        "minutes": 572.8660388475392,
+        "steps": 562866,
+        "minutes_reading_back_in": 1.6983792928059895,
         "set_aside": 0,
         "branches_sharing": 2643,
-        "branches_that_waited": 2631,
-        "branches_read_in": 57
+        "branches_that_waited": 2634,
+        "branches_read_in": 57,
+        "tokens_read": 546188,
+        "narrowed": 3
       },
-      "base, answers of 2,000 tokens x10, 48 slots, 16 kept free, 10 GB: 101.2 per 100": {
-        "minutes": 1011.5340906785108,
-        "steps": 975030,
-        "minutes_reading_back_in": 1.9495052286783854,
-        "set_aside": 26,
+      "base, answers of 2,000 tokens x10, 48 slots, 16 kept free, 10 GB: 95.5 per 100": {
+        "minutes": 955.4604081923694,
+        "steps": 968323,
+        "minutes_reading_back_in": 1.9236161499023439,
+        "set_aside": 27,
         "branches_sharing": 3640,
-        "branches_that_waited": 345,
-        "branches_read_in": 0
+        "branches_that_waited": 379,
+        "branches_read_in": 0,
+        "tokens_read": 522283,
+        "narrowed": 3
       },
-      "base, answers of 2,000 and trunks stopped at 24,577 x10, 48 slots, 16 kept free, 10 GB: 73.1 per 100": {
-        "minutes": 731.4595814613316,
+      "base, answers of 2,000 and trunks stopped at 24,577 x10, 48 slots, 16 kept free, 10 GB: 69.8 per 100": {
+        "minutes": 697.6334663556,
         "steps": 792846,
         "minutes_reading_back_in": 0.0,
         "set_aside": 0,
         "branches_sharing": 3640,
         "branches_that_waited": 144,
-        "branches_read_in": 0
+        "branches_read_in": 0,
+        "tokens_read": 83170,
+        "narrowed": 3
       }
     }
   }
