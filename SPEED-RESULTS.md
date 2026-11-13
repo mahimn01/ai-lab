@@ -2,7 +2,8 @@
 
 Every idea below was run on this Mac (Apple M1 Max, 32 GB, MLX 0.32.4, mlx-lm 0.32.2) on
 2026-11-11 and 2026-11-12. Each section gives the command, the numbers (from `bench/results/*.json`)
-and a verdict: **keep**, **reject**, or **not settled**.
+and a verdict: **keep**, **reject**, or **not settled**. Section 19 was added on the evening
+of 2026-11-12.
 
 Words used here:
 
@@ -52,6 +53,12 @@ Words used here:
 | 16 | float16 instead of bfloat16 for inference | prompts read 1.4x faster with MLX's kernels and 1.4-1.6x with the lab's on top; 32 prompts at once 1.16-1.31x; a 64-question eval 1.29x faster end to end; one request with a 2,048-token prompt 1.29 to 1.32x faster; writing speed for one prompt unchanged; the model's values must stay under 65,504 | keep, one line, checks first |
 | 17 | Eight smaller ideas (other kernel layouts, resident decoded weights, compiled steps, two trainings at once, ...) | 0-10% each | reject |
 | 18 | Raising the GPU memory cap | not tested | not settled |
+| 19 | A row engine for many long generations (history in pages, no padding, sampling on the GPU, 48 rows at once) | a 100-problem condition at a 32,768-token cap in 59 minutes instead of 104 (1.75x; 2.0x while the batch is full); 12 minutes instead of 18 at an 8,192 cap | keep |
+| 19 | One long run cut short to get every smaller cap | exact, and free | keep |
+| 19 | Forced exits as branches of a run instead of runs of their own | four more conditions in 31 minutes; as separate runs an estimated 2.1 to 4.4 hours | keep |
+| 19 | Deciding a comparison early with a test that may be looked at after every problem | "base loops more than edited" decided at problem 18 and 26 of 100 on saved runs | keep |
+| 19 | Stopping rows once they loop | saves 11 to 40% of tokens but loses correct answers unless the rule is very strict (11% saved, none lost) | off by default, with an audit |
+| 19 | Guessing ahead from repeats, a shorter cap as a stand-in, skipping near-zero attention values, float16 for this model | 1.74 tokens per pass; misranks edits; no gain; 4 to 6% | reject |
 
 **Was a new, faster technique found?** Yes, several, each with clear edges.
 
@@ -69,6 +76,12 @@ Words used here:
   quantized weights decodes them again for every 32 rows, and MLX converts bfloat16
   numbers in software. Decoding once and running in float16 give 1.2 to 1.5x on prompt
   reading, 1.16 to 1.31x at 32 prompts at once, and 24% in from-scratch training.
+
+- **A row engine for long reasoning runs** (section 19). mlx-lm pads every row of a
+  batch to the longest one and sorts the whole vocabulary at every step. With the history
+  in pages and the top 20 found without the sort, a 100-problem run at a 32,768-token
+  cap takes 59 minutes instead of 104. It fell short of the 3x it was designed for, and
+  section 19 says why.
 
 What none of this changes: the speed at which one prompt's answer is written when the
 text is new. That is limited by how fast the Mac reads memory (about 375 GB/s, measured)
@@ -997,3 +1010,324 @@ their figures as approximate.
 - **Learned quantization** (DWQ, dynamic, AWQ, GPTQ). Not run.
 - **27B model, 32 prompts at once.** Tried; the watchdog stopped it when free memory
   fell to 4%. No number. Use 8 at once or fewer for this model (21.6 GB peak at 8).
+
+## 19. Long-reasoning experiments: a row engine
+
+Commands: `uv run python -m bench.phase1 --arm edited --tag edited-32k` (one condition),
+`uv run python -m bench.engine_checks`, `uv run python -m bench.long_step --rows 16`,
+`uv run python -m bench.transcripts`, `uv run python -m bench.float16_long`. Code:
+`lab/gen/`, `lab/stats/sequential.py`. Design, written before the code and corrected after
+an independent review: `docs/design-row-engine.md`.
+
+Words used in this section:
+
+- **Row**: one generation, from prompt to stop. A **condition** is a set of rows with
+  the same settings (model, cap, sampling).
+- **Cap**: the most tokens a row may write.
+- **Step**: one pass of the model that writes one token for every row in the batch.
+- **History**: what the attention layers store for every earlier token of a row, about
+  12 KB per token for this model. A 32,768-token row holds 0.4 GB.
+
+**The workload.** The `neural-harness` study asks whether a small model (Qwen3.5-0.8B,
+dense weights) can be repaired from looping by a weight edit. One condition is 100
+MATH-500 problems with thinking on and up to 32,768 new tokens each, about 2.1 million
+tokens. The study's own runner (mlx-lm's batch generator, 16 rows at once) needed 104
+minutes for it. Its recommended next phase has about ten such conditions on 500 problems
+with 4 samples each.
+
+### Where a step goes
+
+`bench.long_step`: mlx-lm's own model pass for one token per row, no sampling, with every
+row's history at the given length.
+
+| Rows | History 64 tokens | 4,096 | 16,384 | 32,768 |
+|---|---|---|---|---|
+| 16 | 21.9 ms | 25.4 ms | 35.3 ms | 48.5 ms |
+| 32 | 25.6 ms | 32.6 ms | 52.3 ms | not run (over the test's 7 GB) |
+| 48 | 29.7 ms | 41.2 ms | not run | not run |
+| 64 | 31.0 ms | 44.9 ms | not run | not run |
+| 96 | 48.5 ms | 71.8 ms | not run | not run |
+
+- **Most of a step is a fixed cost.** 16 rows at a short history take 22 ms, of which
+  the arithmetic needs about 3. The rest is roughly a thousand small GPU operations at
+  about 20 millionths of a second each. Compiling the step (`mx.compile`) gained 2 to
+  7%. No single operation stands out.
+- **The rest is reading the history**, and MLX's attention kernel already reads it at
+  170 to 270 GB/s (the chip gives about 375).
+- **mlx-lm pads every row's history to the longest row in the batch.** With rows
+  starting and ending at different times the longest is nearly always close to the cap,
+  so every row pays for a full history at every step. The study's 337 tokens a second
+  is the table's 16-row, 32,768-token cell (16 rows in 48.5 ms is 330 a second).
+- **Picking the next token the usual way costs a tenth to a third of a step.** Finding the top 20
+  of 248,320 scores with a full sort takes 2.7, 5.2 and 9.9 ms for 16, 32 and 64 rows.
+  Sorting only the 20 blocks of 256 with the largest maximum gives the same values in
+  0.6, 0.9 and 1.2 ms.
+- **float16 gains 4 to 6% here** (21.0 against 21.9 ms at a short history, 33.7
+  against 35.3 at 16,384), far less than on the 4B models of section 16: this model's
+  steps are mostly fixed cost. It is safe on the study's models: over 4 saved
+  transcripts of 4,241 tokens the largest value inside either model was 82, 794 times
+  below float16's limit (`bench.float16_long`). The runs below stay in bfloat16.
+
+### Three shortcuts checked on the study's saved transcripts, and turned down
+
+`bench.transcripts` needs no GPU: 3,732 transcripts the study had saved (900 as text,
+2,832 with token ids).
+
+1. **Guessing ahead from the text's own repeats** (section 10's idea, with the loop as
+   its own guess). 52% of the 32k run's tokens can be guessed, but 5.6 at a time, and
+   77% of guesses break early: 1.74 tokens per model pass. The loops in this study are
+   soft: the wording drifts. Not enough to pay for a second lane.
+2. **Stopping a row once it loops** (the study's test: a 512-token window whose text
+   compresses below a fifth). On the saved 32k run:
+
+   | Stop after this many looping tokens | 512 | 896 | 1,408 | 2,432 | 4,480 | 8,576 |
+   |---|---|---|---|---|---|---|
+   | Tokens saved | 27.6% | 19.1% | 15.9% | 13.1% | 9.4% | 6.5% |
+   | Correct answers lost (of 54) | 4 | 2 | 2 | 1 | 1 | 0 |
+
+   The edited model escapes loops thousands of tokens long and then answers. So the
+   rule exists in the engine but is off by default, and a run that uses it also runs a
+   share of its rows to the full budget to measure what it changed.
+3. **A shorter cap as a stand-in.** Loops form late: at a 2,048 cap the base model shows
+   2.5 looping rows of 64, at 8,192 it shows 40. The study's 38 saved edit variants rank
+   differently at 2,048 (rank agreement 0.39) and 4,096 (0.71) than at 8,192.
+
+What the saved results do support is **deciding early**. A test that may be looked at
+after every problem (`lab/stats/sequential.py`) would have decided "the base model loops
+more than the edited one" at problem 18 of 100 on one saved pair of runs and at problem
+26 on another. The accuracy comparisons would not have been decided in 100 problems, in
+line with their ordinary p-values (0.07, 0.125, 0.55).
+
+### The engine
+
+`lab/gen` treats the row as the unit of work. Each row has its own cap, sampling
+settings, random stream, optional weight edit and rules.
+
+- **History in pages of 256 tokens**, with a GPU kernel that walks each row's own pages.
+  Nothing is padded, memory follows what the rows really hold, and a finished row's
+  pages go back to the pool. On 48 rows of equal length the kernel reads at 254 GB/s
+  against 273 for MLX's own. On 48 rows of mixed length it needs 5.1 ms for one layer
+  where MLX needs 7.7 ms for the padded block (`bench.long_step`).
+- **Sampling on the GPU** with the study's rule and the block method above.
+- **A random stream per row.** mlx-lm draws once for the whole batch, so a row's text
+  depends on which rows share the batch. Here it does not.
+- **Branches.** A row can branch at a token count. The branch shares its trunk's pages
+  if a slot is free, or is read in later from the trunk's saved tokens.
+- **Several weight edits in one batch**, each row carrying its own (kept unmerged).
+- **A ledger**: every finished row is on disk at once, with its token ids, and a
+  restarted run skips what is there.
+- The batch narrows when rows run out, and a row is set aside and replayed later if the
+  pool runs short.
+
+### Is it the same computation?
+
+`bench.engine_checks`, on the study's real model:
+
+| Check | Result |
+|---|---|
+| Engine's scores against mlx-lm reading the same text in one pass, 2,400 positions | largest difference 0.664, same top token at 99.33% |
+| The yardstick: mlx-lm token by token against mlx-lm in one pass | largest difference 0.679, same top token at 99.42% |
+| A row forced through 32,768 tokens, compared at 7 positions up to the last | largest difference 0.250, same top token at 14 of 14 |
+| With no randomness, tokens identical to mlx-lm's own generator | 259, 400, 331 and 333 of 400; the first difference is always between candidates 0.125 or less apart |
+| The same sampled row alone and among 7 others | identical for 400 of 400 tokens |
+| 1,500 sampled tokens worked out again outside the engine, the slow way | 1,500 identical |
+| 8,192 tokens that the study's runner drew: outside what the engine would keep? | 2 (1 with mlx-lm's own scores and the rule written the slow way) |
+| Kept tokens' probabilities against the study's own sampler code, 60 real score vectors | equal to at least 6 digits |
+| A row carrying the edit unmerged against the study's adapter model | largest difference 0.531 where the edit moves scores by up to 5.1; same top token at 98.67% |
+| Step time with a 1 GB and an 8 GB pool | 23.1 and 23.2 ms: the pool is written in place, never copied |
+
+This model computes in bfloat16, where a score near 20 can only move in steps of 0.125.
+Two correct ways of computing a score therefore differ, and the first two lines show the
+engine differs from mlx-lm by as much as mlx-lm differs from itself.
+
+### Result: the Phase 0 condition
+
+Edited model, thinking on, 32,768 cap, the study's 100 problems and sampling.
+
+| | The study's runner | Row engine |
+|---|---|---|
+| Wall-clock | 103.5 min (104.1 on record from 2026-11-03) | **59.2 min** |
+| Tokens per second, whole run | 339 | 620 |
+| Tokens per second while the batch was full | about 333 | 668 |
+| Rows at once | 16 | 48 |
+| Steps | about 150,000 (worked out from its rows' lengths) | 65,536 |
+| Peak memory | not recorded | 15.2 GB |
+
+- **1.75x faster for the whole condition, 2.0x while the batch is full.** The same-day
+  rerun of the study's runner wrote the same text as on 2026-11-03 for all 100 rows,
+  so the "before" is solid.
+- **This is less than the 3x the design predicted** (35 to 45 minutes). Three reasons,
+  each measured:
+  - A whole engine step at a short history takes 23.6 ms for 16 rows, 33.0 for 48 and
+    53.7 for 96: about 18 ms a step plus 0.3 to 0.4 ms per row. The per-row part (the
+    output layer over the vocabulary, each recurrent layer's state, the arithmetic) is
+    real work, so more rows do not come free.
+  - The history is read at about 250 GB/s by MLX's kernel and by this one. Dropping the
+    padding cut what is read, and nothing tried made the reading itself faster.
+  - 100 rows are too few to keep 48 slots busy: a third of the rows only started after
+    the first long rows ended, so the run took two rounds of 32,768 steps and its last
+    25 minutes ran with slots emptying.
+- **Memory limits the batch.** 12 GB of history pool plus the model and the per-row
+  state was 15.2 GB. A later run with the same pool, which also read long texts back
+  in, stalled when the Mac ran out of memory: swap nearly full, 5 seconds a step until
+  it was stopped. What else was using memory at that moment was not established. The
+  runs after that use a 10 GB pool and did not stall.
+
+**Is it the same condition?** The two runners draw different random numbers, so their
+texts differ and only rates can be compared.
+
+| | The study's runner | Row engine, first draw |
+|---|---|---|
+| Correct | 54 | 47 |
+| Rows at the cap | 32 | 35 |
+| Rows ending in a loop | 25 | 35 |
+| Median tokens | 20,958 | 22,371 |
+
+The engine's draw is 7 points lower (95% interval from 14 lower to equal). The published
+scores of this model (4 samples per problem) put the spread between two 100-problem
+draws at about 4.3 points (worked out from the study's `models/edited/eval` files; a
+quick check, not saved), so 7 is 1.6 spreads: unusual, not impossible. Three things say
+it is the draw and not the engine: the direct checks above; the first 4,096 tokens of
+all rows are as repetitive in both runners (18.3% of tokens guessable in each; a quick
+check, not saved); and two more seeds, below.
+
+**Three draws from each runner, looked at after 8,192 tokens.** Two more seeds of the
+engine at an 8,192 cap, and the 32,768 runs of both cut at 8,192:
+
+| | Correct | Still running at 8,192 | Ending in a loop |
+|---|---|---|---|
+| The study's runner, its 8,192 run | 13 | 87 | 18 |
+| The study's runner, its unmerged-edit run | 15 | 85 | 21 |
+| The study's runner, its 32,768 run cut | 18 | 82 | 13 |
+| Row engine, its 32,768 run cut | 12 | 88 | 24 |
+| Row engine, seed 1 | 15 | 85 | 15 |
+| Row engine, seed 2 | 15 | 84 | 18 |
+
+The engine's first draw sits at the unlucky end of every column and its other two in the
+middle. On average the two runners are 15.3 and 14.0 correct, 84.7 and 85.7 still
+running, 17.3 and 19.0 looping. (The loop and still-running counts of the two cut rows
+are a quick check, not saved; the rest is in `bench/results/phase1.json` and the
+study's `runs/summary.md`.)
+
+**At an 8,192 cap** the two extra seeds took 12.1 minutes each (1,058 and 1,046 tokens a
+second), against 18.1 minutes (716 tokens a second, 32 rows at once) for the study's
+runner on the same condition: 1.5x. The base model with thinking off at the same cap
+took 5.8 minutes against 8.3 (1.4x), with 43 of 100 correct in both runners.
+
+### What one long run gives besides its own number
+
+- **Accuracy at every smaller cap**, by cutting the same rows short (the grader reads
+  the last boxed answer in whatever text exists): 7% at 4,096 tokens, 12% at 8,192, 28%
+  at 16,384, 42% at 24,576, 47% at 32,768.
+- **The loop rule, measured again on rows it was not tuned on**:
+
+  | Stop after this many looping tokens | 512 | 896 | 1,408 | 2,432 | 4,480 | 8,576 |
+  |---|---|---|---|---|---|---|
+  | Tokens saved | 39.6% | 32.4% | 28.6% | 20.7% | 15.0% | 11.1% |
+  | Correct answers lost (of 47) | 6 | 2 | 2 | 1 | 1 | 0 |
+
+  The same picture as on the saved run: only the strictest rule loses nothing.
+
+### Forced exits as branches
+
+The study's next phase asks what happens when a row that is still thinking at 4,096,
+8,192, 16,384 or 24,576 tokens is made to stop and answer. In the engine such a row
+branches: the branch takes the study's 25-token exit phrase and answers, and the trunk
+carries on. Here the branches were added to the finished run from its saved tokens
+(`--exits` on a ledger that already holds the rows), each with an answer budget of 4,000
+tokens.
+
+| Forced exit at | Rows forced | Correct | Tokens per problem | Correct with an answer budget of 500, 1,000, 2,000 | Branches that used all 4,000 |
+|---|---|---|---|---|---|
+| 4,096 | 93 | 39% | 6,535 | 17%, 37%, 39% | 58 |
+| 8,192 | 85 | 37% | 10,360 | 20%, 35%, 37% | 58 |
+| 16,384 | 56 | 45% | 16,769 | 33%, 43%, 44% | 40 |
+| 24,576 | 36 | 52% | 20,480 | 46%, 51%, 52% | 26 |
+| never (the run itself) | | 47% | 22,037 | | |
+
+- **Four more conditions in 31.3 minutes**: 270 branches, 2.9 million tokens of the
+  rows' own text read back in and 0.8 million new tokens written. Run from scratch the
+  four would need about 5.4 million tokens of writing: 2.1 to 4.4 hours at the two
+  rates on record for the study's runner (716 tokens a second at an 8,192 cap, 339 at
+  32,768). That is an estimate, not a run.
+- **The answer budget matters up to about 2,000 tokens.** The study's own forced exit
+  let the answer run on to the overall cap. Here most forced rows were still writing
+  when their 4,000 tokens ran out, but going from 2,000 to 4,000 added at most one
+  correct answer per condition.
+- **Read these accuracies as a by-product of a timing run**: one draw of 100 problems,
+  where a condition's own spread is about 3 points. They are not the study.
+
+### The base model, with its forced exits in the same run
+
+The model without the edit, thinking on, 32,768 cap, branching at the same four exit
+points as it goes (`--arm base --exits 4096,8192,16384,24576`), with 32 rows at once
+and a 10 GB pool. The study has no run of this condition to compare with.
+
+| | |
+|---|---|
+| Wall-clock for the five conditions | 132.9 min |
+| New tokens | 3.97 million: 2.99 million in the 100 rows, 0.99 million in 364 branches |
+| Tokens read back in | 5.09 million |
+| Tokens per second, whole run | 498 |
+| Peak memory | 13.5 GB |
+
+- **The 100 rows alone would take the study's runner about 147 minutes** (2.99 million
+  tokens at its 339 a second), and the four forced exits as separate runs another 2.3
+  to 4.9 hours (5.96 million tokens at 716 or 339 a second). Both are estimates.
+- **Nearly every row runs to the cap**: 89 of 100, against 35 for the edited model. A
+  full row holds 0.4 GB, so the pool ran short 13 times and a row was set aside and
+  replayed.
+- **Only 1 of the 364 branches shared its trunk's pages.** A branch shares only when a
+  slot is free at the moment it is asked for, and with every slot busy that almost never
+  happens. The other 363 were read in later from saved tokens. Reading one row back
+  runs at 4,870 tokens a second for 4,096 tokens and 3,548 for 24,576 (a quick check,
+  not saved), which comes to about 21 of the 133 minutes here and 12 of the 31 minutes
+  for the edited model's exits above.
+
+| | Base | Edited (first draw, from above) |
+|---|---|---|
+| Correct | 13 | 47 |
+| Rows at the cap | 89 | 35 |
+| Rows ending in a loop | 88 | 35 |
+| Median tokens | 32,768 | 22,371 |
+
+Cut at a smaller cap the base model has 7% at 4,096 tokens, 10% at 8,192 and 13% from
+16,384 on. Its forced exits, each branch with an answer budget of 4,000 tokens:
+
+| Forced exit at | Rows forced | Correct | Tokens per problem | Correct with an answer budget of 500, 1,000, 2,000 | Branches that used all 4,000 |
+|---|---|---|---|---|---|
+| 4,096 | 94 | 40% | 6,619 | 20%, 38%, 40% | 58 |
+| 8,192 | 92 | 42% | 10,335 | 22%, 41%, 42% | 56 |
+| 16,384 | 89 | 43% | 17,670 | 23%, 42%, 43% | 54 |
+| 24,576 | 89 | 44% | 24,978 | 25%, 42%, 44% | 55 |
+| never (the run itself) | | 13% | 29,858 | | |
+
+The loop rule on these rows:
+
+| Stop after this many looping tokens | 512 | 896 | 1,408 | 2,432 | 4,480 | 8,576 |
+|---|---|---|---|---|---|---|
+| Tokens saved | 73.8% | 71.4% | 69.7% | 66.7% | 60.5% | 48.7% |
+| Correct answers lost (of 13) | 0 | 0 | 0 | 0 | 0 | 0 |
+
+- **On the base model the rule costs nothing on this draw**: a base row that loops does
+  not come back. On the edited model the same rule loses answers. So one setting does
+  not fit both models, and a row stopped early has nothing to branch from at the later
+  exit points.
+- These accuracies are again a by-product of a timing run: one draw of 100 problems.
+
+### What was tried on the way
+
+- **The first kernel looked at the page table once per token** and read the history at
+  122 GB/s, less than half of MLX's (a quick check, not saved). Dealing each row's
+  tokens to 64 groups so that a group takes 4 tokens of every page, with one look at
+  the table per page and no bounds checks inside a page, brought it level with MLX's.
+- **Not reading the value of a token with almost no weight** (under a billionth of the
+  largest) left every score unchanged and saved nothing: 30.4 ms a step against 29.1
+  on 16 rows with real 8,000-token histories. Dropped.
+- **Holding half the slots back for branches** would nearly double the steps the
+  trunks need. Branches that find no free slot are read in later instead.
+
+Limits: one model family (Qwen3.5 text models), one Mac, and single runs except where a
+repeat is shown. The 32,768-cap comparison is one draw from each runner.
+
+Verdict: **keep**, for runs of many long generations. For one chat nothing changes.

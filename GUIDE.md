@@ -69,6 +69,15 @@ cd ~/Documents/Dev/ai-lab
     collecting an early layer runs 6x faster than a full pass and a sweep from three
     quarters of the way up 5.3x faster (section 15).
 
+12. **For many long generations at once, use the row engine (`lab.gen`).** mlx-lm's
+    batch generator pads every row to the longest one and sorts the whole vocabulary at
+    each step. The engine keeps each row's history in pages and picks tokens on the GPU:
+    100 problems at a 32,768-token cap took 59 minutes instead of 104, and at an 8,192
+    cap 12 instead of 18 (section 19). On this Mac use 48 rows at once and a 10 GB
+    pool: with 12 GB a run that also read long texts back in ran out of memory. One long run
+    also gives the accuracy at every smaller cap, by cutting its rows short. Stopping
+    rows that loop is possible but off by default, because it loses correct answers.
+
 ## Commands
 
 | What you want | Command | What it changes |
@@ -87,7 +96,12 @@ cd ~/Documents/Dev/ai-lab
 | Run the example eval | see the top of `examples/inspect_local.py` | one log under `runs/inspect-logs/` |
 | Start the experiment loop | `uv run python -m lab.loop --rounds 10 --agent "claude -p --permission-mode acceptEdits"` | a `loop/...` git branch, `results.tsv` |
 | Re-measure the baseline | `uv run python -m bench.inference --model LABEL=PATH`, then `uv run python -m bench.report` | `bench/results/`, `BASELINE.md` |
-| Run the tests | `uv run pytest` (about 90 seconds; add `-m "not slow"` for the 5-second set) | nothing |
+| Run a long-reasoning eval condition through the row engine | `uv run python -m bench.phase1 --arm edited --tag edited-32k` (needs the `neural-harness` study folder) | ledger under `runs/phase1/edited-32k/`, an entry in `bench/results/phase1.json` |
+| Check the row engine against mlx-lm on the real model | `uv run python -m bench.engine_checks` | `bench/results/engine_checks.json` |
+| See what one decode step costs at long history | `uv run python -m bench.long_step --rows 16` | `bench/results/long_step.json` |
+| Re-run the checks on the study's saved transcripts (no GPU) | `uv run python -m bench.transcripts` | `bench/results/transcripts.json` |
+| See how early a comparison would be decided | `uv run python -m lab.stats.sequential` | nothing |
+| Run the tests | `uv run pytest` (about 2 minutes; add `-m "not slow"` for the 30-second set) | nothing |
 
 Every script starts with a plain-words header saying what it does, how to run it and
 what it changes.
@@ -150,6 +164,25 @@ undo = weights.attach_lora(model, path, a, b, scale=1.0) # try it without touchi
 `apply_delta` needs a full-precision model. `attach_lora` and all the hooks also work
 on quantized (4-bit) models.
 
+Run many long generations at once, each row with its own settings (section 19; design
+in `docs/design-row-engine.md`). Works for the Qwen3.5 text models:
+
+```python
+from lab.gen.engine import Engine, Row, seed_for
+from lab.gen.ledger import Ledger
+
+engine = Engine(model, slots=48, pool_gb=12, max_tokens=8192, decode=tokenizer.decode)
+rows = [Row(prompt=p, max_tokens=8192, seed=seed_for("run-1", i), stop_tokens=(eos_id,), meta={"i": i})
+        for i, p in enumerate(prompts)]                    # temperature, top_k, top_p, presence_penalty can differ per row
+records = engine.run(rows, Ledger("runs/my-eval"))        # each finished row is on disk at once; run again to continue
+```
+
+A row may carry its own weight edit (`edit=`, with `edits=` given to the engine), tokens
+it must write first (`forced=`), a loop-stopping rule (`stop_after_loop=`, off by
+default because it changes grades) and branch points (`branch_at=` with a `brancher`
+function passed to `run`). `lab/stats/sequential.py` has a paired test that stays valid
+when it is looked at after every problem.
+
 ## What fits on this Mac
 
 MLX may use about 25 GB of the 32 GB for models, and other apps need their share.
@@ -198,9 +231,13 @@ lab/infer/batch.py    batched generation with shared-prefix reuse
 lab/infer/float16.py  switch a bfloat16 model to float16 after a safety check
 lab/infer/lookahead.py  one prompt, several tokens per pass by guessing ahead
 lab/kernels/qmm.py    the lab's GPU paths for quantized layers: a kernel for 2-18 rows, decode-then-dense for 256+
+lab/gen/              the row engine for many long generations: engine.py (rows, slots, branches), kv.py (attention
+                      history in pages and its GPU kernel), sampler.py, loops.py (loop marks), ledger.py (restartable runs)
+lab/stats/            sequential.py (a paired test and an accuracy band that may be looked at after every problem)
 lab/serve.py          mlx-lm's server with those paths switched on
 lab/loop.py           the automated experiment loop
 bench/                benchmark and experiment scripts; results in bench/results/*.json
+docs/                 design-row-engine.md (the design of lab/gen, written before it was built, with its corrections)
 examples/             an Inspect AI eval against the local server
 tests/                fast tests (seconds) and slow tests (real model, real training)
 ```

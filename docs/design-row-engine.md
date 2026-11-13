@@ -276,3 +276,62 @@ tokens per second. A larger run does not have this problem.
 Four forced-exit conditions as branches: predicted to add under 15% to the trunk's time.
 
 If the engine misses these numbers, section 19 of `SPEED-RESULTS.md` will say so.
+
+## 10. Corrections after an independent review (2026-11-12, before any benchmark ran)
+
+Sections 1 to 9 are left as they were written. A read-only review of the code and of this
+document found the following, and the code was changed before the first benchmark.
+
+**Numbers that were wrong.**
+
+- Finding 6 came from a replay with a bug: the length of a guess never grew. Corrected,
+  52% of the 32k run's tokens can be guessed, 5.6 at a time, 77% of guesses break early,
+  and a model pass yields 1.74 tokens, not 1.56. The idea stays rejected.
+- Section 2 says 3,432 saved transcripts. It is 3,732.
+
+**Predictions that were wrong before they were measured.**
+
+- "Four forced-exit conditions add under 15%" (section 9). Replaying the saved run's row
+  lengths gives about 263 branches and 1.3 to 1.5 times the trunk's tokens. The
+  prediction is withdrawn. The measurement is in `SPEED-RESULTS.md` section 19.
+- The floor of 32,768 steps (section 9) needs about 100 rows at once. With 48 slots it
+  is two rounds, 65,536 steps. A model of the schedule on the saved run's row lengths,
+  with the 12 GB pool that fits this Mac, gives about 51 minutes for the Phase 0
+  condition, not 35 to 45. The pool, not the slot count, is what binds.
+
+**Claims that needed narrowing.**
+
+- A forced-exit branch here writes at most a stated number of tokens after the exit
+  phrase (4,000 by default). The study's own forced exit ran on to the overall cap. The
+  study's saved 6,000-token exit runs show the answer budget matters: correct answers
+  were still rising with it (edited: 26 at 1,000 tokens, 28 at 2,200; base: 33 and 37),
+  and over half of the forced rows were still writing at 2,167. So the condition is
+  reported as "forced exit with an answer budget", with the number of branches that
+  used the budget up and the accuracy at smaller budgets.
+- "A row's draws do not depend on its neighbours" (3.1) is true of its random numbers.
+  Its scores can still differ in the last digit when the batch changes width or a row is
+  replayed, and that can change a token where two candidates are almost tied. It does
+  not favour either candidate.
+- The comparison of a 100-problem run with the study's saved run (section 7, "whole
+  condition") can only show large differences: a real 10-point drop in accuracy would
+  be flagged in under half of such comparisons. Correctness rests on the direct checks
+  in `bench/engine_checks.py`, which now include a row forced through many pages of
+  history and the study's own sampler code.
+
+**Design changes.**
+
+- Slots are not held back for branches by default. Holding half of them back would
+  nearly double the steps the trunks need. A branch that finds no free slot is read in
+  later from its trunk's saved tokens.
+- The batch narrows once nothing is waiting and half the slots are empty, so the last
+  long rows of a run do not pay for empty slots.
+- Deciding a comparison early counts each problem once, however many samples it has.
+  Samples of one problem move together, and counting them separately raised false
+  alarms (57% instead of 5% in the reviewer's worst case).
+- A row's name in the ledger no longer includes its branch points, so exit points can
+  be added to a finished run. A run refuses to continue a ledger started with other
+  settings, and a summary counts only the rows the current start asked for.
+- The ledger repairs a line cut off by a crash instead of hiding what follows it.
+- Tried and dropped: not reading the attention value of a token whose weight is under
+  a billionth of the largest. It changed no score and saved no time (`SPEED-RESULTS.md`
+  section 19).
