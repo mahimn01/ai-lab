@@ -13,7 +13,9 @@ Why pages
     - a row owns a list of pages and a buffer holding its newest tokens (up to 255);
     - when the buffer fills, it is copied into a free page;
     - a finished row gives its pages back;
-    - a full page is never written again, so a branch can share its trunk's pages.
+    - a full page is never written again, so a branch can share its trunk's pages:
+      `hold` keeps a row's history as it stands (pages shared, buffer copied) and
+      `adopt` gives it to a slot, at once or later.
   The attention kernel walks each row's own pages and buffer, so a step reads what the
   rows really hold and nothing else.
 
@@ -42,6 +44,8 @@ Changes: memory only.
 """
 
 from __future__ import annotations
+
+from dataclasses import dataclass
 
 import mlx.core as mx
 import numpy as np
@@ -159,6 +163,15 @@ def paged_attention(q: mx.array, pool_k: mx.array, pool_v: mx.array, buf_k: mx.a
                               grid=(dim, rows * heads, 1), threadgroup=(min(dim, 256), 1, 1), output_shapes=[q.shape], output_dtypes=[q.dtype])[0]
 
 
+@dataclass
+class Held:
+    """One row's history as it stood at one moment, kept without a slot."""
+
+    pages: np.ndarray                                   # its full pages (shared with whoever else points at them)
+    n_buf: int
+    buffers: list[tuple[np.ndarray, np.ndarray]]        # per layer: keys and values of the n_buf newest tokens (copies)
+
+
 class PagePool:
     """Keys and values of every row, for every attention layer, in pages (see the top of this file).
 
@@ -203,12 +216,15 @@ class PagePool:
         self.sharers[page] = 1
         return page
 
-    def release(self, slot: int) -> None:
-        """A row is finished or set aside: give its pages back (a shared page stays until its last row leaves)."""
-        for page in self.table[slot, : self.n_pages[slot]]:
+    def _give_back(self, pages: np.ndarray) -> None:
+        for page in pages:
             self.sharers[page] -= 1
             if self.sharers[page] == 0:
                 self.free.append(int(page))
+
+    def release(self, slot: int) -> None:
+        """A row is finished or set aside: give its pages back (a shared page stays until its last user leaves)."""
+        self._give_back(self.table[slot, : self.n_pages[slot]])
         self.n_pages[slot] = self.n_buf[slot] = 0
 
     # -- one decode step -----------------------------------------------------------------------
@@ -262,16 +278,32 @@ class PagePool:
         self.n_pages[slot], self.n_buf[slot] = full, rest
         self._table_mx = None
 
-    def fork(self, parent: int, child: int) -> None:
-        """Make an empty slot a copy of another row's history: the pages are shared, only the buffer is copied."""
-        n = self.n_pages[parent]
-        self.table[child, :n] = self.table[parent, :n]
-        self.sharers[self.table[parent, :n]] += 1
-        self.n_pages[child], self.n_buf[child] = n, self.n_buf[parent]
-        for layer in range(self.layers):
-            self.buf_keys[layer][child] = self.buf_keys[layer][parent]
-            self.buf_values[layer][child] = self.buf_values[layer][parent]
+    def hold(self, slot: int) -> Held:
+        """Keep a row's history as it stands now, without a slot. The row itself carries on.
+
+        The pages are shared (they count one more user until `adopt` or `drop`); the buffer is copied,
+        in 32-bit, which holds every 16-bit value exactly.
+        """
+        pages, n_buf = self.table[slot, : self.n_pages[slot]].copy(), int(self.n_buf[slot])
+        self.sharers[pages] += 1
+        copy = lambda buffer: np.array(buffer[slot, :, :n_buf].astype(mx.float32))
+        return Held(pages, n_buf, [(copy(k), copy(v)) for k, v in zip(self.buf_keys, self.buf_values)])
+
+    def adopt(self, held: Held, slot: int) -> None:
+        """Give an empty slot a held history. The hold is used up: its share of the pages passes to the slot."""
+        n = len(held.pages)
+        self.table[slot, :n] = held.pages
+        self.n_pages[slot], self.n_buf[slot] = n, held.n_buf
+        if held.n_buf:
+            for layer, (k, v) in enumerate(held.buffers):
+                dtype = self.buf_keys[layer].dtype
+                self.buf_keys[layer][slot, :, : held.n_buf] = mx.array(k).astype(dtype)
+                self.buf_values[layer][slot, :, : held.n_buf] = mx.array(v).astype(dtype)
         self._table_mx = None
+
+    def drop(self, held: Held) -> None:
+        """Give up a held history that no slot will take."""
+        self._give_back(held.pages)
 
     def move(self, src: int, dst: int) -> None:
         """Move a row from one slot to an empty one. Its pages stay where they are; only the buffer is copied."""

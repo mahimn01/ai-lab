@@ -25,6 +25,11 @@ What it measures (dense Qwen3.5-0.8B from the neural-harness study; its saved tr
   greedy      With no randomness, how many tokens the engine and mlx-lm's own generator write
               identically before the first difference, and how close the two candidates were there.
   neighbours  The same sampled row alone in an 8-slot batch and with 7 other rows in it.
+  branches    The same sampled branch of one row, taken three ways in the same 8 slots: started at
+              once (a slot was free), after waiting for a slot with its trunk's state held, and read
+              in later from the trunk's saved tokens. The first two start from the same numbers and
+              must write the same tokens. The third starts from mlx-lm's reading of the text, which
+              rounds differently, so it may part ways after a while.
   kernel      The same rows through the paged kernel and through MLX's attention row by row.
   edit        A row carrying the study's edit unmerged, against the study's own adapter model.
   sampler     On real score vectors with the study's presence penalty: the tokens the engine keeps and
@@ -59,6 +64,7 @@ from lab.gen.engine import Engine, Row, seed_for
 from lab.gen.sampler import kept_probabilities, row_stream
 
 ROWS, FORCED, GREEDY, SAMPLED = 4, 600, 400, 400
+BRANCH_AT = 300         # the branch check's trunk branches here: its history is then one full page and part of a buffer
 LATE = (1024, 4096, 8192, 12288, 16383, 24576, 32767)     # written-token counts at which the long check compares scores
 
 
@@ -309,6 +315,28 @@ def main() -> None:
     same = next((i for i, (a, b) in enumerate(zip(alone, together)) if a != b), min(len(together), len(alone)))
     out["neighbours"] = {"tokens": len(alone), "identical_until": same}
     print(f"neighbours: alone and among 7 others in the same 8 slots, identical for {same} of {len(alone)} tokens", flush=True)
+
+    # branches: one branch started at once, after waiting for a slot, and read in from saved tokens
+    def branch_tokens(others: int, max_waiting: int) -> tuple[list[int], dict]:
+        engine = Engine(model, slots=8, pool_gb=1.0, max_tokens=SAMPLED)
+        engine.narrow_when_idle = False
+        engine.max_waiting = max_waiting
+        trunk = Row(prompt=saved[0]["prompt"], max_tokens=SAMPLED, seed=seed_for("checks", "trunk"), branch_at=(BRANCH_AT,))
+        records = engine.run([trunk] + [sampled_row(r) for r in extra[:others]], log=lambda line: None,
+                             brancher=lambda row, written: Row(prompt=row.prompt + written, max_tokens=SAMPLED, seed=seed_for("checks", "branch"),
+                                                               seen=tuple(written), meta={"branch": True}))
+        return next(rec["tokens"] for rec in records if rec["meta"].get("branch")), engine.stats
+
+    at_once, stats = branch_tokens(6, 8)
+    assert stats["branches_shared"] == 1 and stats["branches_waited"] == 0
+    waited, stats = branch_tokens(7, 8)
+    assert stats["branches_shared"] == 1 and stats["branches_waited"] == 1
+    read_in, stats = branch_tokens(7, 0)
+    assert stats["branches_read"] == 1
+    until = lambda other: next((i for i, (a, b) in enumerate(zip(at_once, other)) if a != b), min(len(at_once), len(other)))
+    out["branches"] = {"branch_at": BRANCH_AT, "tokens": len(at_once), "waited_identical_until": until(waited), "read_in_identical_until": until(read_in)}
+    print(f"branches: a branch at token {BRANCH_AT} that waited for a slot writes the same {until(waited)} of {len(at_once)} tokens as one "
+          f"started at once; read in from saved tokens, the same {until(read_in)}", flush=True)
 
     # kernel: paged kernel against MLX attention row by row
     plain, _ = run([greedy_row(r, GREEDY) for r in saved], ROWS, use_kernel=False)

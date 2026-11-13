@@ -168,12 +168,18 @@ def test_page_pool_shares_and_returns_pages():
     k = mx.random.normal((1, 2, 600, 32))
     pool.load(0, [(k, k)])
     assert len(pool.free) == 4 and pool.tokens_held(0) == 600
-    pool.fork(0, 1)
+    pool.adopt(pool.hold(0), 1)
     same = [mx.array_equal(a, b) for a, b in zip(pool.gather(0, 0), pool.gather(0, 1))]
     assert all(same) and len(pool.free) == 4, "a branch holds the same history without taking pages"
     pool.release(0)
     assert len(pool.free) == 4, "shared pages stay while the branch still points at them"
+    held = pool.hold(1)
     pool.release(1)
+    assert len(pool.free) == 4, "a held history keeps its pages without a slot"
+    pool.adopt(held, 2)
+    assert all(mx.array_equal(a, k) for a in pool.gather(0, 2)), "and a slot that takes it over reads the same history"
+    pool.drop(pool.hold(2))
+    pool.release(2)
     assert len(pool.free) == 6
 
 
@@ -248,11 +254,13 @@ def test_a_branch_shares_its_trunk_and_matches_a_fresh_row():
         branch = next(r for r in records if r["meta"].get("at") == at)
         assert branch["tokens"] == greedy_reference(model, trunk.prompt + trunk_tokens[:at], 9, forced=(5, 6, 7))
     assert trunk_tokens == greedy_reference(model, trunk.prompt, 40), "branching does not disturb the trunk"
-    crowded = make_engine(model, slots=1).run([trunk], brancher=brancher)     # no free slot: the branch is read in later instead
-    assert {tuple(r["tokens"]) for r in crowded} == {tuple(r["tokens"]) for r in records}
+    crowded = make_engine(model, slots=1)
+    crowded.max_waiting = 0                                                    # no free slot and no waiting: read in later instead
+    assert {tuple(r["tokens"]) for r in crowded.run([trunk], brancher=brancher)} == {tuple(r["tokens"]) for r in records}
+    assert crowded.stats["branches_read"] == 2 and crowded.stats["branches_shared"] == 0
 
 
-def test_a_sampled_branch_is_the_same_shared_or_read_in_and_counts_its_trunk_for_the_penalty():
+def test_a_sampled_branch_is_the_same_shared_waiting_or_read_in_and_counts_its_trunk_for_the_penalty():
     model = tiny_model(4)
     trunk = sampled(prompt(270, 7), 40, seed=3, branch_at=(12,))
 
@@ -261,10 +269,18 @@ def test_a_sampled_branch_is_the_same_shared_or_read_in_and_counts_its_trunk_for
 
     shared = make_engine(model)
     with_room = shared.run([trunk], brancher=brancher)
-    read_in = make_engine(model, slots=1).run([trunk], brancher=brancher)
-    assert shared.stats["branches_shared"] == 1
+    waiting = make_engine(model, slots=1)                # no free slot: the branch waits with its trunk's state
+    waited = waiting.run([trunk], brancher=brancher)
+    reading = make_engine(model, slots=1)
+    reading.max_waiting = 0                              # no waiting either: the branch is read in from the trunk's tokens
+    read_in = reading.run([trunk], brancher=brancher)
+    assert shared.stats["branches_shared"] == 1 and shared.stats["branches_waited"] == 0
+    assert waiting.stats["branches_shared"] == 1 and waiting.stats["branches_waited"] == 1
+    assert waiting.stats["read"] == len(trunk.prompt) - 1, "a branch that waited reads nothing again"
+    assert reading.stats["branches_read"] == 1 and reading.stats["read"] > 2 * len(trunk.prompt)
     pick = lambda records: next(r["tokens"] for r in records if r["meta"].get("branch"))
-    assert pick(with_room) == pick(read_in)
+    assert pick(with_room) == pick(waited) == pick(read_in)
+    assert not waiting.waiting and len(waiting.pool.free) == waiting.pool.pages, "every page came back"
     trunk_tokens = next(r["tokens"] for r in with_room if not r["meta"].get("branch"))
     forgetful = make_engine(model).run([sampled(trunk.prompt + trunk_tokens[:12], 14, seed=4, forced=(5, 6))])[0]["tokens"]
     assert pick(with_room) != forgetful, "without the trunk's tokens in the penalty the branch writes something else"
@@ -312,16 +328,38 @@ def test_the_batch_narrows_when_rows_run_out_without_changing_what_is_written():
     assert got == expected
 
 
-def test_slots_kept_free_let_branches_share_their_trunk():
+def test_slots_kept_free_let_branches_start_at_once_and_the_others_wait():
     model = tiny_model(10)
     trunks = [greedy(prompt(20 + i, 60 + i), 30, branch_at=(8,), meta={"i": i}) for i in range(4)]
     brancher = lambda row, written: greedy(row.prompt + written, 6, forced=(3, 4), seen=tuple(written), meta={"of": row.meta["i"]})
     crowded = make_engine(model, slots=4)
-    crowded.run(trunks, brancher=brancher)
+    waited = crowded.run(trunks, brancher=brancher)
     roomy = make_engine(model, slots=4)
     records = roomy.run(trunks, brancher=brancher, keep_free=2)
-    assert crowded.stats["branches_shared"] == 0 and roomy.stats["branches_shared"] == 4
-    assert len(records) == 8
+    assert crowded.stats["branches_shared"] == 4 and crowded.stats["branches_waited"] == 4
+    assert roomy.stats["branches_shared"] == 4 and roomy.stats["branches_waited"] == 0
+    texts = lambda rows: {(r["meta"].get("of"), r["meta"].get("i"), tuple(r["tokens"])) for r in rows}
+    assert len(records) == 8 and texts(records) == texts(waited)
+
+
+def test_a_waiting_branch_whose_trunk_is_gone_gives_its_pages_up_when_the_pool_runs_short(monkeypatch):
+    model = tiny_model(11)
+    monkeypatch.setattr(engine_module, "GROWTH_PAGES", 0)
+    short = greedy(prompt(300, 90), 20, branch_at=(10,), meta={"n": "short"})     # holds one page; done after 20 tokens
+    long = greedy(prompt(10, 91), 600, branch_at=(20,), meta={"n": "long"})       # its branch takes the slot the short row leaves
+
+    def brancher(row: Row, written: list[int]) -> Row:
+        return greedy(row.prompt + written, 6 if row.meta["n"] == "short" else 500, forced=(3, 4), seen=tuple(written),
+                      meta={"of": row.meta["n"]})
+
+    tight = make_engine(model, slots=2, pool_gb=4.5 * PAGE_BYTES / GB)            # 4 pages: the two long rows need all of them
+    records = tight.run([short, long], brancher=brancher)
+    assert tight.stats["branches_waited"] == 1 and tight.stats["branches_read"] == 1 and tight.stats["branches_shared"] == 1
+    assert sorted(r["written"] for r in records) == [6, 20, 500, 600]
+    of_short = next(r["tokens"] for r in records if r["meta"].get("of") == "short")
+    short_tokens = next(r["tokens"] for r in records if r["meta"].get("n") == "short")
+    assert of_short == greedy_reference(model, short.prompt + short_tokens[:10], 6, forced=(3, 4))
+    assert not tight.waiting and len(tight.pool.free) == tight.pool.pages
 
 
 def test_a_run_stops_starting_rows_once_the_question_is_decided():

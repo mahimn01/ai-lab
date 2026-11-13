@@ -13,7 +13,9 @@ What the engine does (design and measurements: docs/design-row-engine.md)
     history in lab/gen/kv.py
   - picks every row's next token on the GPU with the row's own settings and its own
     random stream (lab/gen/sampler.py), so a row's text does not depend on its neighbours
-  - can branch a row: the branch shares the trunk's history pages and costs nothing to start
+  - can branch a row: the branch shares the trunk's history pages and costs nothing to start.
+    If no slot is free at that moment the branch waits, holding a copy of the trunk's small
+    per-row state, and still shares the pages when a slot comes free
   - writes each finished row to a ledger at once (lab/gen/ledger.py); a restarted run
     skips what is there
   - if the pool runs short, sets the youngest row aside and replays it later from its
@@ -42,7 +44,7 @@ import mlx.nn as nn
 import numpy as np
 from mlx_lm.models.cache import ArraysCache
 
-from lab.gen.kv import PAGE, PagePool
+from lab.gen.kv import PAGE, Held, PagePool
 from lab.gen.ledger import Ledger, row_key
 from lab.gen.loops import LoopWatch
 from lab.gen.sampler import next_tokens, row_stream
@@ -99,6 +101,16 @@ class _Live:
     started: float | None = None
     set_aside: int = 0
     steps: int = 0
+
+
+@dataclass
+class _Waiting:
+    """A branch with no slot yet, holding what it needs to start exactly where its trunk stood."""
+
+    live: _Live
+    history: Held
+    states: dict[int, list[np.ndarray]]      # per recurrent layer: this row's part of every state block
+    pending: int
 
 
 class RowEdit(nn.Module):
@@ -188,8 +200,11 @@ class Engine:
         self.live: dict[int, _Live] = {}
         self.free_slots = list(range(slots - 1, -1, -1))
         self.probe: Callable[[mx.array], None] | None = None        # if set, called with every step's scores [slots, vocabulary]
-        self.stats = {"steps": 0, "written": 0, "read": 0, "set_aside": 0, "branches_shared": 0, "branches_read": 0, "narrowed": 0}
+        self.stats = {"steps": 0, "written": 0, "read": 0, "set_aside": 0, "branches_shared": 0, "branches_waited": 0,
+                      "branches_read": 0, "narrowed": 0}
         self.narrow_when_idle = True
+        self.waiting: deque[_Waiting] = deque()                      # branches holding their trunk's state until a slot is free
+        self.max_waiting = slots                                     # each holds about 25 MB with the 0.8B model; more are read in later
 
     # -- per-row weight edits ------------------------------------------------------------------
 
@@ -270,17 +285,23 @@ class Engine:
         mx.eval(self.mask, self.streams, [c.cache for c in self.rec.values()], self.pool.keys, self.pool.values,
                 self.pool.buf_keys, self.pool.buf_values)
 
-    def _branch(self, parent_slot: int, live: _Live) -> None:
-        """Give a new branch a slot by sharing its trunk's history as it stands right now."""
+    def _hold(self, parent_slot: int, live: _Live) -> _Waiting:
+        """What a new branch needs to start where its trunk stands right now: the trunk's pages (shared), and a copy of
+        its buffer and of its recurrent state (in 32-bit, which holds every value exactly)."""
+        states = {i: [np.array(block[parent_slot].astype(mx.float32)) for block in cache.cache] for i, cache in self.rec.items()}
+        return _Waiting(live, self.pool.hold(parent_slot), states, int(self.pending[parent_slot]))
+
+    def _resume(self, held: _Waiting) -> None:
+        """Give a branch a slot, at once or after a wait. It starts from the state its trunk had when it was asked for."""
         slot = self.free_slots.pop()
-        self.pool.fork(parent_slot, slot)
-        for cache in self.rec.values():
-            for block in cache.cache:
-                block[slot] = block[parent_slot]
-        self._penalties(slot, live)
-        self.pending[slot] = self.pending[parent_slot]
-        live.forced = deque(live.row.forced)
-        self._settle(slot, live)
+        self.pool.adopt(held.history, slot)
+        for i, cache in self.rec.items():
+            for block, state in zip(cache.cache, held.states[i]):
+                block[slot] = mx.array(state).astype(block.dtype)
+        self._penalties(slot, held.live)
+        self.pending[slot] = held.pending
+        held.live.forced = deque(held.live.row.forced)
+        self._settle(slot, held.live)
         self.stats["branches_shared"] += 1
         mx.eval(self.mask, self.streams, [c.cache for c in self.rec.values()], self.pool.buf_keys, self.pool.buf_values)
 
@@ -320,12 +341,24 @@ class Engine:
         return len(self.pool.free) - tokens // PAGE >= GROWTH_PAGES * (len(self.live) + 1)
 
     def _make_room(self, queue: deque) -> None:
-        """If the pool cannot give a page to every row about to fill its buffer, set the youngest rows aside."""
+        """If the pool cannot give a page to every row about to fill its buffer, free some.
+
+        First waiting branches whose trunk has gone (only they keep its pages alive; they are read in
+        later instead), then the youngest running rows, which are set aside.
+        """
         def short() -> bool:
             filling = sum(1 for slot in self.live if self.pool.n_buf[slot] == PAGE - 1)
             return len(self.pool.free) < filling
 
         while short():
+            running = {live.key for live in self.live.values()}
+            orphan = next((held for held in reversed(self.waiting) if held.live.parent not in running), None)
+            if orphan is not None:
+                self.waiting.remove(orphan)
+                self.pool.drop(orphan.history)
+                self.stats["branches_read"] += 1
+                queue.append(orphan.live)
+                continue
             if len(self.live) == 1:
                 raise MemoryError("the history pool is too small for a single row; raise pool_gb")
             slot = min(self.live, key=self.pool.tokens_held)
@@ -421,9 +454,11 @@ class Engine:
         enough(records) is called whenever a row finishes; once it returns True no new row is started
         (the question the run was for is decided). Rows that had started finish, with their branches;
         rows that never started are left for a later run.
-        keep_free slots are held back for branches, so a branch can share its trunk's history the
-        moment it is asked for (a branch that finds no free slot is read in later instead, which
-        costs a pass over its trunk's text). Holding slots back makes the trunks take longer.
+        keep_free slots are held back for branches, so a branch can start the moment it is asked
+        for. A branch that finds no free slot waits (up to max_waiting of them) and takes the next
+        slot that comes free, ahead of rows that have not started; it still shares its trunk's
+        history. Beyond that, or if the pool runs short while its trunk is gone, a branch is read
+        in later from the trunk's saved tokens, which costs a pass over that text.
         """
         self._check(rows)
         done = ledger.done() if ledger else set()
@@ -449,7 +484,9 @@ class Engine:
 
         closed = False
         started = lambda waiting: waiting.parent is not None or waiting.set_aside > 0      # not a fresh row
-        while queue or self.live:
+        while queue or self.live or self.waiting:
+            while self.waiting and self.free_slots and (self._room_for(0) or not self.live):
+                self._resume(self.waiting.popleft())
             while (queue and len(self.free_slots) > (0 if started(queue[0]) else keep_free)
                    and self._room_for(len(queue[0].row.prompt) + len(queue[0].written))):
                 self._admit(queue.popleft())
@@ -488,12 +525,15 @@ class Engine:
                         if child.key in done:
                             total -= 1
                         elif self.free_slots:
-                            self._branch(slot, child)
+                            self._resume(self._hold(slot, child))
+                        elif len(self.waiting) < self.max_waiting:
+                            self.waiting.append(self._hold(slot, child))
+                            self.stats["branches_waited"] += 1
                         else:
                             self.stats["branches_read"] += 1
                             queue.append(child)
             if self.narrow_when_idle and (closed or not queue) and self.live:
-                wanted = len(self.live) + (min(len(self.live), keep_free) if brancher is not None else 0)
+                wanted = len(self.live) + len(self.waiting) + (min(len(self.live), keep_free) if brancher is not None else 0)
                 width = next((w for w in WIDTHS if w >= wanted), self.slots)
                 if width <= self.slots // 2:
                     self._narrow(width)
@@ -507,5 +547,6 @@ class Engine:
                 last = now
                 wrote_now = self.stats["written"] - start_written
                 log(f"  {finished}/{total} rows done, {wrote_now:,} tokens, {wrote_now / (now - t0):,.0f} tok/s, "
-                    f"{len(self.live)} running, {len(queue)} waiting, pool {self.pool.pages - len(self.pool.free)}/{self.pool.pages} pages")
+                    f"{len(self.live)} running, {len(queue) + len(self.waiting)} waiting, "
+                    f"pool {self.pool.pages - len(self.pool.free)}/{self.pool.pages} pages")
         return records

@@ -14,6 +14,8 @@ Same workload by construction
 What it does
   1. Builds one row per problem and sample. With --exits, each row also branches at those token
      counts when its thinking is still open: the branch takes the study's exit phrase and answers.
+     A branch shares its trunk's history; if no slot is free it waits for one, and only when
+     that is not possible is it read in later from the saved tokens.
      A branch may write --answer-tokens tokens after the phrase. (The study's own forced exit ran
      on to the overall cap; this is the same exit with a stated answer budget, and the report says
      how many branches used the budget up.)
@@ -226,7 +228,7 @@ def main() -> None:
     ap.add_argument("--no-thinking", action="store_true")
     ap.add_argument("--exits", default="", help="token counts at which a still-thinking row branches into a forced exit, e.g. 4096,8192,16384,24576")
     ap.add_argument("--answer-tokens", type=int, default=4000, help="most tokens a forced-exit branch may write after the phrase")
-    ap.add_argument("--keep-free", type=int, default=0, help="slots held back for branches (see lab/gen/engine.py; trunks then take longer)")
+    ap.add_argument("--keep-free", type=int, default=0, help="slots held back so that branches start at once (see lab/gen/engine.py)")
     ap.add_argument("--stop-after-loop", type=int, help="stop a row after this many looping tokens (off by default; see lab/gen/loops.py)")
     ap.add_argument("--audit", type=float, default=0.0, help="share of rows exempt from --stop-after-loop, chosen by row key")
     ap.add_argument("--slots", type=int, default=48)
@@ -370,6 +372,7 @@ def main() -> None:
                  "paged_kernel": not args.plain_attention, "continued_an_earlier_run": resumed, "wall_s": wall,
                  "tokens_written": stats["written"], "tokens_per_s": stats["written"] / wall, "steps": stats["steps"],
                  "tokens_read": stats["read"], "rows_set_aside": stats["set_aside"], "branches_sharing_history": stats["branches_shared"],
+                 "branches_that_waited_for_a_slot": stats["branches_waited"],
                  "branches_read_in": stats["branches_read"] + len(owed), "batch_narrowed": stats["narrowed"],
                  "peak_memory_gb": mx.get_peak_memory() / 2**30}
         if decision["test"] is not None:
@@ -386,8 +389,9 @@ def main() -> None:
     if "wall_s" in entry:
         print(f"{label}: {entry['wall_s'] / 60:.1f} min{' (this start only; an earlier run was continued)' if entry['continued_an_earlier_run'] else ''}, "
               f"{entry['tokens_written']:,} tokens written, {entry['tokens_read']:,} read, {entry['tokens_per_s']:,.0f} tok/s, {entry['steps']:,} steps, "
-              f"{entry['rows_set_aside']} rows set aside, branches sharing history {entry['branches_sharing_history']}, read in "
-              f"{entry['branches_read_in']}, peak memory {entry['peak_memory_gb']:.1f} GB", flush=True)
+              f"{entry['rows_set_aside']} rows set aside, branches sharing history {entry['branches_sharing_history']} "
+              f"({entry.get('branches_that_waited_for_a_slot', 0)} after waiting for a slot), read in {entry['branches_read_in']}, "
+              f"peak memory {entry['peak_memory_gb']:.1f} GB", flush=True)
     if "decision" in entry:
         d = entry["decision"]
         print(f"  {d['conditions']}: {'decided' if d['decided'] else 'not decided'} after {d['problems_analysed']} problems "
