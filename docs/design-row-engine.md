@@ -335,3 +335,102 @@ document found the following, and the code was changed before the first benchmar
 - Tried and dropped: not reading the attention value of a token whose weight is under
   a billionth of the largest. It changed no score and saved no time (`SPEED-RESULTS.md`
   section 19).
+
+## 11. After the benchmarks (2026-11-13)
+
+Sections 1 to 10 are left as they were written. The measurements are in
+`SPEED-RESULTS.md` section 19. This section says what they did to the design.
+
+**Predictions against results.**
+
+| Predicted | Measured |
+|---|---|
+| The Phase 0 condition in 35 to 45 minutes (section 9), about 51 by the schedule model of section 10 | 59.2 and 55.8 minutes, two draws |
+| 800 to 1,000 tokens a second over the whole run | 620 and 654. While every slot was busy, 762 and 809 |
+| 48 to 64 rows at once | 48. Memory decides, not the slot count |
+| About half fixed cost, half history reads | at 48 rows and 15,700 tokens of history a row (minutes 9 to 32 of the second draw): 33 ms that do not depend on the history, 34 ms reading it |
+| Four forced-exit conditions add under 15% (withdrawn in section 10) | 53% when read in afterwards (31.3 minutes on 59.2). 15 and 22% in one run with branches that wait (68.4 minutes against 59.2 and 55.8). The base model's rows and exits: 117.2 minutes in one run, 132.9 with branches read in |
+
+**Why 3x did not happen.** Section 2 took the fixed cost of a step as independent of the
+number of rows. It is not: a whole engine step at a short history takes 23.6 ms for 16
+rows, 33.0 for 48 and 53.7 for 96, which is about 18 ms plus 0.3 to 0.4 ms per row. And
+the paged kernel reads the history as fast as MLX's own, not faster. Together they set a
+bound on this Mac. At 15,700 tokens of history a row the reading alone is 0.7 ms per
+token written, so about 1,400 tokens a second would be the limit with no other cost at
+all. With the 33 ms for 48 rows a step is 67 ms: 717 tokens a second, the rate of that
+stretch of the second draw. A faithful long row has little
+left to give here. The order-of-magnitude gains are the ones section 2 pointed at:
+conditions that are cuts or branches of a run, a decision taken early, and other
+hardware.
+
+**Changes to the design.**
+
+- **Branches wait for a slot** (amends 3.3 and the first design change of section 10).
+  The rule "a branch shares its trunk's pages if a slot is free, and is read in later
+  otherwise" shared 1 branch of 364 in the base model's run, because a full batch has
+  no free slot. A branch now waits with the trunk's pages and a copy of its per-row
+  state (about 25 MB) and takes the next slot that comes free. A waiting branch starts
+  from the trunk's own numbers, so it writes what an immediate branch would have
+  written. As many may wait as there are slots. Past that, or when the pool runs short
+  while the trunk is gone, a branch is still read in later. Slots can also be held back
+  for branches (`keep_free`), which pays when nearly every row runs to the cap.
+- **A planner** (`bench/plan_sim.py`). The engine's scheduling rules, replayed on the
+  CPU over the row lengths of a finished run with three measured costs. It answers
+  "how long would this take with these settings" in seconds, and it is what the sizes
+  in `docs/phase1-plan.md` rest on. Replaying each of the nine timing runs it gives
+  that run's steps, rows set aside, branch counts and tokens read back in exactly, so
+  the rules are the engine's. Its clock, with the history cost measured on the second
+  draw, is within 1.5% of the three long runs made after midnight and of the two
+  8,192-cap runs. The first evening's long runs, made with other programs in use, took
+  3 to 7% longer. Its two predictions made before a run, and what they got wrong, are
+  in `SPEED-RESULTS.md`.
+- **The pool is 10 GB on this Mac**, not 12, and that is now the default. A run with a 12 GB pool that also read long
+  texts back in stalled when the Mac ran out of memory.
+
+**Claims the runs settled.**
+
+- **A row does not depend on its neighbours.** Two runs with the same seeds, one of rows
+  alone and one of rows with their branches, in pools of different size: the 76 rows
+  that never met a narrowing of the batch in either run are identical token for token,
+  26 of them having started 1,357 to 15,335 steps apart.
+- **A row does depend on the width of its batch**, as section 10 warned. Of the 24 rows
+  that were running when either run narrowed its batch, 22 differ, each from a point
+  after the narrowing. One text forced through a batch that keeps its 48 slots and
+  through one that narrows to 24 has equal scores to the last digit before the
+  narrowing and scores up to 0.44 apart after it, the size of ordinary rounding
+  differences on this model (`bench.engine_checks`). The base model's 100 rows computed
+  48 at once all part, within 310 tokens, from the same rows computed 32 at once. The
+  narrowing saves about 6% on a 100-problem run of rows alone, 2 to 3% on a run of rows
+  with their exits and under 1% on a run of 1,000 problems (the planner's estimates).
+  `bench.phase1 --keep-width` switches it off. Every row is then computed at one width
+  and comes out the same in any run of that width, unless it was set aside and
+  replayed. The option has been tried on a 12-problem run only.
+- **A branch read in from saved tokens is another draw than a branch that shares.**
+  mlx-lm reads text in blocks, which rounds differently from writing it token by token.
+  Both are draws from the same model. They are not the same text.
+
+**Not built, and what each would need.**
+
+- **A history in 8 bits.** Reading is over half of a long step and runs at memory speed,
+  so halving the bytes is the one lever left on the reading. It changes the scores by
+  more than rounding and would need an accuracy check on full-length runs before any
+  number from it is used.
+- **Fewer, larger GPU operations per step.** About 18 ms of a step is the cost of issuing
+  roughly a thousand small operations. Compiling three of the recurrent layers made them
+  2 to 6% faster (the 4% of section 2 was this, an eighth of a step). Removing the
+  cost means writing the recurrent layers as a few large kernels, a new model
+  implementation with its own checks.
+- **A longer waiting list.** In the edited model's run 46 branches were read in because
+  the list (one place per slot) was full. By the planner a list twice as long saves 4%
+  on a 100-problem run and nothing on one of 1,000 problems, where rows no longer reach
+  their exit points together. Each place costs about 25 MB. Left as it is.
+- **A better choice of the row to set aside.** When the pool runs short the engine sets
+  aside the row with the least history. That can be a branch, which frees only the few
+  pages of its own and comes back holding a full copy of its trunk's history: 9 of the
+  19 rows set aside in the base model's run were branches. Preferring rows that free
+  the most pages for the least reading would change the schedule of every run measured
+  here, so it was left.
+- **A cap for trunks alone** in `bench.phase1`. Its one cap covers trunks and branches,
+  so base trunks cannot yet be stopped one token past the last exit point while their
+  branches still get an answer budget (`docs/phase1-plan.md`).
+- **The cluster backend** of 3.9. Nothing here could test it.

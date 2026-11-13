@@ -14,11 +14,11 @@ mlx-lm trains Qwen3.5's recurrent layers with a Python loop over tokens. Doing t
 
 MLX's kernel for quantized weights decodes them again for every 32 rows. Decoding once reads prompts 1.2 to 1.33x faster.
 
-mlx-lm pads every row of a batch to the longest one and sorts the whole vocabulary at each step, which hurts most on long reasoning runs. `lab/gen` keeps each row's history in pages and finds the top tokens without the sort, which took a 100-problem eval from 104 minutes to 59. It was designed for 3x and reached 1.75x, and `SPEED-RESULTS.md` section 19 says where the rest went.
+mlx-lm pads every row of a batch to the longest one and sorts the whole vocabulary at each step, which hurts most on long reasoning runs. `lab/gen` keeps each row's history in pages and finds the top tokens without the sort, which took a 100-problem eval from 104 minutes to 56 on one run and 59 on another. It was designed for 3x and reached about 1.8x, and `SPEED-RESULTS.md` section 19 says where the rest went. Variants of an eval that start from the same tokens run as branches of the same rows, and four of them, each making the model answer early at a set point, added about 13 minutes to that run.
 
 ## What got faster
 
-tok/s is tokens per second. The Qwen models are the 4-bit MLX conversions, and a row that names no model used Qwen3.5-4B.
+tok/s is tokens per second. The Qwen models are the 4-bit MLX conversions unless a row says otherwise, and a row that names no model used Qwen3.5-4B.
 
 | Work | Before | After |
 |---|---|---|
@@ -32,7 +32,7 @@ tok/s is tokens per second. The Qwen models are the 4-bit MLX conversions, and a
 | A 64-question eval, 32 at a time | 51.8 s | 40.1 s |
 | Collect an early layer's activations | a full pass | about 6x faster |
 | Sweep an edit three quarters of the way up | a full pass per variant | 5.3x faster |
-| 100 long reasoning runs at once (Qwen3.5-0.8B, up to 32,768 tokens each) | 104 min | 59 min |
+| 100 long reasoning runs (Qwen3.5-0.8B with 16-bit weights, up to 32,768 tokens each) | 104 min, 16 at a time | 56 to 59 min, 48 at a time |
 | One chat writing new text | 81 to 92 tok/s on the 4B models | unchanged |
 
 ## Before you trust a number
@@ -54,13 +54,14 @@ uv sync
 uv run python -m lab.preflight
 ```
 
-`lab.preflight` prints free memory, swap, disk space and heat, and says whether the Mac is ready for a heavy job. `uv run pytest -m "not slow"` runs the quick tests in about 5 seconds.
+`lab.preflight` prints free memory, swap, disk space and heat, and says whether the Mac is ready for a heavy job. `uv run pytest -m "not slow"` runs the quick tests in about half a minute.
 
 ## Where to read more
 
 - `SPEED-RESULTS.md` has every experiment with its command, its numbers and a keep or reject verdict. The rejected ideas are in there too.
 - `GUIDE.md` lists the commands, the Python entry points and what fits in 32 GB.
 - `docs/design-row-engine.md` is the design of `lab/gen`, written before the code, with the corrections a review forced.
+- `docs/phase1-plan.md` gives the hours a larger study would take.
 - `BASELINE.md` has this Mac's speeds before any of the changes.
 
 MIT license. Mahimn Patel ([mahimn.dev](https://mahimn.dev), [x.com/mahimnpatel](https://x.com/mahimnpatel)).

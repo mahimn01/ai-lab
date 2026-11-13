@@ -71,12 +71,32 @@ cd ~/Documents/Dev/ai-lab
 
 12. **For many long generations at once, use the row engine (`lab.gen`).** mlx-lm's
     batch generator pads every row to the longest one and sorts the whole vocabulary at
-    each step. The engine keeps each row's history in pages and picks tokens on the GPU:
-    100 problems at a 32,768-token cap took 59 minutes instead of 104, and at an 8,192
-    cap 12 instead of 18 (section 19). On this Mac use 48 rows at once and a 10 GB
-    pool: with 12 GB a run that also read long texts back in ran out of memory. One long run
-    also gives the accuracy at every smaller cap, by cutting its rows short. Stopping
-    rows that loop is possible but off by default, because it loses correct answers.
+    each step. The engine keeps each row's history in pages and picks tokens on the GPU,
+    which also lets 48 rows run at once where 16 fitted: 100 problems at a 32,768-token
+    cap took 56 to 59 minutes instead of 104, and at an 8,192 cap 12 instead of 18
+    (section 19).
+    - On this Mac use 48 rows at once and a 10 GB pool (the defaults): with 12 GB a run
+      that also read long texts back in ran out of memory. The 56 and 59 minutes were
+      measured with 12 GB. With 10 the planner adds under a minute, for a dozen rows
+      set aside and read back.
+    - One long run also gives the accuracy at every smaller cap, by cutting its rows
+      short.
+    - A condition that continues a row another way (a forced answer at a token count)
+      runs as a branch in the same run (`--exits`): the edited model's rows and four
+      such conditions took 68 minutes together. For a model whose rows nearly all run
+      to the cap (the unedited one), keep slots back for the branches with
+      `--keep-free 16`: 117 minutes for its five conditions.
+    - `bench.plan_sim` says how long a run would take with other settings or more
+      rows, from the row lengths of a run already made. On a Mac doing nothing else
+      its clock has been within 1.5%. With other programs in use, runs took 3 to 7%
+      longer than it says.
+    - Near the end of a run the batch narrows, which changes the last digit of the
+      scores of the rows still running. `--keep-width` switches that off, so a row
+      comes out the same in any run of that width, unless it is set aside or read
+      back in on the way. By the planner it costs a few percent of the time. It has
+      been tried on a 12-problem run only.
+    - Stopping rows that loop is possible but off by default, because it loses correct
+      answers.
 
 ## Commands
 
@@ -97,11 +117,12 @@ cd ~/Documents/Dev/ai-lab
 | Start the experiment loop | `uv run python -m lab.loop --rounds 10 --agent "claude -p --permission-mode acceptEdits"` | a `loop/...` git branch, `results.tsv` |
 | Re-measure the baseline | `uv run python -m bench.inference --model LABEL=PATH`, then `uv run python -m bench.report` | `bench/results/`, `BASELINE.md` |
 | Run a long-reasoning eval condition through the row engine | `uv run python -m bench.phase1 --arm edited --tag edited-32k` (needs the `neural-harness` study folder) | ledger under `runs/phase1/edited-32k/`, an entry in `bench/results/phase1.json` |
+| Estimate how long a row-engine run will take (no GPU, 5 seconds; needs the ledgers of timing runs made on this Mac under `runs/phase1/`) | `uv run python -m bench.plan_sim` | `bench/results/plan_sim.json` |
 | Check the row engine against mlx-lm on the real model | `uv run python -m bench.engine_checks` | `bench/results/engine_checks.json` |
 | See what one decode step costs at long history | `uv run python -m bench.long_step --rows 16` | `bench/results/long_step.json` |
 | Re-run the checks on the study's saved transcripts (no GPU) | `uv run python -m bench.transcripts` | `bench/results/transcripts.json` |
 | See how early a comparison would be decided | `uv run python -m lab.stats.sequential` | nothing |
-| Run the tests | `uv run pytest` (about 2 minutes; add `-m "not slow"` for the 30-second set) | nothing |
+| Run the tests | `uv run pytest` (about 3 minutes; add `-m "not slow"` for the 35-second set) | nothing |
 
 Every script starts with a plain-words header saying what it does, how to run it and
 what it changes.
@@ -171,7 +192,7 @@ in `docs/design-row-engine.md`). Works for the Qwen3.5 text models:
 from lab.gen.engine import Engine, Row, seed_for
 from lab.gen.ledger import Ledger
 
-engine = Engine(model, slots=48, pool_gb=12, max_tokens=8192, decode=tokenizer.decode)
+engine = Engine(model, slots=48, pool_gb=10, max_tokens=8192, decode=tokenizer.decode)
 rows = [Row(prompt=p, max_tokens=8192, seed=seed_for("run-1", i), stop_tokens=(eos_id,), meta={"i": i})
         for i, p in enumerate(prompts)]                    # temperature, top_k, top_p, presence_penalty can differ per row
 records = engine.run(rows, Ledger("runs/my-eval"))        # each finished row is on disk at once; run again to continue
@@ -180,8 +201,9 @@ records = engine.run(rows, Ledger("runs/my-eval"))        # each finished row is
 A row may carry its own weight edit (`edit=`, with `edits=` given to the engine), tokens
 it must write first (`forced=`), a loop-stopping rule (`stop_after_loop=`, off by
 default because it changes grades) and branch points (`branch_at=` with a `brancher`
-function passed to `run`). `lab/stats/sequential.py` has a paired test that stays valid
-when it is looked at after every problem.
+function passed to `run`). A branch shares its trunk's history and waits for a slot if
+none is free. `keep_free=` on `run` holds slots back for branches. `lab/stats/sequential.py`
+has a paired test that stays valid when it is looked at after every problem.
 
 ## What fits on this Mac
 
