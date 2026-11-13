@@ -10,6 +10,9 @@ Same workload by construction
   The prompts, the forced-exit phrase, the stop tokens, the sampling settings, the model loader
   and the grader are imported from the study's own code (--harness), not copied. The subset is
   drawn the study's way and checked against its runs/subset_ids.json.
+  --grader math-verify grades as the blog does instead (bench/grading.py), which is what the
+  study names for Phase 1. Grades are made from the saved tokens, so --report can regrade a
+  finished ledger with either grader (give it another --save-as).
 
 What it does
   1. Builds one row per problem and sample. With --exits, each row also branches at those token
@@ -19,6 +22,9 @@ What it does
      A branch may write --answer-tokens tokens after the phrase. (The study's own forced exit ran
      on to the overall cap; this is the same exit with a stated answer budget, and the report says
      how many branches used the budget up.)
+     --trunk-tokens stops the rows themselves earlier than --max-tokens, which then only limits
+     a branch. A row branches only while it is still running, so one past the last exit point is
+     the least that still takes every branch.
   2. Runs the rows through the engine, writing each finished row to a ledger at once. A second
      start with the same --tag continues where the first stopped; exit points may be added later
      and are then made from the saved rows.
@@ -55,6 +61,7 @@ from types import SimpleNamespace
 
 import mlx.core as mx
 
+from bench import grading
 from bench.common import environment, save
 from lab.gen.engine import Engine, Row, seed_for
 from lab.gen.ledger import Ledger, file_hash
@@ -64,7 +71,7 @@ from lab.stats.sequential import PairedTest, mcnemar_exact
 ROOT = Path(__file__).resolve().parent.parent
 STOP_TEXT = ("<|im_end|>", "<|endoftext|>")
 ANSWER_BUDGETS = (500, 1000, 2000)      # smaller answer budgets a forced-exit branch is also graded at, by cutting it
-FIXED = ("arm", "max_tokens", "thinking", "run_seed", "subset_seed", "sampling", "stop_after_loop", "audit", "answer_tokens")
+FIXED = ("arm", "max_tokens", "trunk_tokens", "thinking", "run_seed", "subset_seed", "sampling", "stop_after_loop", "audit", "answer_tokens")
 
 
 def plain_text(tok, tokens: list[int]) -> str:
@@ -132,6 +139,8 @@ def summarize(ledger: Ledger, s: SimpleNamespace, tok, cap: int, exits: list[int
         counts = [r["written"] for _, r in trunks]
         n = len(trunks)
         name = lambda r: f"{r['meta']['unique_id']}#{r['meta']['sample']}"
+        cut = {c: [s.grade(text(t[:c]), r["meta"]["gold"])[1] for t, (_, r) in zip(tokens, trunks)]
+               for c in sorted({4096, 8192, 16384, 24576, cap}) if c <= cap}
         result = {
             "rows": n, "rows_not_finished": len(wanted) - n, "correct": sum(graded), "accuracy": sum(graded) / n,
             "at_cap_share": sum(r["finish"] == "length" and r["written"] >= cap for _, r in trunks) / n,
@@ -143,37 +152,39 @@ def summarize(ledger: Ledger, s: SimpleNamespace, tok, cap: int, exits: list[int
             "correct_by_problem": {name(r): bool(g) for (_, r), g in zip(trunks, graded)},
             "tokens_by_problem": {name(r): r["written"] for _, r in trunks},
             # The same rows cut short: what a smaller cap would have reported, and the tokens it would have used.
-            "at_smaller_caps": {str(c): {"accuracy": sum(s.grade(text(t[:c]), r["meta"]["gold"])[1] for t, (_, r) in zip(tokens, trunks)) / n,
-                                         "mean_tokens": statistics.mean(min(k, c) for k in counts)}
-                                for c in sorted({4096, 8192, 16384, 24576, cap}) if c <= cap},
+            # `by_row` has one character per row in the order of correct_by_problem: 1 right, 0 wrong.
+            "at_smaller_caps": {str(c): {"accuracy": sum(v) / n, "mean_tokens": statistics.mean(min(k, c) for k in counts),
+                                         "by_row": "".join("01"[x] for x in v)} for c, v in cut.items()},
         }
         # Forced exit at b: a row still thinking at b tokens takes the exit phrase and answers (its branch);
         # a row that had finished or closed its thinking by then is the row itself.
         result["forced_exit"] = {}
         for b in exits:
             budgets = {a: 0 for a in ANSWER_BUDGETS if a < answer_tokens}
-            right = used = forced = missing = used_up = 0
+            used = forced = used_up = 0
+            by_row = []                     # as in at_smaller_caps, and "-" for a row whose branch is missing
             for (row, r), mine, g in zip(trunks, tokens, graded):
                 branch = branch_of(row, mine[:b]) if len(mine) > b else None
                 if branch is None:          # finished before b, or thinking already closed
-                    right, used = right + g, used + len(mine)
+                    used += len(mine)
+                    by_row.append("01"[g])
                     for a in budgets:
                         budgets[a] += g
                     continue
                 record = records.get(branch.key(model_tag))
                 if record is None:
-                    missing += 1
+                    by_row.append("-")
                     continue
                 answer = ledger.tokens(record)
                 forced += 1
                 used_up += record["finish"] == "length"
-                right += s.grade(text(mine[:b] + answer), r["meta"]["gold"])[1]
+                by_row.append("01"[s.grade(text(mine[:b] + answer), r["meta"]["gold"])[1]])
                 used += b + record["written"]
                 for a in budgets:
                     budgets[a] += s.grade(text(mine[:b] + answer[: len(branch.forced) + a]), r["meta"]["gold"])[1]
             result["forced_exit"][str(b)] = {
-                "accuracy": right / n, "mean_tokens": used / n, "rows_forced": forced, "branches_missing": missing,
-                "branches_that_used_up_their_answer_budget": used_up,
+                "accuracy": by_row.count("1") / n, "mean_tokens": used / n, "rows_forced": forced, "branches_missing": by_row.count("-"),
+                "branches_that_used_up_their_answer_budget": used_up, "by_row": "".join(by_row),
                 "accuracy_with_a_smaller_answer_budget": {str(a): k / n for a, k in budgets.items()}}
         if stop_limit is None:
             result["if_stopped_on_loops"] = stop_table(
@@ -227,6 +238,8 @@ def main() -> None:
     ap.add_argument("--subset-seed", type=int, default=0)
     ap.add_argument("--run-seed", type=int, default=0)
     ap.add_argument("--max-tokens", type=int, default=32768)
+    ap.add_argument("--trunk-tokens", type=int, help="most tokens a row itself may write (default: --max-tokens). A forced-exit branch "
+                    "may still reach --max-tokens in all")
     ap.add_argument("--no-thinking", action="store_true")
     ap.add_argument("--exits", default="", help="token counts at which a still-thinking row branches into a forced exit, e.g. 4096,8192,16384,24576")
     ap.add_argument("--answer-tokens", type=int, default=4000, help="most tokens a forced-exit branch may write after the phrase")
@@ -246,12 +259,21 @@ def main() -> None:
                                                          "there first (a run ends sooner. Each row keeps its own random stream, but another order changes "
                                                          "which rows meet a narrowing of the batch or are set aside, and those can come out differently)")
     ap.add_argument("--plan", type=Path, help="the plan written before the run; its sha256 goes into the ledger")
+    ap.add_argument("--grader", choices=("study", "math-verify"), default="study",
+                    help="study: the last box anywhere, compared as strings. math-verify: the blog's protocol (bench/grading.py)")
     ap.add_argument("--report", action="store_true", help="only recompute the summary from the ledger")
     args = ap.parse_args()
 
     harness = args.harness.expanduser()
     s = study(harness)
+    if args.grader == "math-verify":
+        s.grade = grading.grade
     exits = sorted(int(x) for x in args.exits.split(",") if x)
+    trunk_cap = args.trunk_tokens or args.max_tokens
+    if not 0 < trunk_cap <= args.max_tokens:
+        raise SystemExit(f"--trunk-tokens must be between 1 and --max-tokens ({args.max_tokens:,})")
+    if exits and trunk_cap <= exits[-1]:
+        raise SystemExit(f"a row that stops at {trunk_cap:,} tokens never takes the exit at {exits[-1]:,}: use at least {exits[-1] + 1:,}")
     scales = [float(x) for x in args.adapter_scales.split(",") if x]
     problems = subset(harness, args.n, args.subset_seed)
     model, tok = s.load_arm(args.arm)
@@ -262,12 +284,14 @@ def main() -> None:
     sampling = {"temperature": s.sampling["temperature"], "top_k": s.sampling["top_k"], "top_p": s.sampling["top_p"],
                 "presence_penalty": s.sampling["presence_penalty"]}
     settings = {"tag": args.tag, "arm": args.arm, "n": args.n, "samples": args.samples, "max_tokens": args.max_tokens,
-                "thinking": not args.no_thinking, "exits": exits, "answer_tokens": args.answer_tokens, "stop_after_loop": args.stop_after_loop,
+                "trunk_tokens": trunk_cap, "thinking": not args.no_thinking, "exits": exits, "answer_tokens": args.answer_tokens, "stop_after_loop": args.stop_after_loop,
                 "audit": args.audit, "sampling": sampling, "run_seed": args.run_seed, "subset_seed": args.subset_seed,
                 "plan_sha256": file_hash(args.plan) if args.plan else None}
 
     ledger = Ledger(ROOT / "runs/phase1" / args.tag)
     before = ledger.meta()
+    if before:
+        before.setdefault("trunk_tokens", before["max_tokens"])      # ledgers from before the option existed
     changed = [name for name in FIXED if before and before.get(name) != settings[name]]
     if changed:
         raise SystemExit(f"runs/phase1/{args.tag} was started with other settings ({', '.join(changed)}); use another --tag")
@@ -281,7 +305,7 @@ def main() -> None:
         prompt = s.chat_prompt(tok, p["problem"], thinking=not args.no_thinking)
         for sample in range(args.samples):
             for name, edit, scale in conditions:
-                row = Row(prompt=prompt, max_tokens=args.max_tokens, seed=seed_for(args.run_seed, p["unique_id"], sample),
+                row = Row(prompt=prompt, max_tokens=trunk_cap, seed=seed_for(args.run_seed, p["unique_id"], sample),
                           stop_tokens=s.stop_ids, edit=edit, edit_scale=scale, branch_at=tuple(exits), **sampling,
                           meta={"unique_id": p["unique_id"], "index": p["index"], "sample": sample, "condition": name,
                                 "gold": p["answer"], "kind": "trunk"})
@@ -390,7 +414,8 @@ def main() -> None:
             test = decision["test"]
             entry["decision"] = {"conditions": args.decide, "problems_analysed": test.pairs, "problems_won_by_first": test.only_a,
                                  "problems_won_by_second": test.only_b, "decided": test.decided, "p_valid_at_every_look": test.p_value}
-    entry["conditions"] = summarize(ledger, s, tok, args.max_tokens, exits, rows, model_tag, forced_exit, args.stop_after_loop,
+    entry["grader"] = args.grader
+    entry["conditions"] = summarize(ledger, s, tok, trunk_cap, exits, rows, model_tag, forced_exit, args.stop_after_loop,
                                     args.answer_tokens)
     if args.reference and entry["conditions"]:
         first = next(iter(entry["conditions"]))
@@ -409,7 +434,7 @@ def main() -> None:
               f"({d['problems_won_by_first']} won by the first, {d['problems_won_by_second']} by the second; "
               f"p = {d['p_valid_at_every_look']:.3g}, valid at every look)", flush=True)
     for name, c in entry["conditions"].items():
-        print(f"  {name}: {c['correct']}/{c['rows']} correct ({c['accuracy']:.0%}), at the cap {c['at_cap_share']:.0%}, ends in a loop "
+        print(f"  {name} (grader: {args.grader}): {c['correct']}/{c['rows']} correct ({c['accuracy']:.0%}), at the cap {c['at_cap_share']:.0%}, ends in a loop "
               f"{c['ends_in_loop_share']:.0%}, median {c['median_tokens']:,.0f} tokens"
               + (f", {c['rows_not_finished']} rows not finished" if c["rows_not_finished"] else ""), flush=True)
         print("    cut at a smaller cap: " + ", ".join(f"{int(k):,} -> {v['accuracy']:.0%}" for k, v in c["at_smaller_caps"].items()), flush=True)

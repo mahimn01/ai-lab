@@ -261,6 +261,16 @@ def test_a_branch_shares_its_trunk_and_matches_a_fresh_row():
     assert crowded.stats["branches_read"] == 2 and crowded.stats["branches_shared"] == 0
 
 
+def test_a_row_branches_one_token_before_its_cap_but_not_at_it():
+    model = tiny_model(4)
+    text = prompt(20, 7)
+    brancher = lambda row, written: greedy(row.prompt + written, 5, seen=tuple(written))
+    trunk, branch = make_engine(model).run([greedy(text, 11, branch_at=(10,))], brancher=brancher)
+    assert (trunk["finish"], trunk["written"], branch["parent"]) == ("length", 11, trunk["key"])
+    assert branch["tokens"] == greedy_reference(model, text + trunk["tokens"][:10], 5)
+    assert len(make_engine(model).run([greedy(text, 10, branch_at=(10,))], brancher=brancher)) == 1
+
+
 def test_a_sampled_branch_is_the_same_shared_waiting_or_read_in_and_counts_its_trunk_for_the_penalty():
     model = tiny_model(4)
     trunk = sampled(prompt(270, 7), 40, seed=3, branch_at=(12,))
