@@ -2,7 +2,7 @@
 # The decisive test of the neural-harness study's Phase 1 (its RESULTS-P0.md, 6.1), as three runs of bench.phase1.
 #
 # What it does
-#   Runs three arms one after another, each in its own process and its own ledger:
+#   Runs three arms one after another, each in its own process and its own ledger. A row may write 32,768 tokens:
 #     nothink   the base model with thinking off
 #     edited    the edited model, thinking on, and a forced exit at 4,096, 8,192, 16,384 and 24,576 tokens
 #     base      the base model, thinking on, with the same four forced exits; its rows stop at 24,577 tokens,
@@ -51,16 +51,18 @@ arm() {
   echo "== $tag: finished $(date '+%Y-%m-%d %H:%M:%S')"
 }
 
-arm nothink --arm base --no-thinking --max-tokens 8192
+arm nothink --arm base --no-thinking
 arm edited --arm edited --exits $exits --answer-tokens 2000
 arm base --arm base --trunk-tokens 24577 --exits $exits --answer-tokens 2000 --keep-free 16
 echo "== all three arms finished $(date '+%Y-%m-%d %H:%M:%S')"
 
 # The comparisons. The first is the primary one: the edited model at its full cap against the base model's
-# forced exit of about the same token cost. Then the edited model against thinking off and against the next
-# cheaper forced exit, and the two models under the same forced exit at each of the four points.
+# forced exit of about the same token cost. Then the edited model against thinking off (at the same cap, and
+# cut at Phase 0's cap of 8,192) and against the next cheaper forced exit, and the two models under the same
+# forced exit at each of the four points.
 uv run python -m bench.phase1_analysis --name $name \
     --compare edited@32768,base+exit@24576 \
+    --compare edited@32768,nothink@32768 \
     --compare edited@32768,nothink@8192 \
     --compare edited@32768,base+exit@16384 \
     --compare edited+exit@4096,base+exit@4096 \

@@ -3,8 +3,10 @@
 A proposal, written 2026-11-12 and brought up to date with the runs of the following
 night. Nothing here has been run beyond the 100-problem timing runs of
 `SPEED-RESULTS.md` section 19. The study is `neural-harness`; its recommended Phase 1
-arms are in its `RESULTS-P0.md`, section 6. The decisions marked "yours" at the end are
-not made.
+arms are in its `RESULTS-P0.md`, section 6. The decisions marked "yours" at the end were
+open when this was written. They were made on 2026-11-13 and are in
+`docs/phase1-prereg.md`, the plan of the run that followed. Three sentences below were
+brought up to date that day and say so.
 
 Words: a **row** is one generation, a **condition** a set of rows with the same
 settings, the **cap** the most tokens a row may write, a **trunk** a full-length row and
@@ -110,9 +112,8 @@ hundred-problem base run needed a fourth round of trunks for its last few rows.
     changed at most two answers of a hundred per condition.
   - Stopping base trunks at 24,577 tokens, one past the last exit point: with the
     shorter answers the base model's part falls by a third. On both timing draws the
-    base model gained no correct answer after 16,384 tokens. `bench.phase1` cannot do
-    this yet: its one cap covers trunks and branches alike, so it needs a cap for
-    trunks alone first.
+    base model gained no correct answer after 16,384 tokens. `bench.phase1` does this
+    with `--trunk-tokens 24577` (added on 2026-11-13).
   - Both together: 2.21 hours per hundred units instead of 2.90. Then about 450 units
     fit in 10 hours, 100 x 4 takes 8.9 hours and 500 x 4 about 44 hours.
 - **Settings**: 48 slots and a 10 GB pool. The base model's run also keeps 16 slots
@@ -199,10 +200,11 @@ engine.
 3. **Which base condition the edited model is compared with first** (thinking off, or
    a forced exit at one budget), fixed before the run.
 4. **The grader.** Section 6.1 names math-verify. The timing runs used the study's own
-   grader. math-verify is not installed here.
+   grader. math-verify was added on 2026-11-13 (`--grader math-verify`,
+   `bench/grading.py`).
 5. **Whether base trunks run to 32,768 or stop at 24,577.** The last exit point is at
    24,576, so the final 8,192 tokens of a base trunk only serve "base at a 32,768 cap".
-   Stopping early needs a small change to the runner first (a cap for trunks alone).
+   Stopping early is `--trunk-tokens` (added on 2026-11-13).
 6. **Samples per problem.** With 4, the early-decision test still counts each problem
    once.
 7. **Whether the base model needs all four exit points.** On the two timing draws its
