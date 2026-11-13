@@ -1,0 +1,332 @@
+{
+  "bfloat16, 16 rows": {
+    "environment": {
+      "when": "2026-11-12T21:45:44",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 72,
+      "swap_used_gb_at_start": 11.11
+    },
+    "model": "~/Documents/Dev/neural-harness/models/base",
+    "rows": 16,
+    "dtype": "bfloat16",
+    "by_length": {
+      "64": {
+        "step_ms": 21.869500167667866,
+        "tokens_per_s": 731.6125141101576,
+        "attention_one_layer_ms": 0.2671657130122185,
+        "attention_gb_per_s": 7.310537635907929
+      },
+      "4096": {
+        "step_ms": 25.415292009711266,
+        "tokens_per_s": 629.5422454279238,
+        "attention_one_layer_ms": 0.7236250676214695,
+        "attention_gb_per_s": 172.74138997267005
+      },
+      "16384": {
+        "step_ms": 35.25437507778406,
+        "tokens_per_s": 453.8443800151936,
+        "attention_one_layer_ms": 1.9751247018575668,
+        "attention_gb_per_s": 253.14857311528715
+      },
+      "32768": {
+        "step_ms": 48.47441613674164,
+        "tokens_per_s": 330.0710204505723,
+        "attention_one_layer_ms": 5.039957817643881,
+        "attention_gb_per_s": 198.4143590446731
+      }
+    },
+    "top_20": {
+      "full_sort_ms": 2.6913750916719437,
+      "block_method_ms": 0.5854582414031029,
+      "same_values": true
+    },
+    "three_recurrent_layers": {
+      "plain_ms": 2.673165872693062,
+      "compiled_ms": 2.5696251541376114
+    },
+    "engine": {
+      "whole_step_ms_at_short_history": 23.63770781084895,
+      "tokens_per_s_at_short_history": 676.8845832275036,
+      "attention": {
+        "equal": {
+          "history_gb": 0.3662109375,
+          "paged_ms": 1.537499949336052,
+          "paged_gb_per_s": 238.18598345849907,
+          "padded_gb": 0.3662109375,
+          "mlx_on_padded_block_ms": 1.4900416135787964,
+          "mlx_gb_per_s": 245.77228861443072
+        },
+        "mixed": {
+          "history_gb": 0.3662128448486328,
+          "paged_ms": 1.7727911472320557,
+          "paged_gb_per_s": 206.57416155333277,
+          "padded_gb": 0.732421875,
+          "mlx_on_padded_block_ms": 2.676958218216896,
+          "mlx_gb_per_s": 273.6022811323
+        }
+      }
+    }
+  },
+  "bfloat16, 32 rows": {
+    "environment": {
+      "when": "2026-11-12T20:48:16",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 17.79
+    },
+    "model": "~/Documents/Dev/neural-harness/models/base",
+    "rows": 32,
+    "dtype": "bfloat16",
+    "by_length": {
+      "64": {
+        "step_ms": 25.55708307772875,
+        "tokens_per_s": 1252.0990718180126,
+        "attention_one_layer_ms": 0.3143749199807644,
+        "attention_gb_per_s": 12.425450478807313
+      },
+      "4096": {
+        "step_ms": 32.632332760840654,
+        "tokens_per_s": 980.622508189195,
+        "attention_one_layer_ms": 1.145833171904087,
+        "attention_gb_per_s": 218.1818489200856
+      },
+      "16384": {
+        "step_ms": 52.345083095133305,
+        "tokens_per_s": 611.3277142352105,
+        "attention_one_layer_ms": 3.676834050565958,
+        "attention_gb_per_s": 271.9731122610972
+      }
+    },
+    "top_20": {
+      "full_sort_ms": 5.224958062171936,
+      "block_method_ms": 0.8721249178051949,
+      "same_values": true
+    },
+    "three_recurrent_layers": {
+      "plain_ms": 3.2219579443335533,
+      "compiled_ms": 3.0166669748723507
+    }
+  },
+  "bfloat16, 64 rows": {
+    "environment": {
+      "when": "2026-11-12T20:48:21",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 17.72
+    },
+    "model": "~/Documents/Dev/neural-harness/models/base",
+    "rows": 64,
+    "dtype": "bfloat16",
+    "by_length": {
+      "64": {
+        "step_ms": 31.017750035971403,
+        "tokens_per_s": 2063.3347011236774,
+        "attention_one_layer_ms": 0.38620783016085625,
+        "attention_gb_per_s": 20.22874574227581
+      },
+      "4096": {
+        "step_ms": 44.93204224854708,
+        "tokens_per_s": 1424.373271216478,
+        "attention_one_layer_ms": 2.036208286881447,
+        "attention_gb_per_s": 245.55444706777743
+      }
+    },
+    "top_20": {
+      "full_sort_ms": 9.874249808490276,
+      "block_method_ms": 1.238000113517046,
+      "same_values": true
+    },
+    "three_recurrent_layers": {
+      "plain_ms": 4.019417334347963,
+      "compiled_ms": 3.8888747803866863
+    }
+  },
+  "float16, 16 rows": {
+    "environment": {
+      "when": "2026-11-12T20:48:26",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 75,
+      "swap_used_gb_at_start": 17.46
+    },
+    "model": "~/Documents/Dev/neural-harness/models/base",
+    "rows": 16,
+    "dtype": "float16",
+    "by_length": {
+      "64": {
+        "step_ms": 20.962665788829327,
+        "tokens_per_s": 763.2617035055794,
+        "attention_one_layer_ms": 0.2438332885503769,
+        "attention_gb_per_s": 8.010083494389146
+      },
+      "4096": {
+        "step_ms": 24.13600031286478,
+        "tokens_per_s": 662.9101670781719,
+        "attention_one_layer_ms": 0.683874823153019,
+        "attention_gb_per_s": 182.78198841081021
+      },
+      "16384": {
+        "step_ms": 33.69916696101427,
+        "tokens_per_s": 474.7891845074391,
+        "attention_one_layer_ms": 1.887042075395584,
+        "attention_gb_per_s": 264.9649451484457
+      },
+      "32768": {
+        "step_ms": 45.721749775111675,
+        "tokens_per_s": 349.94286261348407,
+        "attention_one_layer_ms": 5.47358300536871,
+        "attention_gb_per_s": 182.69568562661055
+      }
+    },
+    "top_20": {
+      "full_sort_ms": 2.7334578335285187,
+      "block_method_ms": 0.6200000643730164,
+      "same_values": true
+    },
+    "three_recurrent_layers": {
+      "plain_ms": 2.7781669050455093,
+      "compiled_ms": 2.632416784763336
+    }
+  },
+  "bfloat16, 48 rows": {
+    "environment": {
+      "when": "2026-11-12T21:45:58",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 79,
+      "swap_used_gb_at_start": 14.67
+    },
+    "model": "~/Documents/Dev/neural-harness/models/base",
+    "rows": 48,
+    "dtype": "bfloat16",
+    "by_length": {
+      "64": {
+        "step_ms": 29.65408330783248,
+        "tokens_per_s": 1618.664097679993,
+        "attention_one_layer_ms": 0.33891620114445686,
+        "attention_gb_per_s": 17.288565669666962
+      },
+      "4096": {
+        "step_ms": 41.16150038316846,
+        "tokens_per_s": 1166.138249412014,
+        "attention_one_layer_ms": 1.6267918981611729,
+        "attention_gb_per_s": 230.51504032192275
+      }
+    },
+    "top_20": {
+      "full_sort_ms": 7.628125138580799,
+      "block_method_ms": 0.9802919812500477,
+      "same_values": true
+    },
+    "three_recurrent_layers": {
+      "plain_ms": 3.754709381610155,
+      "compiled_ms": 3.5666674375534058
+    },
+    "engine": {
+      "whole_step_ms_at_short_history": 32.995959278196096,
+      "tokens_per_s_at_short_history": 1454.723579796592,
+      "attention": {
+        "equal": {
+          "history_gb": 1.0986328125,
+          "paged_ms": 4.324540961533785,
+          "paged_gb_per_s": 254.04611085250258,
+          "padded_gb": 1.0986328125,
+          "mlx_on_padded_block_ms": 4.019083455204964,
+          "mlx_gb_per_s": 273.354068096596
+        },
+        "mixed": {
+          "history_gb": 1.0986347198486328,
+          "paged_ms": 5.097624845802784,
+          "paged_gb_per_s": 215.5189432492688,
+          "padded_gb": 2.197265625,
+          "mlx_on_padded_block_ms": 7.733999751508236,
+          "mlx_gb_per_s": 284.104692991683
+        }
+      }
+    }
+  },
+  "bfloat16, 96 rows": {
+    "environment": {
+      "when": "2026-11-12T21:46:05",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 80,
+      "swap_used_gb_at_start": 14.62
+    },
+    "model": "~/Documents/Dev/neural-harness/models/base",
+    "rows": 96,
+    "dtype": "bfloat16",
+    "by_length": {
+      "64": {
+        "step_ms": 48.4549580141902,
+        "tokens_per_s": 1981.2214050806954,
+        "attention_one_layer_ms": 0.4703332670032978,
+        "attention_gb_per_s": 24.915843343732334
+      },
+      "4096": {
+        "step_ms": 71.8139591626823,
+        "tokens_per_s": 1336.787459141869,
+        "attention_one_layer_ms": 3.0269999988377094,
+        "attention_gb_per_s": 247.7700694707568
+      }
+    },
+    "top_20": {
+      "full_sort_ms": 15.103625133633614,
+      "block_method_ms": 1.8313750624656677,
+      "same_values": true
+    },
+    "three_recurrent_layers": {
+      "plain_ms": 5.624250043183565,
+      "compiled_ms": 5.522416904568672
+    },
+    "engine": {
+      "whole_step_ms_at_short_history": 53.720875177532434,
+      "tokens_per_s_at_short_history": 1787.0148184061952,
+      "attention": {
+        "equal": {
+          "history_gb": 2.197265625,
+          "paged_ms": 8.530708029866219,
+          "paged_gb_per_s": 257.5713079509132,
+          "padded_gb": 2.197265625,
+          "mlx_on_padded_block_ms": 7.7281249687075615,
+          "mlx_gb_per_s": 284.32066431341195
+        },
+        "mixed": {
+          "history_gb": 2.197267532348633,
+          "paged_ms": 9.136458858847618,
+          "paged_gb_per_s": 240.49443731920599,
+          "padded_gb": 4.39453125,
+          "mlx_on_padded_block_ms": 15.348749700933695,
+          "mlx_gb_per_s": 286.31200166959997
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,582 @@
+{
+  "neural-harness": {
+    "harness": "~/Documents/Dev/neural-harness",
+    "repeats": {
+      "Phase 0 edited_32k": {
+        "tokens": 2105703,
+        "single_steps": 1012182,
+        "guess_passes": 194990,
+        "guess_tokens": 1093521,
+        "passes_ended_early": 150169,
+        "tokens_per_pass": 1.7443272375436143,
+        "guessed_share": 0.5193139773272869,
+        "tokens_per_guess_pass": 5.608087594235601
+      },
+      "Phase 0 base": {
+        "tokens": 800967,
+        "single_steps": 416612,
+        "guess_passes": 52824,
+        "guess_tokens": 384355,
+        "passes_ended_early": 38674,
+        "tokens_per_pass": 1.7062325854855613,
+        "guessed_share": 0.4798637147348143,
+        "tokens_per_guess_pass": 7.276143419657731
+      },
+      "Phase 0 edited": {
+        "tokens": 776011,
+        "single_steps": 564932,
+        "guess_passes": 51654,
+        "guess_tokens": 211079,
+        "passes_ended_early": 42735,
+        "tokens_per_pass": 1.2585608495814047,
+        "guessed_share": 0.2720051648752402,
+        "tokens_per_guess_pass": 4.086401827544817
+      },
+      "Phase 0 base_nothink": {
+        "tokens": 328351,
+        "single_steps": 267570,
+        "guess_passes": 15505,
+        "guess_tokens": 60781,
+        "passes_ended_early": 12918,
+        "tokens_per_pass": 1.1599434778768878,
+        "guessed_share": 0.1851098367295973,
+        "tokens_per_guess_pass": 3.9200902934537245
+      }
+    },
+    "loop_rule": {
+      "Phase 0 edited_32k": {
+        "rows": 100,
+        "correct": 54,
+        "tokens": 2105703,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 37,
+            "lost": 4,
+            "gained": 0,
+            "saved_share": 0.27616477727390804
+          },
+          {
+            "limit": 896,
+            "stopped": 25,
+            "lost": 2,
+            "gained": 0,
+            "saved_share": 0.19138311528263957
+          },
+          {
+            "limit": 1408,
+            "stopped": 19,
+            "lost": 2,
+            "gained": 0,
+            "saved_share": 0.15852425531995729
+          },
+          {
+            "limit": 2432,
+            "stopped": 16,
+            "lost": 1,
+            "gained": 0,
+            "saved_share": 0.13050131001380536
+          },
+          {
+            "limit": 4480,
+            "stopped": 12,
+            "lost": 1,
+            "gained": 0,
+            "saved_share": 0.09363476235727451
+          },
+          {
+            "limit": 8576,
+            "stopped": 9,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0654061850127962
+          }
+        ]
+      },
+      "Phase 0 base": {
+        "rows": 100,
+        "correct": 6,
+        "tokens": 800967,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 61,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.2414731193669652
+          },
+          {
+            "limit": 896,
+            "stopped": 58,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.19369087615344951
+          },
+          {
+            "limit": 1408,
+            "stopped": 51,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.15325974728047473
+          },
+          {
+            "limit": 2432,
+            "stopped": 38,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.09268796342421098
+          },
+          {
+            "limit": 4480,
+            "stopped": 17,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.025249479691422994
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "Phase 0 edited": {
+        "rows": 100,
+        "correct": 13,
+        "tokens": 776011,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 20,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.07914707394611674
+          },
+          {
+            "limit": 896,
+            "stopped": 12,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.038737852942806225
+          },
+          {
+            "limit": 1408,
+            "stopped": 7,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.021586034218587107
+          },
+          {
+            "limit": 2432,
+            "stopped": 5,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0131750709719321
+          },
+          {
+            "limit": 4480,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "Phase 0 adapter_s0.5": {
+        "rows": 100,
+        "correct": 15,
+        "tokens": 767067,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 25,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.08994129587115597
+          },
+          {
+            "limit": 896,
+            "stopped": 15,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.06007037194925606
+          },
+          {
+            "limit": 1408,
+            "stopped": 11,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.03954543736075206
+          },
+          {
+            "limit": 2432,
+            "stopped": 9,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.023525976218505034
+          },
+          {
+            "limit": 4480,
+            "stopped": 5,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.007509122410428294
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "Phase 0 adapter_s1.0": {
+        "rows": 100,
+        "correct": 15,
+        "tokens": 765583,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 17,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0583385472247947
+          },
+          {
+            "limit": 896,
+            "stopped": 11,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.038275405801852964
+          },
+          {
+            "limit": 1408,
+            "stopped": 6,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.025910972422323902
+          },
+          {
+            "limit": 2432,
+            "stopped": 4,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.01654817309161776
+          },
+          {
+            "limit": 4480,
+            "stopped": 3,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.004511594431955777
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "Phase 0 adapter_s1.5": {
+        "rows": 100,
+        "correct": 21,
+        "tokens": 733218,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 16,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.055466450632690414
+          },
+          {
+            "limit": 896,
+            "stopped": 11,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.03155132579942118
+          },
+          {
+            "limit": 1408,
+            "stopped": 9,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0210783150440933
+          },
+          {
+            "limit": 2432,
+            "stopped": 5,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.008153100442160449
+          },
+          {
+            "limit": 4480,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "Phase 0 base_nothink": {
+        "rows": 100,
+        "correct": 43,
+        "tokens": 328351,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 896,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 1408,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 2432,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 4480,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "SD1 validation (38 runs)": {
+        "rows": 2432,
+        "correct": 141,
+        "tokens": 19323542,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 1561,
+            "lost": 3,
+            "gained": 0,
+            "saved_share": 0.27151331779649923
+          },
+          {
+            "limit": 896,
+            "stopped": 1459,
+            "lost": 1,
+            "gained": 1,
+            "saved_share": 0.23141445807399078
+          },
+          {
+            "limit": 1408,
+            "stopped": 1343,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.18939467722842945
+          },
+          {
+            "limit": 2432,
+            "stopped": 1119,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.12282965514293394
+          },
+          {
+            "limit": 4480,
+            "stopped": 541,
+            "lost": 0,
+            "gained": 1,
+            "saved_share": 0.03126548952567806
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      },
+      "SD1 test and discovery": {
+        "rows": 400,
+        "correct": 30,
+        "tokens": 3174825,
+        "regrade_differs_from_record": 0,
+        "by_limit": [
+          {
+            "limit": 512,
+            "stopped": 212,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.21194743017331663
+          },
+          {
+            "limit": 896,
+            "stopped": 189,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.17005787720583024
+          },
+          {
+            "limit": 1408,
+            "stopped": 178,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.13389336420117645
+          },
+          {
+            "limit": 2432,
+            "stopped": 139,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0778927972407928
+          },
+          {
+            "limit": 4480,
+            "stopped": 53,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.01560274975786067
+          },
+          {
+            "limit": 8576,
+            "stopped": 0,
+            "lost": 0,
+            "gained": 0,
+            "saved_share": 0.0
+          }
+        ]
+      }
+    },
+    "shorter_cap": {
+      "1024": {
+        "tokens_share": 0.12883781865664173,
+        "base_looping_of_64": 0.0,
+        "rank_agreement_looping": 0.5657927616617565,
+        "rank_agreement_still_running": -0.14220660249880784,
+        "loop_gate_passes": 0,
+        "loop_gate_same_decisions": 35,
+        "cap_gate_passes": 0,
+        "cap_gate_same_decisions": 37,
+        "runs": 38
+      },
+      "2048": {
+        "tokens_share": 0.25648962286520766,
+        "base_looping_of_64": 2.5,
+        "rank_agreement_looping": 0.38690695369977346,
+        "rank_agreement_still_running": 0.32707554389913107,
+        "loop_gate_passes": 0,
+        "loop_gate_same_decisions": 35,
+        "cap_gate_passes": 0,
+        "cap_gate_same_decisions": 37,
+        "runs": 38
+      },
+      "4096": {
+        "tokens_share": 0.5077727985894097,
+        "base_looping_of_64": 15.5,
+        "rank_agreement_looping": 0.7061184368760047,
+        "rank_agreement_still_running": 0.48934996913762197,
+        "loop_gate_passes": 1,
+        "loop_gate_same_decisions": 36,
+        "cap_gate_passes": 0,
+        "cap_gate_same_decisions": 37,
+        "runs": 38
+      },
+      "8192": {
+        "tokens_share": 1.0,
+        "base_looping_of_64": 40.0,
+        "rank_agreement_looping": 1.0,
+        "rank_agreement_still_running": 1.0,
+        "loop_gate_passes": 3,
+        "loop_gate_same_decisions": 38,
+        "cap_gate_passes": 1,
+        "cap_gate_same_decisions": 38,
+        "runs": 38
+      }
+    },
+    "early_decision": {
+      "Phase 0, 8,192 cap: base ends in a loop more often than edited": {
+        "problems": 100,
+        "only_first": 48,
+        "only_second": 1,
+        "decided_at_problem": 26,
+        "fixed_size_p": 1.7763568394002505e-13
+      },
+      "SD1 test: base ends in a loop more often than the edit": {
+        "problems": 100,
+        "only_first": 53,
+        "only_second": 4,
+        "decided_at_problem": 18,
+        "fixed_size_p": 5.910882894255565e-12
+      },
+      "SD1 test: the edit is right more often than base": {
+        "problems": 100,
+        "only_first": 4,
+        "only_second": 0,
+        "decided_at_problem": null,
+        "fixed_size_p": 0.125
+      },
+      "Phase 0: edited at 32,768 is right more often than base with thinking off": {
+        "problems": 100,
+        "only_first": 21,
+        "only_second": 10,
+        "decided_at_problem": null,
+        "fixed_size_p": 0.07075554598122835
+      },
+      "Phase 0, forced exit at 6,000: edited is right more often than base": {
+        "problems": 100,
+        "only_first": 7,
+        "only_second": 4,
+        "decided_at_problem": null,
+        "fixed_size_p": 0.548828125
+      }
+    }
+  }
+}

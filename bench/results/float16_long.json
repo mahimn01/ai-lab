@@ -1,0 +1,56 @@
+{
+  "base": {
+    "environment": {
+      "when": "2026-11-12T20:48:57",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 26,
+      "swap_used_gb_at_start": 16.59
+    },
+    "arm": "base",
+    "transcripts": 4,
+    "tokens_each": 4241,
+    "largest_value": 82.5,
+    "headroom": 793.9878787878788,
+    "convert_check": {
+      "converted_parameters": 284,
+      "largest_value": 82.5,
+      "headroom": 793.9878787878788,
+      "same_top_token": 0.990829694323144,
+      "last_position_score_difference": 0.031056858785450458,
+      "prompts_checked": 10,
+      "tokens_checked": 9160
+    }
+  },
+  "edited": {
+    "environment": {
+      "when": "2026-11-12T20:49:24",
+      "chip": "Apple M1 Max",
+      "memory_gb": 32,
+      "macos": "27.0.1",
+      "python": "3.13.17",
+      "mlx": "0.32.4",
+      "mlx_lm": "0.32.2",
+      "free_memory_pct_at_start": 25,
+      "swap_used_gb_at_start": 16.52
+    },
+    "arm": "edited",
+    "transcripts": 4,
+    "tokens_each": 4241,
+    "largest_value": 82.5,
+    "headroom": 793.9878787878788,
+    "convert_check": {
+      "converted_parameters": 284,
+      "largest_value": 82.5,
+      "headroom": 793.9878787878788,
+      "same_top_token": 0.9913755458515284,
+      "last_position_score_difference": 0.027464797534048558,
+      "prompts_checked": 10,
+      "tokens_checked": 9160
+    }
+  }
+}
