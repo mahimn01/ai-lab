@@ -71,6 +71,11 @@ class Sim:
     slot: int = -1
 
 
+def pool_pages(gb: float) -> int:
+    """The history pool's pages in that many GB, for the 0.8B model: 6 layers, 2 heads, 256 numbers, 16-bit."""
+    return int(gb * 2**30 // (2 * 6 * 2 * PAGE * 256 * 2))
+
+
 def load(tag: str, exits_from: str | None = None, cap: int | None = None, answer: int | None = None) -> Rows:
     """The trunks of a ledger in the order the run started them, with the forced-exit branches of `exits_from`."""
     ledger = Ledger(ROOT / "runs/phase1" / tag)
@@ -212,7 +217,7 @@ def simulate(rows: Rows, *, slots: int, pool_pages: int, keep_free: int = 0, wai
 
 def main() -> None:
     measured = json.loads((RESULTS / "phase1.json").read_text())
-    gb = lambda n: int(n * 2**30 // (2 * 6 * 2 * PAGE * 256 * 2))        # pool pages for the 0.8B model: 6 layers, 2 heads, 256 numbers, 16-bit
+    gb = pool_pages
     edited, base = load("edited-32k", "edited-32k-exits"), load("base-32k")
     out: dict[str, dict] = {}
 

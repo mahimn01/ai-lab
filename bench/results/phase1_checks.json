@@ -1,0 +1,352 @@
+{
+  "p1": {
+    "plan_sha256": "27371d8e1cbb6196c93166d0546cfd34f7052fe34b8fee39ec66eaf70c347a6c",
+    "ledgers": {
+      "p1-nothink": {
+        "settings": {
+          "arm": "base",
+          "thinking": false,
+          "n": 500,
+          "samples": 1,
+          "run_seed": 20261113,
+          "max_tokens": 32768,
+          "trunk_tokens": 32768,
+          "exits": [],
+          "answer_tokens": 4000
+        },
+        "rows": 500,
+        "rows_at_the_cap": 43,
+        "branches": 0,
+        "forced_exits": {},
+        "rows_right_in_their_first_tokens": {
+          "500": 63,
+          "1000": 144,
+          "2000": 179
+        },
+        "minutes": 88.36768740833116,
+        "minutes_by_the_planner": 88.07492985882007
+      },
+      "p1-edited": {
+        "settings": {
+          "arm": "edited",
+          "thinking": true,
+          "n": 500,
+          "samples": 1,
+          "run_seed": 20261113,
+          "max_tokens": 32768,
+          "trunk_tokens": 32768,
+          "exits": [
+            4096,
+            8192,
+            16384,
+            24576
+          ],
+          "answer_tokens": 2000
+        },
+        "rows": 500,
+        "rows_at_the_cap": 150,
+        "branches": 1350,
+        "forced_exits": {
+          "4096": {
+            "rows_forced": 470,
+            "right": 152,
+            "boxed_a_wrong_answer": 6,
+            "no_boxed_answer": 312,
+            "right_before_the_last_500_tokens_of_the_budget": 151,
+            "wrote_the_whole_budget": 311,
+            "wrote_the_whole_budget_and_end_in_a_loop": 9,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          },
+          "8192": {
+            "rows_forced": 420,
+            "right": 129,
+            "boxed_a_wrong_answer": 8,
+            "no_boxed_answer": 283,
+            "right_before_the_last_500_tokens_of_the_budget": 129,
+            "wrote_the_whole_budget": 283,
+            "wrote_the_whole_budget_and_end_in_a_loop": 19,
+            "read_in_from_saved_tokens": 45,
+            "read_in_and_right": 13
+          },
+          "16384": {
+            "rows_forced": 299,
+            "right": 89,
+            "boxed_a_wrong_answer": 4,
+            "no_boxed_answer": 206,
+            "right_before_the_last_500_tokens_of_the_budget": 83,
+            "wrote_the_whole_budget": 202,
+            "wrote_the_whole_budget_and_end_in_a_loop": 28,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          },
+          "24576": {
+            "rows_forced": 161,
+            "right": 34,
+            "boxed_a_wrong_answer": 4,
+            "no_boxed_answer": 123,
+            "right_before_the_last_500_tokens_of_the_budget": 32,
+            "wrote_the_whole_budget": 122,
+            "wrote_the_whole_budget_and_end_in_a_loop": 7,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          }
+        },
+        "rows_right_in_their_first_tokens": {
+          "500": 0,
+          "1000": 2,
+          "2000": 10
+        },
+        "minutes": 297.6964245965394,
+        "minutes_by_the_planner": 287.9574806056491
+      },
+      "p1-base": {
+        "settings": {
+          "arm": "base",
+          "thinking": true,
+          "n": 500,
+          "samples": 1,
+          "run_seed": 20261113,
+          "max_tokens": 32768,
+          "trunk_tokens": 24577,
+          "exits": [
+            4096,
+            8192,
+            16384,
+            24576
+          ],
+          "answer_tokens": 2000
+        },
+        "rows": 500,
+        "rows_at_the_cap": 464,
+        "branches": 1875,
+        "forced_exits": {
+          "4096": {
+            "rows_forced": 479,
+            "right": 151,
+            "boxed_a_wrong_answer": 10,
+            "no_boxed_answer": 318,
+            "right_before_the_last_500_tokens_of_the_budget": 150,
+            "wrote_the_whole_budget": 318,
+            "wrote_the_whole_budget_and_end_in_a_loop": 99,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          },
+          "8192": {
+            "rows_forced": 468,
+            "right": 161,
+            "boxed_a_wrong_answer": 5,
+            "no_boxed_answer": 302,
+            "right_before_the_last_500_tokens_of_the_budget": 159,
+            "wrote_the_whole_budget": 302,
+            "wrote_the_whole_budget_and_end_in_a_loop": 135,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          },
+          "16384": {
+            "rows_forced": 464,
+            "right": 155,
+            "boxed_a_wrong_answer": 11,
+            "no_boxed_answer": 298,
+            "right_before_the_last_500_tokens_of_the_budget": 155,
+            "wrote_the_whole_budget": 298,
+            "wrote_the_whole_budget_and_end_in_a_loop": 134,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          },
+          "24576": {
+            "rows_forced": 464,
+            "right": 143,
+            "boxed_a_wrong_answer": 7,
+            "no_boxed_answer": 314,
+            "right_before_the_last_500_tokens_of_the_budget": 140,
+            "wrote_the_whole_budget": 314,
+            "wrote_the_whole_budget_and_end_in_a_loop": 128,
+            "read_in_from_saved_tokens": 0,
+            "read_in_and_right": 0
+          }
+        },
+        "rows_right_in_their_first_tokens": {
+          "500": 0,
+          "1000": 2,
+          "2000": 11
+        },
+        "minutes": 364.56129276596477,
+        "minutes_by_the_planner": 365.03366932089335
+      }
+    },
+    "checks": {
+      "p1-nothink: the plan's sha256 is in the ledger and in the results entry": true,
+      "p1-nothink: one finished row for each planned problem, and nothing else in the ledger": true,
+      "p1-nothink: every row and branch was computed at one batch width": true,
+      "p1-nothink: no row itself was set aside or read back in": true,
+      "p1-nothink: rows stop at the cap their ledger was started with, or at a stop token": true,
+      "p1-nothink: every verdict graded here again, by problem id, is the saved one": true,
+      "p1-nothink: the run's own summary found every row and every branch by its key": true,
+      "p1-nothink: the planner's replay takes the same steps and makes the same branches wait or be read in": true,
+      "p1-edited: the plan's sha256 is in the ledger and in the results entry": true,
+      "p1-edited: one finished row for each planned problem, and nothing else in the ledger": true,
+      "p1-edited: every row and branch was computed at one batch width": true,
+      "p1-edited: no row itself was set aside or read back in": true,
+      "p1-edited: rows stop at the cap their ledger was started with, or at a stop token": true,
+      "p1-edited: every row still thinking at an exit point has its branch, and there is no other branch": true,
+      "p1-edited: every branch starts with the exit phrase, comes after as many tokens as its row had at the exit point, and has the answer budget its ledger was started with": true,
+      "p1-edited: every verdict graded here again, by problem id, is the saved one": true,
+      "p1-edited: the run's own summary found every row and every branch by its key": true,
+      "p1-edited: the planner's replay takes the same steps and makes the same branches wait or be read in": true,
+      "p1-base: the plan's sha256 is in the ledger and in the results entry": true,
+      "p1-base: one finished row for each planned problem, and nothing else in the ledger": true,
+      "p1-base: every row and branch was computed at one batch width": true,
+      "p1-base: no row itself was set aside or read back in": true,
+      "p1-base: rows stop at the cap their ledger was started with, or at a stop token": true,
+      "p1-base: every row still thinking at an exit point has its branch, and there is no other branch": true,
+      "p1-base: every branch starts with the exit phrase, comes after as many tokens as its row had at the exit point, and has the answer budget its ledger was started with": true,
+      "p1-base: every verdict graded here again, by problem id, is the saved one": true,
+      "p1-base: the run's own summary found every row and every branch by its key": true,
+      "p1-base: the planner's replay takes the same steps and makes the same branches wait or be read in": true,
+      "every comparison of the saved analysis, counted again, gives its counts and p-value": true,
+      "no group of forced-exit answers has more than 1 token in 500 that could not have been drawn": true
+    },
+    "comparisons": [
+      {
+        "first": "edited@32768",
+        "second": "base+exit@24576",
+        "problems_where_the_first_did_better": 95,
+        "problems_where_the_second_did_better": 21,
+        "p": 1.972638273199072e-12
+      },
+      {
+        "first": "edited@32768",
+        "second": "nothink@32768",
+        "problems_where_the_first_did_better": 58,
+        "problems_where_the_second_did_better": 57,
+        "p": 1.0
+      },
+      {
+        "first": "edited@32768",
+        "second": "nothink@8192",
+        "problems_where_the_first_did_better": 68,
+        "problems_where_the_second_did_better": 40,
+        "p": 0.009057983337532568
+      },
+      {
+        "first": "edited@32768",
+        "second": "base+exit@16384",
+        "problems_where_the_first_did_better": 82,
+        "problems_where_the_second_did_better": 20,
+        "p": 4.2948486907135817e-10
+      },
+      {
+        "first": "edited+exit@4096",
+        "second": "base+exit@4096",
+        "problems_where_the_first_did_better": 42,
+        "problems_where_the_second_did_better": 32,
+        "p": 0.29541328065567013
+      },
+      {
+        "first": "edited+exit@8192",
+        "second": "base+exit@8192",
+        "problems_where_the_first_did_better": 45,
+        "problems_where_the_second_did_better": 33,
+        "p": 0.21268281985080578
+      },
+      {
+        "first": "edited+exit@16384",
+        "second": "base+exit@16384",
+        "problems_where_the_first_did_better": 69,
+        "problems_where_the_second_did_better": 19,
+        "p": 7.836624631346799e-08
+      },
+      {
+        "first": "edited+exit@24576",
+        "second": "base+exit@24576",
+        "problems_where_the_first_did_better": 91,
+        "problems_where_the_second_did_better": 15,
+        "p": 1.904346946456813e-14
+      }
+    ],
+    "answers": {
+      "edited, exit at 4,096": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 4,
+        "answer_tokens": 14257,
+        "answer_outside": 4,
+        "answer_tokens_after_another_rows_text": 4000,
+        "outside_after_another_rows_text": 106
+      },
+      "edited, exit at 8,192": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 4,
+        "answer_tokens": 9981,
+        "answer_outside": 5,
+        "answer_tokens_after_another_rows_text": 2501,
+        "outside_after_another_rows_text": 69
+      },
+      "edited, exit at 8,192, read in from saved tokens": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 3,
+        "answer_tokens": 14498,
+        "answer_outside": 11,
+        "answer_tokens_after_another_rows_text": 4000,
+        "outside_after_another_rows_text": 64
+      },
+      "edited, exit at 16,384": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 2,
+        "answer_tokens": 12952,
+        "answer_outside": 2,
+        "answer_tokens_after_another_rows_text": 2295,
+        "outside_after_another_rows_text": 43
+      },
+      "edited, exit at 24,576": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 1,
+        "answer_tokens": 13305,
+        "answer_outside": 4,
+        "answer_tokens_after_another_rows_text": 2536,
+        "outside_after_another_rows_text": 50
+      },
+      "base, exit at 4,096": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 0,
+        "answer_tokens": 10502,
+        "answer_outside": 4,
+        "answer_tokens_after_another_rows_text": 2758,
+        "outside_after_another_rows_text": 32
+      },
+      "base, exit at 8,192": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 0,
+        "answer_tokens": 13693,
+        "answer_outside": 5,
+        "answer_tokens_after_another_rows_text": 4000,
+        "outside_after_another_rows_text": 34
+      },
+      "base, exit at 16,384": {
+        "branches": 8,
+        "row_tokens": 4096,
+        "row_outside": 0,
+        "answer_tokens": 13132,
+        "answer_outside": 4,
+        "answer_tokens_after_another_rows_text": 1132,
+        "outside_after_another_rows_text": 23
+      },
+      "base, exit at 24,576, the row stops one token later": {
+        "branches": 60,
+        "row_tokens": 30720,
+        "row_outside": 0,
+        "answer_tokens": 93742,
+        "answer_outside": 36,
+        "answer_tokens_after_another_rows_text": 4000,
+        "outside_after_another_rows_text": 45
+      }
+    }
+  }
+}

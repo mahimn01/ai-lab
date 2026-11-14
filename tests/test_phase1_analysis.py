@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from bench.phase1_analysis import analyse, holm, sign_flip_p, wilson
+from bench.phase1_checks import recount
 from lab.stats.sequential import mcnemar_exact
 
 
@@ -61,3 +62,13 @@ def test_samples_of_one_problem_count_as_one_piece_of_evidence():
     assert out["problems_analysed"] == 3 and out["conditions"]["edited@32"]["accuracy"] == pytest.approx(5 / 6)
     assert out["primary"]["difference"] == pytest.approx(4 / 6)
     assert out["primary"]["p"] == 0.25               # differences of 1, 2 and 1 samples: all of one sign in 2 of 8 ways
+
+
+def test_the_recount_of_a_comparison_agrees_with_the_analysis():
+    """bench/phase1_checks.py counts a comparison again its own way: 95 problems for the first, 21 for the second, 100 both."""
+    first = {str(i): "01"[i < 95 or 116 <= i < 216] for i in range(500)}
+    second = {str(i): "01"[95 <= i < 216] for i in range(500)}
+    again = recount(first, second)
+    assert (again["problems_where_the_first_did_better"], again["problems_where_the_second_did_better"]) == (95, 21)
+    assert again["p"] == pytest.approx(sign_flip_p([1] * 95 + [-1] * 21 + [0] * 384), rel=1e-9)
+    assert recount(first, first)["p"] == 1.0
