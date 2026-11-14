@@ -5,8 +5,9 @@ night. Nothing here has been run beyond the 100-problem timing runs of
 `SPEED-RESULTS.md` section 19. The study is `neural-harness`; its recommended Phase 1
 arms are in its `RESULTS-P0.md`, section 6. The decisions marked "yours" at the end were
 open when this was written. They were made on 2026-11-13 and are in
-`docs/phase1-prereg.md`, the plan of the run that followed. Three sentences below were
-brought up to date that day and say so.
+`docs/phase1-prereg.md`, the plan of the run that followed. That run's results are in
+`docs/phase1-results.md`. Three sentences below were brought up to date on 2026-11-13
+and say so.
 
 Words: a **row** is one generation, a **condition** a set of rows with the same
 settings, the **cap** the most tokens a row may write, a **trunk** a full-length row and

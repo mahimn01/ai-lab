@@ -43,6 +43,12 @@ float16 is for inference only. `float16.convert` runs sample prompts through the
 
 One chat did not get faster. About half of each token's time goes to reading the weights from memory, and the rest goes to roughly 1,100 small GPU operations that nothing here removes.
 
+## A study run with it
+
+The row engine ran a planned study on all 500 problems of MATH-500. It compares an edited Qwen3.5-0.8B, two of whose matrices were changed by hand so that it stops looping while it thinks, with the base model. The run took 12.5 hours: 1,500 rows, 3,225 branches that make a row answer early, and 31.5 million tokens. Its plan was committed before it started, comparisons and test included.
+
+The edited model was right on 50.6% of the problems. The base model made to answer after 24,576 tokens of thinking, in at most 2,000 more, was right on 35.8%, which is 14.8 points less (95% interval 10.8 to 18.8). With thinking switched off the base model was right on 50.4%, and it used a little over a third of the tokens. `docs/phase1-results.md` has every condition, the checks made after the run and what was looked at beyond the plan.
+
 ## Start
 
 You need an Apple Silicon Mac and [uv](https://docs.astral.sh/uv/).
@@ -61,6 +67,7 @@ uv run python -m lab.preflight
 - `SPEED-RESULTS.md` has every experiment with its command, its numbers and a keep or reject verdict. The rejected ideas are in there too.
 - `GUIDE.md` lists the commands, the Python entry points and what fits in 32 GB.
 - `docs/design-row-engine.md` is the design of `lab/gen`, written before the code, with the corrections a review forced.
+- `docs/phase1-prereg.md` is the plan of the 500-problem study, fixed before it ran, and `docs/phase1-results.md` is what came out.
 - `docs/phase1-plan.md` gives the hours a larger study would take.
 - `BASELINE.md` has this Mac's speeds before any of the changes.
 

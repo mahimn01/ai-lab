@@ -119,6 +119,9 @@ cd ~/Documents/Dev/ai-lab
 | Run a long-reasoning eval condition through the row engine | `uv run python -m bench.phase1 --arm edited --tag edited-32k` (needs the `neural-harness` study folder) | ledger under `runs/phase1/edited-32k/`, an entry in `bench/results/phase1.json` |
 | Estimate how long a row-engine run will take (no GPU, 5 seconds; needs the ledgers of timing runs made on this Mac under `runs/phase1/`) | `uv run python -m bench.plan_sim` | `bench/results/plan_sim.json` |
 | Check the row engine against mlx-lm on the real model | `uv run python -m bench.engine_checks` | `bench/results/engine_checks.json` |
+| Run the three arms of the planned study and compare them (about 12.5 hours) | `uv run python -m lab.run --name phase1 --max-hours 15 -- zsh bench/phase1_study.zsh p1 docs/phase1-prereg.md 500 1 20261113` | ledgers under `runs/phase1/p1-*/`, entries in `bench/results/phase1.json` and `phase1_analysis.json` |
+| Check a finished study run from its ledgers (half an hour of GPU, or `--answers 0` for the CPU part alone) | `uv run python -m bench.phase1_checks --name p1 --plan docs/phase1-prereg.md` | `bench/results/phase1_checks.json` |
+| Check the math-verify grader against the published verdicts (no GPU) | `uv run python -m bench.grader_check` | `bench/results/grader_check.json` |
 | See what one decode step costs at long history | `uv run python -m bench.long_step --rows 16` | `bench/results/long_step.json` |
 | Re-run the checks on the study's saved transcripts (no GPU) | `uv run python -m bench.transcripts` | `bench/results/transcripts.json` |
 | See how early a comparison would be decided | `uv run python -m lab.stats.sequential` | nothing |

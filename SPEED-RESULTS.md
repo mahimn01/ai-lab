@@ -1571,6 +1571,30 @@ were started):
   And it knows nothing about other programs on the Mac. `docs/phase1-plan.md` uses it
   for sizes larger than 100 problems.
 
+### The 500-problem run
+
+The study's planned run (`docs/phase1-prereg.md`, results in `docs/phase1-results.md`)
+was three arms on all 500 problems, each row computed at a batch width of 48 from start
+to end (`--keep-width`). The plan gave 11.1 to 12.6 hours, from the planner fed with the
+saved 100-problem rows repeated five times. Its three arms took 12.51 hours and wrote
+31.5 million tokens, about 700 a second over the whole of it.
+
+| Arm | Forecast before the run | Replay of its own rows | Measured |
+|---|---|---|---|
+| Base, thinking off, 32,768 cap | 22 to 100 min | 88.1 min | 88.4 min |
+| Edited rows and four forced exits | 4.9 h | 288.0 min | 297.7 min |
+| Base rows to 24,577 and four forced exits, 16 slots kept free | 5.9 to 6.1 h | 365.0 min | 364.6 min |
+
+- **The schedule is reproduced exactly at five times the size.** The replays have the
+  runs' 102,062, 287,608 and 412,771 steps. In the edited arm 1,305 branches shared
+  their row's history (1,277 of them after waiting for a slot) and 45 were read in. In
+  the base arm all 1,875 shared it (157 after a wait). No row was set aside.
+- **The clock was within 0.3% on two arms and 3.4% short on the edited arm.** The Mac
+  was not kept free of other work during this run, and the cause was not established.
+  A one-line script that edits a notes file ran in the second minute of the first arm.
+- **The forecast for thinking off was a wide range** because no saved run showed how
+  many rows keep writing to a 32,768 cap with thinking off. 43 of 500 did.
+
 ### What was tried on the way
 
 - **The first kernel looked at the page table once per token** and read the history at
